@@ -1,4 +1,8 @@
+package no.ntnu.idatt2003.core;
 import org.junit.jupiter.api.Test;
+
+import no.ntnu.idatt2003.core.Stock;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;

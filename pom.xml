@@ -53,7 +53,7 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>millions.MillionsApp</mainClass>
+                    <mainClass>no.ntnu.idatt2003.ui.App</mainClass>
                     <version>25.0.1</version>
                     <modules>
                         <module>javafx.controls</module>

@@ -1,3 +1,4 @@
+package no.ntnu.idatt2003.core;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.ArrayList;
