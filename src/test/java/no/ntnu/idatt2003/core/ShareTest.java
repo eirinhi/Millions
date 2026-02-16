@@ -9,7 +9,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class TestShare {
+class ShareTest {
     List<BigDecimal> price;
     Stock stock;
     BigDecimal quantity;
@@ -27,13 +27,15 @@ class TestShare {
 
     @Test
     void testConstructor() {
+        BigDecimal zero = new BigDecimal("0");
+
         assertThrows(IllegalArgumentException.class, () -> new Share(null, quantity, purchasePrice));
 
         assertThrows(IllegalArgumentException.class, () -> new Share(stock, null, purchasePrice));
-        assertThrows(IllegalArgumentException.class, () -> new Share(stock, new BigDecimal("0"), purchasePrice));
+        assertThrows(IllegalArgumentException.class, () -> new Share(stock, zero, purchasePrice));
 
         assertThrows(IllegalArgumentException.class, () -> new Share(stock, quantity, null));
-        assertThrows(IllegalArgumentException.class, () -> new Share(stock, quantity, new BigDecimal("0")));
+        assertThrows(IllegalArgumentException.class, () -> new Share(stock, quantity, zero));
     }
 
     @Test
