@@ -1,26 +1,26 @@
 package no.ntnu.idatt2003.core;
 
 /**
- * Represents a purchase transaction in the stock game.
- * A purchase transaction involves buying a share of a stock.
+ * Represents a sale transaction in the stock game.
+ * A sale transaction involves selling a share of a stock.
  */
-public class Purchase extends Transaction {
+public class Sale extends Transaction {
 
     /**
-     * Creates a new purchase transaction with the specified share and week.
+     * Creates a new sale transaction with the specified share and week.
      *
-     * @param share the share being purchased
-     * @param week the week in which the purchase occurs
+     * @param share the share being sold
+     * @param week the week in which the sale occurs
      * @throws IllegalArgumentException if share is null or if week is negative
      */
-    public Purchase(final Share share, final int week) {
-        super(share, week, new PurchaseCalculator(share));
+    public Sale(final Share share, final int week) {
+        super(share, week, new SaleCalculator(share));
     }
 
     /**
-     * Commits the purchase transaction for the given player.
+     * Commits the sale transaction for the given player.
      *
-     * @param player the player making the purchase
+     * @param player the player making the sale
      * @throws IllegalStateException if the transaction has been committed
      * @throws IllegalArgumentException if player is null
      */
