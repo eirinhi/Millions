@@ -20,33 +20,35 @@ import java.math.RoundingMode;
  */
 public class SaleCalculator implements TransactionCalculator {
 
-  /** Purchase price per unit*/
+  /** Purchase price per unit. */
   private final BigDecimal purchasePrice;
 
-  /** Sale price per unit*/
+  /** Sale price per unit. */
   private final BigDecimal salePrice;
 
-  /** Quantity of items sold*/
+  /** Quantity of items sold. */
   private final BigDecimal quantity;
 
-  /** Commission rate (1%)*/
-  private final BigDecimal COMMISSION_RATE = BigDecimal.valueOf(0.01);
+  /** Commission rate (1%). */
+  private static final BigDecimal COMMISSION_RATE = BigDecimal.valueOf(0.01);
 
-  /** Tax rate (30%)*/
-  private final BigDecimal TAX_RATE = BigDecimal.valueOf(0.30);
+  /** Tax rate (30%). */
+  private static final BigDecimal TAX_RATE = BigDecimal.valueOf(0.30);
 
   /**
    * Construct a SaleCalculator with the specified purchase
    * price, sale price, and quantity.
    *
-   * @param purchasePrice the price paid per unit
-   * @param salePrice     the price sold per unit
-   * @param quantity      the number of units sold
+   * @param share the share being sold
    */
-  public SaleCalculator(BigDecimal purchasePrice, BigDecimal salePrice, BigDecimal quantity) {
-    this.purchasePrice = purchasePrice;
-    this.salePrice = salePrice;
-    this.quantity = quantity;
+  public SaleCalculator(final Share share) {
+    if (share == null) {
+      throw new IllegalArgumentException("Share cannot be null");
+    }
+
+    this.purchasePrice = share.getPurchasePrice();
+    this.salePrice = share.getStock().getSalesPrice();
+    this.quantity = share.getQuantity();
   }
 
   /**

@@ -15,25 +15,27 @@ import java.util.ArrayList;
  */
 public class Stock {
 
-  /**The unique symbol of the stock (e.g. "AAPL" for Apple Inc.)**/
+  /**The unique symbol of the stock (e.g. "AAPL" for Apple Inc.). **/
   private final String symbol;
 
-  /**The name of the company**/
+  /**The name of the company. **/
   private final String company;
 
-  /**A list of historical sales prices**/
+  /**A list of historical sales prices. **/
   private final List<BigDecimal> prices;
 
   /**
-   * Constructs a Stock object with a symbol, company name,
-   * and an initial list of sales prices.
+   * Constructs Stock object with symbol, companyname, and list of sales prices.
    *
    * @param symbol the unique stock symbol
    * @param company the name of the company
    * @param salesPrice a list of historical sales prices
    * @throws IllegalArgumentException if any argument is null
    */
-  public Stock(String symbol, String company, List<BigDecimal> salesPrice) {
+  public Stock(
+    final String symbol,
+    final String company,
+    final List<BigDecimal> salesPrice) {
 
     if (symbol == null) {
       throw new IllegalArgumentException("Symbol cannot be null.");
@@ -72,7 +74,7 @@ public class Stock {
   }
 
   /**
-   * Returns the list of historical sales prices
+   * Returns the list of historical sales prices.
    *
    * @return a list of sales prices
    */
@@ -86,7 +88,7 @@ public class Stock {
    * @param price the new sales price to add
    * @throws IllegalArgumentException if price is null
    */
-  public void addNewSalesPrice(BigDecimal price) {
+  public void addNewSalesPrice(final BigDecimal price) {
     if (price == null) {
       throw new IllegalArgumentException("Price cannot be null.");
     }
@@ -111,7 +113,7 @@ public class Stock {
   }
 
   /**
-   * Returns a string representation of the stock
+   * Returns a string representation of the stock.
    *
    * @return a string representation
    */

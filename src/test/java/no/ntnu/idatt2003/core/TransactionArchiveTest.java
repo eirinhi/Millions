@@ -18,6 +18,8 @@ class TransactionArchiveTest {
     BigDecimal quantity;
     BigDecimal purchasePrice;
     int week;
+    String name;
+    BigDecimal startingMoney;
     Player player;
 
     Stock stock;
@@ -31,7 +33,9 @@ class TransactionArchiveTest {
             stock = new Stock("SYMBOL", "Company", price);
             share = new Share(stock, quantity, purchasePrice);
             week = 1;
-            player = new Player();
+            name = "Player1";
+            startingMoney = new BigDecimal("10000");
+            player = new Player(name, startingMoney);
             archive = new TransactionArchive();
             purchase = new Purchase(share, week);
             sale = new Sale(share, week);

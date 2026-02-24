@@ -9,10 +9,14 @@ import java.math.RoundingMode;
  */
 public class PurchaseCalculator implements TransactionCalculator {
 
+  /** Commission rate for purchase transactions. */
   private static final BigDecimal COMMISSION_RATE =
       new BigDecimal("0.005");
 
+  /** The purchase price of the share. */
   private final BigDecimal purchasePrice;
+
+  /** The quantity of shares in the purchase. */
   private final BigDecimal quantity;
 
   /**

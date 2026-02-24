@@ -19,6 +19,8 @@ class PurchaseTest {
     Share share;
     int week;
     Purchase purchase;
+    String name;
+    BigDecimal startingMoney;
     Player player;
 
     @BeforeEach
@@ -30,7 +32,9 @@ class PurchaseTest {
         share = new Share(stock, quantity, purchasePrice);
         week = 1;
         purchase = new Purchase(share, week);
-        player = new Player();
+        name = "Player1";
+        startingMoney = new BigDecimal("10000");
+        player = new Player(name, startingMoney);
     }
 
     @Test

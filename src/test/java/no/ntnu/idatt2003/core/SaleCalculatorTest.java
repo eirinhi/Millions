@@ -4,11 +4,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-public class SaleCalculatorTest {
+class SaleCalculatorTest {
 
   private SaleCalculator positiveSale;
   private SaleCalculator negativeSale;
@@ -16,24 +17,17 @@ public class SaleCalculatorTest {
 
   @BeforeEach
   void setUp() {
+    Stock positiveStock = new Stock("SYMBOL", "Company", List.of(new BigDecimal("120.00")));
+    Share positiveShare = new Share(positiveStock, new BigDecimal("10"), new BigDecimal("100.00"));
+    positiveSale = new SaleCalculator(positiveShare);
 
-    positiveSale = new SaleCalculator(
-        new BigDecimal("100.00"),  // purchasePrice
-        new BigDecimal("120.00"),  // salePrice
-        new BigDecimal("10")       // quantity
-    );
+    Stock negativeStock = new Stock("SYMBOL", "Company", List.of(new BigDecimal("90.00")));
+    Share negativeShare = new Share(negativeStock, new BigDecimal("10"), new BigDecimal("100.00"));
+    negativeSale = new SaleCalculator(negativeShare);
 
-    negativeSale = new SaleCalculator(
-        new BigDecimal("100.00"), // purchasePrice
-        new BigDecimal("90.00"),  // salePrice
-        new BigDecimal("10")      // quantity
-    );
-
-    zeroProfitSale = new SaleCalculator(
-        new BigDecimal("100.00"),  // purchasePrice
-        new BigDecimal("100.00"),  // salePrice
-        new BigDecimal("10")       // quantity
-    );
+    Stock zeroStock = new Stock("SYMBOL", "Company", List.of(new BigDecimal("100.00")));
+    Share zeroShare = new Share(zeroStock, new BigDecimal("10"), new BigDecimal("100.00"));
+    zeroProfitSale = new SaleCalculator(zeroShare);
   }
 
   @Test

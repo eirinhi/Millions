@@ -7,111 +7,130 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class PlayerTest {
+class PlayerTest {
 
   private Player player;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     player = new Player("Name", BigDecimal.valueOf(1000));
   }
 
   @Test
-  public void testGetName() {
+  void testGetName() {
     assertEquals("Name", player.getName());
   }
   @Test
-  public void testGetStartingMoney() {
+  void testGetStartingMoney() {
     assertEquals(BigDecimal.valueOf(1000), player.getStartingMoney());
   }
 
   @Test
-  public void testGetMoney() {
+  void testGetMoney() {
     assertEquals(BigDecimal.valueOf(1000), player.getMoney());
   }
 
   @Test
-  public void testGetPortfolio() {
+  void testGetPortfolio() {
     assertNotNull(player.getPortfolio());
   }
 
   @Test
-  public void testGetTransactionArchive() {
+  void testGetTransactionArchive() {
     assertNotNull(player.getTransactionArchive());
   }
 
   @Test
-  public void testAddMoney() {
+  void testAddMoney() {
     player.addMoney(BigDecimal.valueOf(700));
     assertEquals(BigDecimal.valueOf(1700), player.getMoney());
   }
 
   @Test
-  public void testWithdrawMoney() {
+  void testWithdrawMoney() {
     player.withdrawMoney(BigDecimal.valueOf(400));
-    assertEquals(BigDecimal.valueOf(500), player.getMoney());
+    assertEquals(BigDecimal.valueOf(600), player.getMoney());
   }
 
   @Test
-  public void testWithdrawTooMuchMoney() {
+  void testWithdrawTooMuchMoney() {
+    BigDecimal toMuch = new BigDecimal(1200);
     Exception e = assertThrows(IllegalArgumentException.class, () ->
-        player.withdrawMoney(BigDecimal.valueOf(1200)));
+        player.withdrawMoney(toMuch));
     assertEquals("Not enough money in the account", e.getMessage());
   }
 
   @Test
-  public void testNullName() {
-    Exception e = assertThrows(IllegalArgumentException.class, () ->
-        new Player(null, BigDecimal.valueOf(1000)));
-    assertEquals("Name cannot be null", e.getMessage());
+  void testNullName() {
+    BigDecimal startingMoney = BigDecimal.valueOf(1000);
+
+    IllegalArgumentException exception =
+            assertThrows(IllegalArgumentException.class, () -> new Player(null, startingMoney));
+
+    assertEquals("Name cannot be null or empty", exception.getMessage());
   }
 
-  @Test
-  public void testEmptyName() {
-    Exception e = assertThrows(IllegalArgumentException.class, () ->
-        new Player("", BigDecimal.valueOf(1000)));
-    assertEquals("Name cannot be empty", e.getMessage());
-  }
+@Test
+void testEmptyName() {
+    String invalidName = "";
+    BigDecimal startingMoney = BigDecimal.valueOf(1000);
+
+    IllegalArgumentException exception =
+            assertThrows(IllegalArgumentException.class, () -> new Player(invalidName, startingMoney));
+
+    assertEquals("Name cannot be null or empty", exception.getMessage());
+}
+
 
   @Test
-  public void testNullStartingMoney() {
+  void testNullStartingMoney() {
     Exception e = assertThrows(IllegalArgumentException.class, () ->
         new Player("Name", null));
     assertEquals("Starting money cannot be null or negative", e.getMessage());
   }
 
   @Test
-  public void testNegativeStartingMoney() {
-    Exception e = assertThrows(IllegalArgumentException.class, () ->
-        new Player("Name", BigDecimal.valueOf(-200)));
-    assertEquals("Starting money cannot be null or negative", e.getMessage());
+  void testNegativeStartingMoney() {
+    String name = "Name";
+    BigDecimal negativeMoney = BigDecimal.valueOf(-200);
+
+    IllegalArgumentException exception =
+            assertThrows(IllegalArgumentException.class, () -> new Player(name, negativeMoney));
+
+    assertEquals("Starting money cannot be null or negative", exception.getMessage());
   }
 
   @Test
-  public void testAddMoneyNull() {
+  void testAddMoneyNull() {
     Exception e = assertThrows(IllegalArgumentException.class, () ->
         player.addMoney(null));
-    assertEquals("Amount cannot be null", e.getMessage());
+    assertEquals("Amount cannot be null or negative", e.getMessage());
   }
 
   @Test
-  public void testAddMoneyNegative() {
-    Exception e = assertThrows(IllegalArgumentException.class, () ->
-        player.addMoney(BigDecimal.valueOf(-200)));
-    assertEquals("Amount cannot be zero or negative", e.getMessage());
+  void testAddMoneyNegative() {
+    BigDecimal negativeMoney = BigDecimal.valueOf(-200);
+
+    IllegalArgumentException exception =
+            assertThrows(IllegalArgumentException.class, () -> player.addMoney(negativeMoney));
+
+    assertEquals("Amount cannot be zero or negative", exception.getMessage());
   }
 
   @Test
-  public void testWithdrawMoneyNull() {
+  void testWithdrawMoneyNull() {
     Exception e = assertThrows(IllegalArgumentException.class, () ->
         player.withdrawMoney(null));
     assertEquals("Amount cannot be null", e.getMessage());
   }
 
   @Test
-  public void testWithdrawMoneyNegative() {
-    Exception e = assertThrows(IllegalArgumentException.class, () ->
-        player.withdrawMoney(BigDecimal.valueOf(-200)));
-    assertEquals("Amount cannot be zero or negative", e.getMessage());
+  void testWithdrawMoneyNegative() {
+    BigDecimal negativeMoney = BigDecimal.valueOf(-200);
+
+    IllegalArgumentException exception =
+            assertThrows(IllegalArgumentException.class, () -> player.withdrawMoney(negativeMoney));
+
+    assertEquals("Amount cannot be zero or negative", exception.getMessage());
   }
 }

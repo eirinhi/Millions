@@ -1,5 +1,4 @@
 package no.ntnu.idatt2003.core;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -9,7 +8,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class StockTest {
+class StockTest {
 
   private Stock stock;
   private List<BigDecimal> initialPrices;
@@ -23,6 +22,13 @@ public class StockTest {
   }
 
   @Test
+  void testConstructor() {
+    assertThrows(IllegalArgumentException.class, () -> new Stock(null, "Company", initialPrices));
+    assertThrows(IllegalArgumentException.class, () -> new Stock("SYMBOL", null, initialPrices));
+    assertThrows(IllegalArgumentException.class, () -> new Stock("SYMBOL", "Company", null));
+  }
+
+  @Test
   void testGetPrices() {
     List<BigDecimal> prices = stock.getPrices();
     assertEquals(1, prices.size());
@@ -31,28 +37,24 @@ public class StockTest {
 
   @Test
   void testStockCreation() {
-
-    assertEquals(stock.getSymbol(), "AAPL");
-    assertEquals(stock.getCompany(), "Apple Inc.");
+    assertEquals("AAPL", stock.getSymbol());
+    assertEquals("Apple Inc.", stock.getCompany());
     assertEquals(stock.getSalesPrice(), new BigDecimal("100.00"));
   }
 
   @Test
   void testAddNewSalesPrice() {
-
     stock.addNewSalesPrice(new BigDecimal("130.00"));
     assertEquals(stock.getSalesPrice(), new BigDecimal("130.00"));
   }
 
   @Test
   void testIllegalAddNewSalesPrice() {
-    Stock emptyStock = new Stock("AAPL", "Apple Inc.", new ArrayList<>());
-    assertThrows(IllegalStateException.class, emptyStock::getSalesPrice);
+    assertThrows(IllegalArgumentException.class, () -> stock.addNewSalesPrice(null));
   }
 
   @Test
-  void testGetLatestSalesPrice() {
-    stock.addNewSalesPrice(new BigDecimal("130.00"));
-    assertEquals(stock.getSalesPrice(), new BigDecimal("130.00"));
+  void testToString() {
+    assertEquals("Stock [symbol=AAPL, company=Apple Inc., prices=[100.00]]", stock.toString());
   }
 }
