@@ -78,8 +78,9 @@ public class Share {
      */
     @Override
     public String toString() {
-        return quantity + " shares of " + stock.getSymbol()
-                + " at " + purchasePrice
-                + " per share";
+        return quantity + " " + stock.getSymbol()
+                + " - " + stock.getCompany()
+                + " purchase price: " + purchasePrice
+                + ", value: " + stock.getSalesPrice();
     }
 }

@@ -39,7 +39,8 @@ public class Purchase extends Transaction {
         BigDecimal totalCost = getCalculator().calculateTotal();
 
         if (player.getMoney().compareTo(totalCost) < 0) {
-            throw new IllegalStateException("Not enough money to complete purchase");
+            throw new IllegalStateException(
+                "Not enough money to complete purchase");
         }
 
         setCommitted(true);

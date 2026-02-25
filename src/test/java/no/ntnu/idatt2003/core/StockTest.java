@@ -58,6 +58,6 @@ class StockTest {
 
   @Test
   void testToString() {
-    assertEquals("Stock [symbol=AAPL, company=Apple Inc., prices=[100.00]]", stock.toString());
+    assertEquals("AAPL - Apple Inc. : Price 100.00", stock.toString());
   }
 }

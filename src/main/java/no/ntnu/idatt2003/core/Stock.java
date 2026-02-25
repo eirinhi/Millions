@@ -119,8 +119,6 @@ public class Stock {
    */
   @Override
   public String toString() {
-    return "Stock [symbol=" + symbol
-        + ", company=" + company
-        + ", prices=" + prices + "]";
+    return symbol + " - " + company + " : Price " + getSalesPrice();
   }
 }
