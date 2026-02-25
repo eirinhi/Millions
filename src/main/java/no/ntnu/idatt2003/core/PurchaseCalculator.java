@@ -5,7 +5,7 @@ import java.math.RoundingMode;
 
 /**
  * Performs calculations for a purchase transaction.
- * The calculations are based on purchase prise and quantity.
+ * The calculations are based on purchase price and quantity.
  */
 public class PurchaseCalculator implements TransactionCalculator {
 
@@ -35,7 +35,7 @@ public class PurchaseCalculator implements TransactionCalculator {
 
   /**
    * Calculates the gross value of the purchase.
-   * Gross value is defined as purchasePrise multiplied by quantity.
+   * Gross value is defined as purchasePrice multiplied by quantity.
    *
    * @return the gross value of the purchase
    */

@@ -29,7 +29,7 @@ class TransactionArchiveTest {
         void setUp() {
             price = List.of(new BigDecimal("100.00"));
             quantity = new BigDecimal("10");
-            purchasePrice = new BigDecimal("1000");
+            purchasePrice = new BigDecimal("100.00");
             stock = new Stock("SYMBOL", "Company", price);
             share = new Share(stock, quantity, purchasePrice);
             week = 1;
@@ -73,14 +73,12 @@ class TransactionArchiveTest {
 
         @Test
         void testGetTransaction() {
-            assertEquals(List.of(), archive.getTransactions(week));
+            assertEquals(List.of(), player.getTransactionArchive().getTransactions(week));
 
             purchase.commit(player);
-            archive.add(purchase);
-            assertEquals(List.of(purchase), archive.getTransactions(week));
+            assertEquals(List.of(purchase), player.getTransactionArchive().getTransactions(week));
 
-            int emptyWeek = 2;
-            assertEquals(List.of(), archive.getTransactions(emptyWeek));
+            assertEquals(List.of(), player.getTransactionArchive().getTransactions(2));
         }
 
         @Test
@@ -97,8 +95,9 @@ class TransactionArchiveTest {
 
         @Test
         void testGetSales() {
-            assertEquals(List.of(), archive.getSales(week));
+            assertEquals(List.of(), player.getTransactionArchive().getSales(week));
 
+            player.getPortfolio().addShare(share);
             sale.commit(player);
             archive.add(sale);
             assertEquals(List.of(sale), archive.getSales(week));
@@ -111,6 +110,7 @@ class TransactionArchiveTest {
         void testCountDistinctWeeks() {
             assertEquals(0, archive.countDistinctWeeks());
 
+            player.getPortfolio().addShare(share);
             sale.commit(player);
             archive.add(sale);
             assertEquals(1, archive.countDistinctWeeks());

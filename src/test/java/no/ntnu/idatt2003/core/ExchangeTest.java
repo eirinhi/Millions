@@ -76,7 +76,8 @@ class ExchangeTest {
     void testBuy() {
         BigDecimal quantiy = new BigDecimal("10");
         String name = "player";
-        Player player = new Player(name, quantiy);
+        BigDecimal startingMoney = new BigDecimal("20000");
+        Player player = new Player(name, startingMoney);
         assertThrows(IllegalArgumentException.class, () -> exchange.buy("non existing symbol", quantiy, player));
 
         Transaction transaction = exchange.buy("S1", quantiy, player);
@@ -89,8 +90,11 @@ class ExchangeTest {
         BigDecimal quantiy = new BigDecimal("10");
         BigDecimal purchasePrice = new BigDecimal("1000");
         String name = "player";
-        Player player = new Player(name, quantiy);
+        BigDecimal startingMoney = new BigDecimal("20000");
+        Player player = new Player(name, startingMoney);
+
         Share share = new Share(s1, quantiy, purchasePrice);
+        player.getPortfolio().addShare(share);
 
         Transaction transaction = exchange.sell(share, player);
         assertNotNull(transaction);

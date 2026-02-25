@@ -28,7 +28,7 @@ class PurchaseTest {
         price = List.of(new BigDecimal("100.00"));
         stock = new Stock("SYMBOL", "Company", price);
         quantity = new BigDecimal("10");
-        purchasePrice = new BigDecimal("1000");
+        purchasePrice = new BigDecimal("100.00");
         share = new Share(stock, quantity, purchasePrice);
         week = 1;
         purchase = new Purchase(share, week);
@@ -79,11 +79,22 @@ class PurchaseTest {
     void testCommit() {
         purchase.commit(player);
         assertTrue(purchase.isCommitted());
-
-        assertThrows(IllegalStateException.class, () -> purchase.commit(player));
         
-        player = null;
-        purchase.setCommitted(false);
-        assertThrows(IllegalArgumentException.class, () -> purchase.commit(player));
+        BigDecimal expectedMoney = startingMoney.subtract(purchase.getCalculator().calculateTotal());
+        assertEquals(0, expectedMoney.compareTo(player.getMoney()));
+        assertTrue(player.getPortfolio().contains(share));
+        assertTrue(player.getTransactionArchive().getTransactions(week).contains(purchase));        
+    }
+    
+    @Test
+    void testInvalidCommit() {
+        BigDecimal tooExpencive = new BigDecimal(10000);
+        share = new Share(stock, quantity, tooExpencive);
+        purchase = new Purchase(share, week);
+        assertThrows(IllegalArgumentException.class, () -> purchase.commit(null));
+        assertThrows(IllegalStateException.class, () -> purchase.commit(player));
+
+        purchase.setCommitted(true);
+        assertThrows(IllegalStateException.class, () -> purchase.commit(player));
     }
 }

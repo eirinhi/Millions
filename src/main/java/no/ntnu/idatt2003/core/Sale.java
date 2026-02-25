@@ -34,8 +34,13 @@ public class Sale extends Transaction {
             throw new IllegalArgumentException("Player cannot be null");
         }
 
-        // TODO: implement when Player is ready
-
+        if (!player.getPortfolio().contains(getShare())) {
+            throw new IllegalStateException("Player does not own this share");
+        }
+        
         setCommitted(true);
+        player.addMoney(getCalculator().calculateTotal());
+        player.getPortfolio().removeShare(getShare());
+        player.getTransactionArchive().add(this);
     }
 }

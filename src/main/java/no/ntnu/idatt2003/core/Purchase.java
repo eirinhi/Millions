@@ -1,5 +1,7 @@
 package no.ntnu.idatt2003.core;
 
+import java.math.BigDecimal;
+
 /**
  * Represents a purchase transaction in the stock game.
  * A purchase transaction involves buying a share of a stock.
@@ -34,8 +36,15 @@ public class Purchase extends Transaction {
             throw new IllegalArgumentException("Player cannot be null");
         }
 
-        // TODO: implement when Player is ready
+        BigDecimal totalCost = getCalculator().calculateTotal();
+
+        if (player.getMoney().compareTo(totalCost) < 0) {
+            throw new IllegalStateException("Not enough money to complete purchase");
+        }
 
         setCommitted(true);
+        player.withdrawMoney(totalCost);
+        player.getPortfolio().addShare(getShare());
+        player.getTransactionArchive().add(this);
     }
 }

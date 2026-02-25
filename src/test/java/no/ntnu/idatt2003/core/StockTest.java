@@ -33,6 +33,9 @@ class StockTest {
     List<BigDecimal> prices = stock.getPrices();
     assertEquals(1, prices.size());
     assertEquals(new BigDecimal("100.00"), prices.get(0));
+
+    stock = new Stock("SYMBOL", "Company", List.of());
+    assertThrows(IllegalStateException.class, () -> stock.getSalesPrice());
   }
 
   @Test

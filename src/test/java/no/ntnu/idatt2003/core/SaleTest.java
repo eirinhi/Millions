@@ -77,13 +77,28 @@ class SaleTest {
 
     @Test
     void testCommit() {
+        player.getPortfolio().addShare(share);
+
         sale.commit(player);
         assertTrue(sale.isCommitted());
-
-        assertThrows(IllegalStateException.class, () -> sale.commit(player));
         
-        player = null;
-        sale.setCommitted(false);
-        assertThrows(IllegalArgumentException.class, () -> sale.commit(player));
+        BigDecimal totalFromSale = sale.getCalculator().calculateTotal();
+        BigDecimal expectedMoney = startingMoney.add(totalFromSale);
+        assertEquals(0, expectedMoney.compareTo(player.getMoney()));
+        assertFalse(player.getPortfolio().contains(share));
+        assertTrue(player.getTransactionArchive().getTransactions(week).contains(sale));
+    }
+    
+    @Test
+    void testInvalidCommit() {
+        assertThrows(IllegalArgumentException.class, () -> sale.commit(null));
+
+        sale.setCommitted(true);
+        assertThrows(IllegalStateException.class, () -> sale.commit(player));
+
+        stock = new Stock(name, name, price);
+        share = new Share(stock, quantity, salePrice);
+        sale = new Sale(share, week);
+        assertThrows(IllegalStateException.class, () -> sale.commit(player));
     }
 }
