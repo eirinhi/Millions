@@ -55,6 +55,6 @@ class ShareTest {
 
     @Test
     void testToString() {
-        assertEquals(quantity + " shares of " + stock.getSymbol() + " at " + purchasePrice + " per share", share.toString());
+        assertEquals("10 SYMBOL - Company purchase price: 1000, value: 100.00", share.toString());
     }
 }
