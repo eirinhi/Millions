@@ -29,8 +29,8 @@ class StockTest {
   }
 
   @Test
-  void testGetPrices() {
-    List<BigDecimal> prices = stock.getPrices();
+  void testGetHistoricalPrices() {
+    List<BigDecimal> prices = stock.getHistoricalPrices();
     assertEquals(1, prices.size());
     assertEquals(new BigDecimal("100.00"), prices.get(0));
 
@@ -57,7 +57,32 @@ class StockTest {
   }
 
   @Test
+  void testGetHighestPrice() {
+    stock.addNewSalesPrice(new BigDecimal("100.00"));
+    stock.addNewSalesPrice(new BigDecimal("130.00"));
+    assertEquals(new BigDecimal("130.00"), stock.getHighestPrice());
+  }
+
+  @Test
+  void testGetLowestPrice() {
+    stock.addNewSalesPrice(new BigDecimal("100.00"));
+    stock.addNewSalesPrice(new BigDecimal("130.00"));
+    assertEquals(new BigDecimal("100.00"), stock.getLowestPrice());
+  }
+
+  @Test
+  void testGetLatestPriceChange() {
+    stock.addNewSalesPrice(new BigDecimal("130.00"));
+    assertEquals(new BigDecimal("30.00"), stock.getLatestPriceChange());
+  }
+
+  @Test
   void testToString() {
-    assertEquals("AAPL - Apple Inc. : Price 100.00", stock.toString());
+    String output = stock.toString();
+
+    assertTrue(output.contains("Stock information"));
+    assertTrue(output.contains("Symbol: AAPL"));
+    assertTrue(output.contains("Company: Apple Inc."));
+    assertTrue(output.contains("Current price: 100.00"));
   }
 }
