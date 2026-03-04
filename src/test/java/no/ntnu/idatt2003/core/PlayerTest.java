@@ -149,4 +149,41 @@ void testEmptyName() {
   
     assertEquals(expected, player.getNetWorth());
   }
+
+
+  @Test
+  void testGetStatusSpeculator() {
+    assertEquals("Novice", player.getStatus());
+
+    player.addMoney(new BigDecimal("200"));
+    assertEquals("Novice", player.getStatus());
+
+    player.withdrawMoney(new BigDecimal("200"));
+
+    List<BigDecimal> prices = new ArrayList<>();
+    prices.add(new BigDecimal("5"));
+    Stock stock = new Stock("SYMBOL", "Company", prices);
+    Share share = new Share(stock, new BigDecimal("1"), new BigDecimal("1"));
+    for (int i = 1; i < 11; i++) {
+      Purchase purchase = new Purchase(share, i);
+      purchase.committed = true;
+      player.getTransactionArchive().add(purchase);
+    }
+
+    assertEquals("Novice", player.getStatus());
+
+    player.addMoney(new BigDecimal("1050"));
+    assertEquals("Investor", player.getStatus());
+
+    for (int i = 10; i < 21; i++) {
+      Purchase purchase = new Purchase(share, i);
+      purchase.committed = true;
+      player.getTransactionArchive().add(purchase);
+    }
+    assertEquals("Speculator", player.getStatus());
+
+    player.withdrawMoney(new BigDecimal("500"));
+    assertEquals("Investor", player.getStatus());
+
+  }
 }
