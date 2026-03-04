@@ -77,4 +77,12 @@ class PortfolioTest {
         portfolio.addShare(share);
         assertTrue(portfolio.contains(share));
     }
+
+    @Test
+    void testGetNetWorth() {
+        portfolio.addShare(share);
+
+        BigDecimal netWorth = new SaleCalculator(share).calculateTotal();
+        assertEquals(netWorth, portfolio.getNetWorth());
+    }
 }

@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -132,5 +134,19 @@ void testEmptyName() {
             assertThrows(IllegalArgumentException.class, () -> player.withdrawMoney(negativeMoney));
 
     assertEquals("Amount cannot be zero or negative", exception.getMessage());
+  }
+
+  @Test
+  void testGetNetWorth() {
+    List<BigDecimal> prices = new ArrayList<>();
+    prices.add(new BigDecimal("100"));
+    Stock stock = new Stock("SYMBOL", "Company", prices);
+    Share share = new Share(stock, new BigDecimal("5"), new BigDecimal("90"));
+
+    player.getPortfolio().addShare(share);
+    
+    BigDecimal expected = player.getMoney().add(player.getPortfolio().getNetWorth());
+  
+    assertEquals(expected, player.getNetWorth());
   }
 }

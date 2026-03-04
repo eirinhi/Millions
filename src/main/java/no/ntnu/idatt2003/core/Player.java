@@ -147,4 +147,15 @@ public class Player {
 
     money = money.subtract(amount);
   }
+
+  /**
+   * Calculates and returns the player's net worth.
+   * The net worth is defined as the sum of the player's current money balance
+   * and the total net worth of the player's portfolio.
+   *
+   * @return the player's net worth
+   */
+  public BigDecimal getNetWorth() {
+    return money.add(portfolio.getNetWorth());
+  }
 }
