@@ -16,7 +16,7 @@ public abstract class Transaction {
     private final TransactionCalculator calculator;
 
     /** Indicates if the transaction has been committed. */
-    private boolean committed;
+    protected boolean committed;
 
     /**
      * Creates a new transaction with the specified share, week, and calculator.
@@ -81,15 +81,6 @@ public abstract class Transaction {
      */
     public boolean isCommitted() {
         return committed;
-    }
-
-    /**
-     * Sets the committed status of the transaction.
-     *
-     * @param committed the new committed status
-     */
-    public void setCommitted(final boolean committed) {
-        this.committed = committed;
     }
 
     /**

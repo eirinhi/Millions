@@ -62,17 +62,8 @@ class PurchaseTest {
     void testIsCommitted() {
         assertFalse(purchase.isCommitted());
 
-        purchase.setCommitted(true);
+        purchase.committed = true;
         assertTrue(purchase.isCommitted());
-    }
-
-    @Test
-    void testSetCommitted() {
-        purchase.setCommitted(true);
-        assertTrue(purchase.isCommitted());
-
-        purchase.setCommitted(false);
-        assertFalse(purchase.isCommitted());
     }
 
     @Test
@@ -94,7 +85,7 @@ class PurchaseTest {
         assertThrows(IllegalArgumentException.class, () -> purchase.commit(null));
         assertThrows(IllegalStateException.class, () -> purchase.commit(player));
 
-        purchase.setCommitted(true);
+        purchase.committed = true;
         assertThrows(IllegalStateException.class, () -> purchase.commit(player));
     }
 }

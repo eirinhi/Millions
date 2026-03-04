@@ -43,7 +43,7 @@ public class Purchase extends Transaction {
                 "Not enough money to complete purchase");
         }
 
-        setCommitted(true);
+        committed = true;
         player.withdrawMoney(totalCost);
         player.getPortfolio().addShare(getShare());
         player.getTransactionArchive().add(this);

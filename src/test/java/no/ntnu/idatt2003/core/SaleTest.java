@@ -62,17 +62,8 @@ class SaleTest {
     void testIsCommitted() {
         assertFalse(sale.isCommitted());
 
-        sale.setCommitted(true);
+        sale.committed = true;
         assertTrue(sale.isCommitted());
-    }
-
-    @Test
-    void testSetCommitted() {
-        sale.setCommitted(true);
-        assertTrue(sale.isCommitted());
-
-        sale.setCommitted(false);
-        assertFalse(sale.isCommitted());
     }
 
     @Test
@@ -93,7 +84,7 @@ class SaleTest {
     void testInvalidCommit() {
         assertThrows(IllegalArgumentException.class, () -> sale.commit(null));
 
-        sale.setCommitted(true);
+        sale.committed = true;
         assertThrows(IllegalStateException.class, () -> sale.commit(player));
 
         stock = new Stock(name, name, price);

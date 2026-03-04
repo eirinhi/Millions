@@ -38,7 +38,7 @@ public class Sale extends Transaction {
             throw new IllegalStateException("Player does not own this share");
         }
 
-        setCommitted(true);
+        committed = true;
         player.addMoney(getCalculator().calculateTotal());
         player.getPortfolio().removeShare(getShare());
         player.getTransactionArchive().add(this);
