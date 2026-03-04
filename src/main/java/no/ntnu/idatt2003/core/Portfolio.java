@@ -1,5 +1,6 @@
 package no.ntnu.idatt2003.core;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,5 +79,18 @@ public class Portfolio {
      */
     public boolean contains(final Share share) {
         return shares.contains(share);
+    }
+
+    /**
+     * Returns the net worth of the portfolio.
+     * The net worth is the sum of the total value of the sale
+     * of all shares in the portfolio.
+     *
+     * @return the net worth of the portfolio
+     */
+    public BigDecimal getNetWorth() {
+        return shares.stream()
+                .map(share -> new SaleCalculator(share).calculateTotal())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }
