@@ -1,6 +1,7 @@
 package no.ntnu.idatt2003.core;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * Represents a player in the stock game.
@@ -157,5 +158,41 @@ public class Player {
    */
   public BigDecimal getNetWorth() {
     return money.add(portfolio.getNetWorth());
+  }
+
+  /**
+   * Returns the player's trading status.
+   *
+   * The status levels are:
+   * <li>"Novice": Default status for players at the start (0 weeks traded)</li>
+   * <li>"Investor": Traded for at least 10 weeks and gained at least
+   * 20% in net worth</li>
+   * <li>"Speculator": Traded for at least 20 weeks and doubled net worth
+   * (100% gain)</li>
+   *
+   * @return the player's current status as a string
+   */
+  public String getStatus() {
+    BigDecimal netWorth = getNetWorth();
+    BigDecimal difference = netWorth.subtract(startingMoney);
+    BigDecimal gainPercent = difference
+                              .multiply(new BigDecimal("100"))
+                              .divide(startingMoney, 2, RoundingMode.HALF_UP);
+
+    int weeksTraded = transactionArchive.countDistinctWeeks();
+
+    final int twentyWeeks = 20;
+    if (weeksTraded >= twentyWeeks
+          && gainPercent.compareTo(new BigDecimal("100")) >= 0) {
+      return "Speculator";
+    }
+
+    final int tenWeeks = 10;
+    if (weeksTraded >= tenWeeks
+          && gainPercent.compareTo(new BigDecimal("20")) >= 0) {
+      return "Investor";
+    }
+
+    return "Novice";
   }
 }
