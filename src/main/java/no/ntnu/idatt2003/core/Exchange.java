@@ -175,4 +175,43 @@ public class Exchange {
 
         week++;
     }
+
+    /**
+     * Returns the stocks with the highest positive price change.
+     * If limit is greater than the number of existing stocks,
+     * all available stocks are returned.
+     *
+     * @param limit the number of stocks to return
+     * @return list of top gainers
+     */
+    public List<Stock> getGainers(final int limit) {
+        if (limit <= 0) {
+            throw new IllegalArgumentException("Limit must be greater than 0.");
+        }
+        return stockMap.values().stream()
+                .sorted((s1, s2) -> s2.getLatestPriceChange()
+                .compareTo(s1.getLatestPriceChange()))
+                .limit(limit)
+                .toList();
+    }
+
+    /**
+     * Returns the stocks with the lowest positive price change since last week.
+     * If limit is greater than the number of existing stocks,
+     * all available stocks are returned.
+     *
+     * @param limit the number of stocks to return
+     * @return list of top losers
+     */
+    public List<Stock> getLosers(final int limit) {
+        if (limit <= 0) {
+            throw new IllegalArgumentException("Limit must be greater than 0.");
+        }
+
+        return stockMap.values().stream()
+                .sorted((s1, s2) -> s1.getLatestPriceChange()
+                .compareTo(s2.getLatestPriceChange()))
+                .limit(limit)
+                .toList();
+    }
 }

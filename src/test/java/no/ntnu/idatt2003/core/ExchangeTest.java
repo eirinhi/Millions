@@ -16,8 +16,6 @@ import org.junit.jupiter.api.Test;
 
 class ExchangeTest {
     Stock s1;
-    Stock s2;
-    Stock s3;
     List<BigDecimal> prices;
     List<Stock> stocks;
     Exchange exchange;
@@ -109,5 +107,50 @@ class ExchangeTest {
         exchange.advance();
         assertEquals(2,exchange.getWeek());
         assertNotSame(currentPrice, s1.getSalesPrice());
+    }
+
+    @Test
+    void testInvalidGetGainers() {
+        Exception e = assertThrows(
+            IllegalArgumentException.class,
+            () -> exchange.getGainers(-1)
+        );
+        assertEquals("Limit must be greater than 0.", e.getMessage());
+    }
+
+    @Test
+    void testInvalidGetLosers() {
+        Exception e = assertThrows(
+            IllegalArgumentException.class,
+            () -> exchange.getLosers(-1)
+        );
+        assertEquals("Limit must be greater than 0.", e.getMessage());
+    }
+
+    @Test
+    void testGainersAndLosers() {
+        List<BigDecimal> prices1 = new ArrayList<>();
+        prices1.add(new BigDecimal("100"));
+        s1 = new Stock("SYMBOL1", "Company1", prices1);
+        
+        List<BigDecimal> prices2 = new ArrayList<>();
+        prices2.add(new BigDecimal("100"));
+        Stock s2 = new Stock("SYMBOL2", "Company2", prices2);
+
+        List<BigDecimal> prices3 = new ArrayList<>();
+        prices3.add(new BigDecimal("100"));
+        Stock s3 = new Stock("SYMBOL3", "Company3", prices3);
+
+        exchange = new Exchange("Test", List.of(s1, s2, s3));
+
+        s1.addNewSalesPrice(new BigDecimal("120"));
+        s2.addNewSalesPrice(new BigDecimal("110"));
+        s3.addNewSalesPrice(new BigDecimal("90"));
+
+        List<Stock> gainers = exchange.getGainers(3);
+        assertEquals(List.of(s1, s2, s3), gainers);
+
+        List<Stock> losers = exchange.getLosers(3);
+        assertEquals(List.of(s3, s2, s1), losers);
     }
 }
