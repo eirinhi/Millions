@@ -25,7 +25,7 @@ public class Stock {
   private final List<BigDecimal> prices;
 
   /**
-   * Constructs Stock object with symbol, companyname, and list of sales prices.
+   * Constructs Stock object with symbol, company name, and list of sales prices.
    *
    * @param symbol the unique stock symbol
    * @param company the name of the company
@@ -78,7 +78,7 @@ public class Stock {
    *
    * @return a list of sales prices
    */
-  public List<BigDecimal> getPrices() {
+  public List<BigDecimal> getHistoricalPrices() {
     return new ArrayList<>(prices);
   }
 
@@ -113,12 +113,76 @@ public class Stock {
   }
 
   /**
-   * Returns a string representation of the stock.
+   * Returns the highest recorded sales price for this stock.
+   * <p>
+   *   The highest price is determined by comparing all registered historical prices.
+   * </p>
    *
-   * @return a string representation
+   * @return the highest recorded sales price
+   * @throws IllegalStateException if no price have been added
+   */
+  public BigDecimal getHighestPrice() {
+    return prices.stream()
+        .max(BigDecimal::compareTo)
+        .orElseThrow(() -> new IllegalStateException("No prices have been added to the stock"));
+  }
+
+  /**
+   * Returns the lowest recorded sales price for this stock.
+   * <p>
+   *   The lowest price is determined by comparing all registered historical prices.
+   * </p>
+   *
+   * @return the lowest recorded sales price
+   * @throws IllegalStateException if no prices have been added
+   */
+  public BigDecimal getLowestPrice() {
+    return prices.stream()
+        .min(BigDecimal::compareTo)
+        .orElseThrow(() -> new IllegalStateException("No prices have been added to the stock"));
+  }
+
+  /**
+   * Returns the difference between the last two recorded sales prices.
+   * <p>
+   *   The value represents the most recent price change.
+   *   If only one price has been registered, the method returns {@code BigDecimal.ZERO},
+   *   which is interpreted as no change.
+   * </p>
+   *
+   * @return the difference between the most recent price and te previous price
+   * @throws IllegalStateException if no prices have been added
+   */
+  public BigDecimal getLatestPriceChange() {
+    if (prices.isEmpty()) {
+      throw new IllegalStateException("No prices have been added to the stock");
+    }
+    if (prices.size() == 1) {
+      return BigDecimal.ZERO;
+    }
+
+    BigDecimal latest   = prices.get(prices.size() - 1);
+    BigDecimal previous = prices.get(prices.size() - 2);
+
+    return latest.subtract(previous);
+  }
+
+
+  /**
+   * Returns a string representation of the stock with key information.
+   *
+   * @return a formatted string with symbol, company, current price, highest and lowest price,
+   *         latest price change, and number of recorded prices
    */
   @Override
   public String toString() {
-    return symbol + " - " + company + " : Price " + getSalesPrice();
+    return "Stock information\n" +
+        "Symbol: " + symbol +
+        "\nCompany: " + company +
+        "\nCurrent price: " + getSalesPrice() +
+        "\nHighest price: " + getHighestPrice() +
+        "\nLowest price: " + getLowestPrice() +
+        "\nLatest price change: " + getLatestPriceChange() +
+        "\nRecorded prices: " + getHistoricalPrices().size();
   }
 }
