@@ -3,11 +3,6 @@ package no.ntnu.idatt2003.model.entity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.ntnu.idatt2003.model.entity.Player;
-import no.ntnu.idatt2003.model.entity.Purchase;
-import no.ntnu.idatt2003.model.entity.Share;
-import no.ntnu.idatt2003.model.entity.Stock;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;

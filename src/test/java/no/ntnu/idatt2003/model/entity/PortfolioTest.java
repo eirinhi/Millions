@@ -11,9 +11,6 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.ntnu.idatt2003.model.entity.Portfolio;
-import no.ntnu.idatt2003.model.entity.Share;
-import no.ntnu.idatt2003.model.entity.Stock;
 import no.ntnu.idatt2003.model.logic.SaleCalculator;
 
 class PortfolioTest {

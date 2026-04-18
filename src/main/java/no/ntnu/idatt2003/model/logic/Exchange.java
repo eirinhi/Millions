@@ -8,8 +8,6 @@ import java.util.Map;
 import java.util.Random;
 
 import no.ntnu.idatt2003.model.entity.Player;
-import no.ntnu.idatt2003.model.entity.Purchase;
-import no.ntnu.idatt2003.model.entity.Sale;
 import no.ntnu.idatt2003.model.entity.Share;
 import no.ntnu.idatt2003.model.entity.Stock;
 import no.ntnu.idatt2003.model.entity.Transaction;
@@ -140,11 +138,13 @@ public class Exchange {
         Stock stock = getStock(symbol);
         BigDecimal price = stock.getSalesPrice();
         Share share = new Share(stock, quantity, price);
-        Transaction transaction = new Purchase(share, week);
-
-        transaction.commit(player);
-
-        return transaction;
+        try {
+            Transaction transaction = TransactionFactory.get("purchase", share, week);
+            transaction.commit(player);
+            return transaction;
+        } catch (UnknownTransactionException e) {
+            throw new IllegalStateException("Unexpected transaction type", e);
+        }
     }
 
     /**
@@ -155,9 +155,13 @@ public class Exchange {
      * @return a Transaction representing the sale
      */
     public Transaction sell(final Share share, final Player player) {
-        Transaction transaction = new Sale(share, week);
-        transaction.commit(player);
-        return transaction;
+        try {
+            Transaction transaction = TransactionFactory.get("sale", share, week);
+            transaction.commit(player);
+            return transaction;
+        } catch (UnknownTransactionException e) {
+            throw new IllegalStateException("Unexpected transaction type", e);
+        }
     }
 
     /**

@@ -9,9 +9,6 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.ntnu.idatt2003.model.entity.Share;
-import no.ntnu.idatt2003.model.entity.Stock;
-
 class ShareTest {
     List<BigDecimal> price;
     Stock stock;

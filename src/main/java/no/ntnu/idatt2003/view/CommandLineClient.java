@@ -143,5 +143,6 @@ public class CommandLineClient {
                     break;
             }
         }
+        scanner.close();
     }
 }
