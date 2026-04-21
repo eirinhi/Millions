@@ -1,5 +1,7 @@
 package no.ntnu.idatt2003.view;
 
+import java.util.List;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -8,12 +10,15 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import no.ntnu.idatt2003.model.entity.Player;
+import no.ntnu.idatt2003.model.entity.Stock;
 
 public class MainLayout extends BorderPane {
     private final Player player;
+    private final List<Stock> stocks;
 
-    public MainLayout(Player player){
+    public MainLayout(Player player, List<Stock> stocks) {
         this.player = player;
+        this.stocks = stocks;
 
         // Tydelige farger og størrelser for testing
         this.setTop(createHeader());

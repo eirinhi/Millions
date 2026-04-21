@@ -1,6 +1,7 @@
 package no.ntnu.idatt2003.view;
 
 import java.io.File;
+import java.util.List;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -13,12 +14,28 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import no.ntnu.idatt2003.controller.StartController;
+import no.ntnu.idatt2003.model.entity.Player;
+import no.ntnu.idatt2003.model.entity.Stock;
 
+/**
+ * StartView is the initial view of the application.
+ * The user must input their name, a starting capital, and a stock
+ * data file before starting the game.
+ */
 public class StartView {
-    public final Scene scene;
 
+    /** The scene for the start view. */
+    private final Scene scene;
+
+    /**
+     * Constructs the StartView with the given primary stage.
+     *
+     * @param primaryStage the primary stage of the application
+     */
     public StartView(Stage primaryStage) {
 
+        // Welcome label
         Label welcomeLabel = new Label("Welcome to Millions!");
         welcomeLabel.setStyle("-fx-font-size: 40px;");
         welcomeLabel.setPadding(new Insets(0, 0, 40, 0));
@@ -26,6 +43,7 @@ public class StartView {
         welcomeLabel.setAlignment(Pos.CENTER);
 
 
+        // Name input
         Label nameLabel = new Label("Name : ");
         nameLabel.setMinWidth(140);
         TextField nameField = new TextField();
@@ -34,6 +52,7 @@ public class StartView {
         nameRow.setAlignment(Pos.CENTER_LEFT);
 
 
+        // Capital input
         Label capitalLabel = new Label("Starting capital : ");
         capitalLabel.setMinWidth(140);
         Spinner<Integer> capitalSpinner = new Spinner<>(1000, 100000, 10000, 1000);
@@ -43,8 +62,12 @@ public class StartView {
         capitalRow.setAlignment(Pos.CENTER_LEFT);
 
 
+        // Stock file input
         Label stockLabel = new Label("Stock data : ");
         stockLabel.setMinWidth(140);
+
+        final File[] selectedFile = {null};
+
         Button fileButton = new Button("Select file");
         Label fileNameLabel = new Label("No file selected");
         fileNameLabel.setStyle("-fx-text-fill: gray;");
@@ -54,9 +77,10 @@ public class StartView {
             fileChooser.getExtensionFilters().add(
                 new FileChooser.ExtensionFilter("CSV Files", "*.csv")
             );
-            File selectedFile = fileChooser.showOpenDialog(primaryStage);
-            if (selectedFile != null) {
-                fileNameLabel.setText(selectedFile.getName());
+            File choosen = fileChooser.showOpenDialog(primaryStage);
+            if (choosen != null) {
+                selectedFile[0] = choosen;
+                fileNameLabel.setText(choosen.getName());
                 fileNameLabel.setStyle("-fx-text-fill: black;");
             }
         });
@@ -64,30 +88,48 @@ public class StartView {
         stockRow.setAlignment(Pos.CENTER_LEFT);
 
 
+        // Start button
         Button startButton = new Button("START GAME");
         startButton.setPrefWidth(500);
         startButton.setStyle("-fx-font-size: 26px;");
         startButton.setOnAction(e -> {
-            MainLayout mainLayout = new MainLayout(null);
-            primaryStage.setScene(new Scene(mainLayout, 1000, 700));
+            String name = nameField.getText().trim();
+            int capital = capitalSpinner.getValue();
+
+            if (StartController.validateInput(name, capital, selectedFile[0])) {
+                List<Stock> stocks = StartController.loadStocks(selectedFile[0]);
+                if (stocks != null) {
+                    Player player = StartController.createPlayer(name, capital);
+                    MainLayout mainLayout = new MainLayout(player, stocks);
+                    primaryStage.setScene(new Scene(mainLayout, 1000, 700));
+                }
+            }
         });
 
 
+        // Card layout containing all input fields and the start button
         VBox card = new VBox(20, welcomeLabel, nameRow, capitalRow, stockRow, startButton);
         card.setAlignment(Pos.CENTER);
         card.setMaxWidth(560);
         card.setPadding(new Insets(40));
 
+        // Root layout containing the card
         VBox root = new VBox(card);
         root.setAlignment(Pos.CENTER);
         root.setStyle("-fx-background-color: #f07ab3;");
 
+        // Create the scene and apply the stylesheet
         scene = new Scene(root, 1000, 700);
         scene.getStylesheets().add(
             getClass().getResource("/no/ntnu/idatt2003/styles.css").toExternalForm()
         );
     }
 
+    /**
+     * Returns the scene for the start view.
+     *
+     * @return the scene for the start view
+     */
     public Scene getScene() {
         return scene;
     }
