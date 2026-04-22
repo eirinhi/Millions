@@ -47,7 +47,7 @@ public class MainLayout extends BorderPane {
         headerWeekLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
         // Next week-knapp til høyre
-        Button nextWeekBtn = new Button("Next week");
+        Button nextWeekBtn = new Button("Advance ->");
         nextWeekBtn.setStyle("-fx-font-size: 12px;");
         nextWeekBtn.setOnAction(e -> {
             weekOffset++;
@@ -120,7 +120,7 @@ public class MainLayout extends BorderPane {
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
 
-        // EXIT knapp nederst
+        // EXIT button
         Button exitButton = new Button("EXIT");
         exitButton.setPrefWidth(180);
         exitButton.setPrefHeight(44);
