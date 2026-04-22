@@ -18,7 +18,6 @@ import no.ntnu.idatt2003.model.entity.Player;
 import no.ntnu.idatt2003.model.entity.Share;
 import no.ntnu.idatt2003.model.entity.Stock;
 import no.ntnu.idatt2003.model.entity.Transaction;
-import no.ntnu.idatt2003.model.logic.Exchange;
 
 class ExchangeTest {
     Stock s1;
