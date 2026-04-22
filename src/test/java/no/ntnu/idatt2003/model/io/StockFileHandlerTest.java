@@ -5,7 +5,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.ntnu.idatt2003.model.entity.Stock;
-import no.ntnu.idatt2003.model.io.StockFileHandler;
 
 import java.io.IOException;
 import java.math.BigDecimal;
