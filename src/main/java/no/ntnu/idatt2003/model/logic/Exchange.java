@@ -139,22 +139,15 @@ public class Exchange extends Subject {
         Stock stock = getStock(symbol);
         BigDecimal price = stock.getSalesPrice();
         Share share = new Share(stock, quantity, price);
-<<<<<<< HEAD
-        Transaction transaction = new Purchase(share, week);
 
-        transaction.commit(player);
-        notifyObservers();
-
-        return transaction;
-=======
         try {
             Transaction transaction = TransactionFactory.get("purchase", share, week);
             transaction.commit(player);
+            notifyObservers();
             return transaction;
         } catch (UnknownTransactionException e) {
             throw new IllegalStateException("Unexpected transaction type", e);
         }
->>>>>>> main
     }
 
     /**
@@ -165,20 +158,14 @@ public class Exchange extends Subject {
      * @return a Transaction representing the sale
      */
     public Transaction sell(final Share share, final Player player) {
-<<<<<<< HEAD
-        Transaction transaction = new Sale(share, week);
-        transaction.commit(player);
-        notifyObservers();
-        return transaction;
-=======
         try {
             Transaction transaction = TransactionFactory.get("sale", share, week);
             transaction.commit(player);
+            notifyObservers();
             return transaction;
         } catch (UnknownTransactionException e) {
             throw new IllegalStateException("Unexpected transaction type", e);
         }
->>>>>>> main
     }
 
     /**
