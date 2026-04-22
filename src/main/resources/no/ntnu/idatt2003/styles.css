@@ -1,0 +1,27 @@
+.button, .spinner, .text-field {
+    -fx-background-color: #fcdeecff;
+    -fx-border-color: #d1699b;
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 8px;
+    -fx-font-size: 16px;
+}
+
+.button:hover {
+    -fx-translate-y: -2px;
+}
+
+.button:pressed {
+    -fx-translate-y: 0px;
+    -fx-background-color: #fcdeecff;
+}
+
+.spinner .increment-arrow-button,
+.spinner .decrement-arrow-button {
+    -fx-background-color: #fcdeecff;
+    -fx-border-color: #d1699b;
+}
+
+.label {
+    -fx-font-size: 16px;
+}
