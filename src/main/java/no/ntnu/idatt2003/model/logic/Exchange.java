@@ -11,11 +11,12 @@ import no.ntnu.idatt2003.model.entity.Player;
 import no.ntnu.idatt2003.model.entity.Share;
 import no.ntnu.idatt2003.model.entity.Stock;
 import no.ntnu.idatt2003.model.entity.Transaction;
+import no.ntnu.idatt2003.model.observer.Subject;
 
 /**
  * Represents a stock exchange where players can buy and sell shares.
  */
-public class Exchange {
+public class Exchange extends Subject {
 
     /** The name of the exchange. */
     private final String name;
@@ -138,9 +139,11 @@ public class Exchange {
         Stock stock = getStock(symbol);
         BigDecimal price = stock.getSalesPrice();
         Share share = new Share(stock, quantity, price);
+
         try {
             Transaction transaction = TransactionFactory.get("purchase", share, week);
             transaction.commit(player);
+            notifyObservers();
             return transaction;
         } catch (UnknownTransactionException e) {
             throw new IllegalStateException("Unexpected transaction type", e);
@@ -158,6 +161,7 @@ public class Exchange {
         try {
             Transaction transaction = TransactionFactory.get("sale", share, week);
             transaction.commit(player);
+            notifyObservers();
             return transaction;
         } catch (UnknownTransactionException e) {
             throw new IllegalStateException("Unexpected transaction type", e);
@@ -185,6 +189,7 @@ public class Exchange {
         }
 
         week++;
+        notifyObservers();
     }
 
     /**
