@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 
 import no.ntnu.idatt2003.model.entity.Share;
 import no.ntnu.idatt2003.model.entity.Stock;
-import no.ntnu.idatt2003.model.logic.PurchaseCalculator;
 
 import java.math.BigDecimal;
 
