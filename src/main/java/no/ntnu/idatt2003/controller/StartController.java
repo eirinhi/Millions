@@ -31,18 +31,9 @@ public class StartController {
      * @return {@code true} if all inputs are valid, {@code false} otherwise
      */
     public static boolean validateInput(String name, int capital, File stockFile) {
-        if (name.isBlank()) {
-            showError("Name cannot be empty.");
-            return false;
-        }
-        if (capital < 1000 || capital > 100000) {
-            showError("Starting capital must be between 1000 and 100000.");
-            return false;
-        }
-        if (stockFile == null) {
-            showError("Please select a stock data file.");
-            return false;
-        }
+        if (name == null || name.isBlank()) return false;
+        if (capital < 1000 || capital > 100000) return false;
+        if (stockFile == null) return false;
         return true;
     }
 
@@ -68,21 +59,7 @@ public class StartController {
         try {
             return StockFileHandler.readStocksFromFile(file.getAbsolutePath());
         } catch (Exception e) {
-            showError("Could not read stock file: " + e.getMessage());
             return null;
         }
-    }
-
-    /**
-     * Displays an error alert dialog with the given message.
-     *
-     * @param message the error message to display
-     */
-    private static void showError(String message) {
-        Alert alert = new Alert(AlertType.ERROR);
-        alert.setTitle("Invalid input");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 }

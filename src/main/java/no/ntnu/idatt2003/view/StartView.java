@@ -48,8 +48,15 @@ public class StartView {
         nameLabel.setMinWidth(140);
         TextField nameField = new TextField();
         nameField.setPrefWidth(250);
+
+        Label nameError = new Label("Name cannot be empty.");
+        nameError.setStyle("-fx-text-fill: #810505; -fx-font-weight: bold; -fx-font-size: 12px;");
+        nameError.setVisible(false);
+
         HBox nameRow = new HBox(10, nameLabel, nameField);
         nameRow.setAlignment(Pos.CENTER_LEFT);
+        VBox nameSection = new VBox(2, nameRow, nameError);
+        nameSection.setAlignment(Pos.CENTER);
 
 
         // Capital input
@@ -58,8 +65,15 @@ public class StartView {
         Spinner<Integer> capitalSpinner = new Spinner<>(1000, 100000, 10000, 1000);
         capitalSpinner.setEditable(true);
         capitalSpinner.setPrefWidth(150);
+
+        Label capitalError = new Label("Capital must be between 1000 and 100000.");
+        capitalError.setStyle("-fx-text-fill: #810505; -fx-font-weight: bold; -fx-font-size: 12px;");
+        capitalError.setVisible(false);
+
         HBox capitalRow = new HBox(10, capitalLabel, capitalSpinner);
         capitalRow.setAlignment(Pos.CENTER_LEFT);
+        VBox capitalSection = new VBox(2, capitalRow, capitalError);
+        capitalSection.setAlignment(Pos.CENTER);
 
 
         // Stock file input
@@ -84,8 +98,15 @@ public class StartView {
                 fileNameLabel.setStyle("-fx-text-fill: black;");
             }
         });
+
+        Label fileError = new Label("Please select a stock data file.");
+        fileError.setStyle("-fx-text-fill: #810505; -fx-font-weight: bold; -fx-font-size: 12px;");
+        fileError.setVisible(false);
+
         HBox stockRow = new HBox(10, stockLabel, fileButton, fileNameLabel);
         stockRow.setAlignment(Pos.CENTER_LEFT);
+        VBox stockSection = new VBox(2, stockRow, fileError);
+        stockSection.setAlignment(Pos.CENTER);
 
 
         // Start button
@@ -96,9 +117,16 @@ public class StartView {
             String name = nameField.getText().trim();
             int capital = capitalSpinner.getValue();
 
+            nameError.setVisible(name.isBlank());
+            capitalError.setVisible(capital < 1000 || capital > 100000);
+            fileError.setVisible(selectedFile[0] == null);
+
             if (StartController.validateInput(name, capital, selectedFile[0])) {
                 List<Stock> stocks = StartController.loadStocks(selectedFile[0]);
-                if (stocks != null) {
+                if (stocks == null) {
+                    fileError.setText("Could not read stock file.");
+                    fileError.setVisible(true);
+                } else {
                     Player player = StartController.createPlayer(name, capital);
                     MainLayout mainLayout = new MainLayout(player, stocks);
                     primaryStage.setScene(new Scene(mainLayout, 1000, 700));
@@ -108,7 +136,7 @@ public class StartView {
 
 
         // Card layout containing all input fields and the start button
-        VBox card = new VBox(20, welcomeLabel, nameRow, capitalRow, stockRow, startButton);
+        VBox card = new VBox(20, welcomeLabel, nameSection, capitalSection, stockSection, startButton);
         card.setAlignment(Pos.CENTER);
         card.setMaxWidth(560);
         card.setPadding(new Insets(40));
