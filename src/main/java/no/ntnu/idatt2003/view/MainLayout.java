@@ -17,14 +17,12 @@ public class MainLayout extends BorderPane {
     private CheckBox weekGoal;
     private CheckBox growthGoal;
 
-    // Header label og lokal uke-offset (brukes hvis modellen ikke har metode for å gå til neste uke)
     private Label headerWeekLabel;
     private int weekOffset = 0;
 
     public MainLayout(Player player){
         this.player = player;
 
-        // Tydelige farger og størrelser for testing
         this.setTop(createHeader());
         this.setLeft(createSidebar());
 
@@ -42,19 +40,15 @@ public class MainLayout extends BorderPane {
         header.setPrefHeight(60);
         header.setStyle("-fx-background-color: linear-gradient(#ff9ac6, #f07ab3); -fx-border-color: black; -fx-border-width: 0 0 1 0;");
 
-        // Header label (tilgjengelig for oppdatering)
         headerWeekLabel = new Label();
         headerWeekLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
-        // Next week-knapp til høyre
         Button nextWeekBtn = new Button("Advance ->");
         nextWeekBtn.setStyle("-fx-font-size: 12px;");
         nextWeekBtn.setOnAction(e -> {
             weekOffset++;
             updateHeader();
             updateStatusDisplay();
-            // Hvis modellen har en metode for å avanser uke, kall den her i stedet:
-            // player.advanceWeek();
         });
 
         Region spacer = new Region();
@@ -116,7 +110,6 @@ public class MainLayout extends BorderPane {
         this.weekGoal.setMouseTransparent(true);
         this.growthGoal.setMouseTransparent(true);
 
-        // Spacer for å skyve EXIT-knappen til bunnen
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
 
@@ -153,7 +146,6 @@ public class MainLayout extends BorderPane {
         }
 
         String rank = "Novice";
-        // Oppdater stjerner og mål basert på ukers og prosentvilkår
         boolean tenWeeksMet = weeks >= 10;
         boolean twentyPercentMet = gainPercent >= 20;
         boolean twentyWeeksMet = weeks >= 20;
@@ -187,13 +179,12 @@ public class MainLayout extends BorderPane {
         this.setCenter(node);
     }
 
-    // Legg til denne hjelpe-metoden for plassholderavslutningsside
     private Node createExitView() {
         VBox box = new VBox(10);
         box.setPadding(new Insets(20));
         Label title = new Label("Avslutningsside");
         title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
-        Label info = new Label("Resultater kommer her. Implementer senere for å vise spillerens statistikk.");
+        Label info = new Label("Resultater kommer her.");
         info.setWrapText(true);
         box.getChildren().addAll(title, info);
         return box;
