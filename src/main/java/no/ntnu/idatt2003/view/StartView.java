@@ -1,8 +1,5 @@
 package no.ntnu.idatt2003.view;
 
-import java.io.File;
-import java.util.List;
-
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -12,11 +9,6 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
-import no.ntnu.idatt2003.controller.StartController;
-import no.ntnu.idatt2003.model.entity.Player;
-import no.ntnu.idatt2003.model.entity.Stock;
 
 /**
  * StartView is the initial view of the application.
@@ -27,17 +19,23 @@ public class StartView {
 
     /** The scene for the start view. */
     private final Scene scene;
+    private final TextField nameField;
+    private final Spinner<Integer> capitalSpinner;
+    private final Label nameError;
+    private final Label capitalError;
+    private final Label fileError;
+    private final Label fileNameLabel;
+    private final Button fileButton;
+    private final Button startButton;
 
     /**
-     * Constructs the StartView with the given primary stage.
-     *
-     * @param primaryStage the primary stage of the application
+     * Constructs the StartView.
      */
-    public StartView(Stage primaryStage) {
+    public StartView() {
 
         // Welcome label
         Label welcomeLabel = new Label("Welcome to Millions!");
-        welcomeLabel.setStyle("-fx-font-size: 40px;");
+        welcomeLabel.getStyleClass().add("hero-label");
         welcomeLabel.setPadding(new Insets(0, 0, 40, 0));
         welcomeLabel.setMaxWidth(Double.MAX_VALUE);
         welcomeLabel.setAlignment(Pos.CENTER);
@@ -46,12 +44,17 @@ public class StartView {
         // Name input
         Label nameLabel = new Label("Name : ");
         nameLabel.setMinWidth(140);
-        TextField nameField = new TextField();
+        nameField = new TextField();
         nameField.setPrefWidth(250);
 
-        Label nameError = new Label("Name cannot be empty.");
-        nameError.setStyle("-fx-text-fill: #810505; -fx-font-weight: bold; -fx-font-size: 12px;");
+        nameError = new Label("Name cannot be empty.");
+        nameError.getStyleClass().add("error-label");
         nameError.setVisible(false);
+        nameField.textProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue != null && !newValue.trim().isEmpty()) {
+                nameError.setVisible(false);
+            }
+        });
 
         HBox nameRow = new HBox(10, nameLabel, nameField);
         nameRow.setAlignment(Pos.CENTER_LEFT);
@@ -62,12 +65,12 @@ public class StartView {
         // Capital input
         Label capitalLabel = new Label("Starting capital : ");
         capitalLabel.setMinWidth(140);
-        Spinner<Integer> capitalSpinner = new Spinner<>(1000, 100000, 10000, 1000);
+        capitalSpinner = new Spinner<>(1000, 100000, 10000, 1000);
         capitalSpinner.setEditable(true);
         capitalSpinner.setPrefWidth(150);
 
-        Label capitalError = new Label("Capital must be between 1000 and 100000.");
-        capitalError.setStyle("-fx-text-fill: #810505; -fx-font-weight: bold; -fx-font-size: 12px;");
+        capitalError = new Label("Capital must be between 1000 and 100000.");
+        capitalError.getStyleClass().add("error-label");
         capitalError.setVisible(false);
 
         HBox capitalRow = new HBox(10, capitalLabel, capitalSpinner);
@@ -80,27 +83,12 @@ public class StartView {
         Label stockLabel = new Label("Stock data : ");
         stockLabel.setMinWidth(140);
 
-        final File[] selectedFile = {null};
+        fileButton = new Button("Select file");
+        fileNameLabel = new Label("No file selected");
+        fileNameLabel.getStyleClass().add("muted-label");
 
-        Button fileButton = new Button("Select file");
-        Label fileNameLabel = new Label("No file selected");
-        fileNameLabel.setStyle("-fx-text-fill: gray;");
-        fileButton.setOnAction(e -> {
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Select stock data file");
-            fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("CSV Files", "*.csv")
-            );
-            File choosen = fileChooser.showOpenDialog(primaryStage);
-            if (choosen != null) {
-                selectedFile[0] = choosen;
-                fileNameLabel.setText(choosen.getName());
-                fileNameLabel.setStyle("-fx-text-fill: black;");
-            }
-        });
-
-        Label fileError = new Label("Please select a stock data file.");
-        fileError.setStyle("-fx-text-fill: #810505; -fx-font-weight: bold; -fx-font-size: 12px;");
+        fileError = new Label("Please select a stock data file.");
+        fileError.getStyleClass().add("error-label");
         fileError.setVisible(false);
 
         HBox stockRow = new HBox(10, stockLabel, fileButton, fileNameLabel);
@@ -110,29 +98,8 @@ public class StartView {
 
 
         // Start button
-        Button startButton = new Button("START GAME");
-        startButton.setPrefWidth(500);
-        startButton.setStyle("-fx-font-size: 26px;");
-        startButton.setOnAction(e -> {
-            String name = nameField.getText().trim();
-            int capital = capitalSpinner.getValue();
-
-            nameError.setVisible(name.isBlank());
-            capitalError.setVisible(capital < 1000 || capital > 100000);
-            fileError.setVisible(selectedFile[0] == null);
-
-            if (StartController.validateInput(name, capital, selectedFile[0])) {
-                List<Stock> stocks = StartController.loadStocks(selectedFile[0]);
-                if (stocks == null) {
-                    fileError.setText("Could not read stock file.");
-                    fileError.setVisible(true);
-                } else {
-                    Player player = StartController.createPlayer(name, capital);
-                    MainLayout mainLayout = new MainLayout(player, stocks);
-                    primaryStage.setScene(new Scene(mainLayout, 1000, 700));
-                }
-            }
-        });
+        startButton = new Button("START GAME");
+        startButton.getStyleClass().add("large-btn");
 
 
         // Card layout containing all input fields and the start button
@@ -144,7 +111,7 @@ public class StartView {
         // Root layout containing the card
         VBox root = new VBox(card);
         root.setAlignment(Pos.CENTER);
-        root.setStyle("-fx-background-color: #f07ab3;");
+        root.getStyleClass().add("start-view");
 
         // Create the scene and apply the stylesheet
         scene = new Scene(root, 1000, 700);
@@ -160,5 +127,94 @@ public class StartView {
      */
     public Scene getScene() {
         return scene;
+    }
+
+    /**
+     * Sets the action for the start button.
+     *
+     * @param action action to run when start is clicked
+     */
+    public void setStartAction(Runnable action) {
+        startButton.setOnAction(e -> action.run());
+    }
+
+    /**
+     * Sets the action for the file selection button.
+     *
+     * @param action action to run when selecting stock file
+     */
+    public void setSelectFileAction(Runnable action) {
+        fileButton.setOnAction(e -> action.run());
+    }
+
+    /**
+     * Returns trimmed name input.
+     *
+     * @return entered name
+     */
+    public String getNameInput() {
+        return nameField.getText().trim();
+    }
+
+    /**
+     * Returns capital spinner value.
+     *
+     * @return selected capital
+     */
+    public int getCapitalInput() {
+        return capitalSpinner.getValue();
+    }
+
+    /**
+     * Shows or hides name validation error.
+     *
+     * @param visible whether the error should be visible
+     */
+    public void showNameError(boolean visible) {
+        nameError.setVisible(visible);
+    }
+
+    /**
+     * Shows or hides capital validation error.
+     *
+     * @param visible whether the error should be visible
+     */
+    public void showCapitalError(boolean visible) {
+        capitalError.setVisible(visible);
+    }
+
+    /**
+     * Shows a file-related error message.
+     *
+     * @param message message to display
+     */
+    public void showFileError(String message) {
+        fileError.setText(message);
+        fileError.setVisible(true);
+    }
+
+    /**
+     * Hides file-related error message.
+     */
+    public void hideFileError() {
+        fileError.setVisible(false);
+    }
+
+    /**
+     * Updates selected file name label.
+     *
+     * @param fileName selected file name, or empty/null to reset
+     */
+    public void setSelectedFileName(String fileName) {
+        if (fileName == null || fileName.isBlank()) {
+            fileNameLabel.setText("No file selected");
+            if (!fileNameLabel.getStyleClass().contains("muted-label")) {
+                fileNameLabel.getStyleClass().add("muted-label");
+            }
+            return;
+        }
+
+        fileNameLabel.setText(fileName);
+        fileNameLabel.getStyleClass().remove("muted-label");
     }
 }

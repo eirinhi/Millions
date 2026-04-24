@@ -4,11 +4,14 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.util.List;
 
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
+import javafx.scene.Scene;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import no.ntnu.idatt2003.model.entity.Player;
 import no.ntnu.idatt2003.model.entity.Stock;
 import no.ntnu.idatt2003.model.io.StockFileHandler;
+import no.ntnu.idatt2003.model.logic.Exchange;
+import no.ntnu.idatt2003.view.StartView;
 
 /**
  * Controller for the start view of the Millions game.
@@ -18,8 +21,77 @@ import no.ntnu.idatt2003.model.io.StockFileHandler;
  */
 public class StartController {
 
-    /** Private constructor to prevent instantiation. */
-    private StartController() {}
+    private final Stage primaryStage;
+    private final StartView startView;
+    private File selectedFile;
+
+    /**
+     * Creates a start screen controller and wires view callbacks.
+     *
+     * @param primaryStage application stage
+     */
+    public StartController(Stage primaryStage) {
+        this.primaryStage = primaryStage;
+        this.startView = new StartView();
+        this.selectedFile = null;
+
+        startView.setSelectFileAction(this::onSelectFile);
+        startView.setStartAction(this::onStartGame);
+    }
+
+    /**
+     * Returns the start screen scene.
+     *
+     * @return start scene
+     */
+    public Scene getScene() {
+        return startView.getScene();
+    }
+
+    /**
+     * Handles stock file selection.
+     */
+    private void onSelectFile() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select stock data file");
+        fileChooser.getExtensionFilters().add(
+            new FileChooser.ExtensionFilter("CSV Files", "*.csv")
+        );
+
+        File chosen = fileChooser.showOpenDialog(primaryStage);
+        if (chosen != null) {
+            selectedFile = chosen;
+            startView.setSelectedFileName(chosen.getName());
+            startView.hideFileError();
+        }
+    }
+
+    /**
+     * Handles start button click and navigates to main scene when valid.
+     */
+    private void onStartGame() {
+        String name = startView.getNameInput();
+        int capital = startView.getCapitalInput();
+
+        startView.showNameError(name.isBlank());
+        startView.showCapitalError(capital < 1000 || capital > 100000);
+
+        if (selectedFile == null) {
+            startView.showFileError("Please select a stock data file.");
+        } else {
+            startView.hideFileError();
+        }
+
+        Scene mainScene = createMainScene(name, capital, selectedFile);
+        if (mainScene == null) {
+            if (selectedFile != null && validateInput(name, capital, selectedFile)) {
+                startView.showFileError("Could not read stock file.");
+            }
+            return;
+        }
+
+        primaryStage.setScene(mainScene);
+    }
 
     /**
      * Validates the player's input on the start screen.
@@ -61,5 +133,39 @@ public class StartController {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /**
+     * Creates a new {@link Exchange} with the given list of stocks.
+     *
+     * @param stocks the list of stocks available on the exchange
+     * @return a new {@link Exchange} instance
+     */
+    public static Exchange createExchange(List<Stock> stocks) {
+        return new Exchange("Millions Exchange", stocks);
+    }
+
+    /**
+     * Creates the main game scene from start-screen input.
+     *
+     * @param name player name
+     * @param capital starting capital
+     * @param stockFile selected stock file
+     * @return the main game scene, or {@code null} if input/file is invalid
+     */
+    public static Scene createMainScene(String name, int capital, File stockFile) {
+        if (!validateInput(name, capital, stockFile)) {
+            return null;
+        }
+
+        List<Stock> stocks = loadStocks(stockFile);
+        if (stocks == null) {
+            return null;
+        }
+
+        Player player = createPlayer(name, capital);
+        Exchange exchange = createExchange(stocks);
+        MainViewController controller = new MainViewController(exchange, player);
+        return new Scene(controller.getView(), 1000, 700);
     }
 }
