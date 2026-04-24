@@ -1,5 +1,15 @@
-.button, .spinner, .text-field {
-    -fx-background-color: #fcdeecff;
+.spinner, .text-field {
+    -fx-background-color: white;
+    -fx-border-color: #d1699b;
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 8px;
+    -fx-font-size: 16px;
+}
+
+.button {
+    -fx-background-color: #f5629dff;
+    -fx-text-fill: white;
     -fx-border-color: #d1699b;
     -fx-border-width: 1.5px;
     -fx-border-radius: 5px;
@@ -13,7 +23,7 @@
 
 .button:pressed {
     -fx-translate-y: 0px;
-    -fx-background-color: #fcdeecff;
+    -fx-background-color: #d44f88;
 }
 
 .spinner .increment-arrow-button,
@@ -24,4 +34,121 @@
 
 .label {
     -fx-font-size: 16px;
+}
+
+.primary-btn {
+    -fx-padding: 8 16;
+    -fx-pref-width: 180;
+    -fx-pref-height: 44;
+}
+
+.danger-btn {
+    -fx-padding: 8 16;
+    -fx-background-color: #d9534f;
+    -fx-text-fill: white;
+    -fx-pref-width: 180;
+    -fx-pref-height: 44;
+}
+
+.large-btn {
+    -fx-font-size: 26px;
+    -fx-pref-width: 500;
+}
+
+.error-label {
+    -fx-text-fill: #d90a0a;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
+.muted-label {
+    -fx-text-fill: gray;
+}
+
+.hero-label {
+    -fx-font-size: 40px;
+}
+
+/* Layout */
+.app-view {
+    -fx-background-color: #eeeeee;
+    -fx-padding: 5;
+}
+
+.start-view {
+    -fx-background-color: #fcdeecff;
+}
+
+.header {
+    -fx-background-color: linear-gradient(#ff9ac6, #f07ab3);
+    -fx-border-color: black;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 10;
+    -fx-pref-height: 60;
+    -fx-alignment: center;
+}
+
+.sidebar {
+    -fx-background-color: #fcdeecff;
+    -fx-border-color: black;
+    -fx-border-width: 0 1 0 0;
+    -fx-padding: 10;
+    -fx-pref-width: 220;
+}
+
+/* Labels */
+.header-week-label {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.money-title {
+    -fx-font-size: 12px;
+    -fx-text-fill: gray;
+}
+
+.money-label {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.status-title {
+    -fx-font-size: 14px;
+    -fx-text-fill: gray;
+    -fx-font-family: 'Arial';
+}
+
+.rank-label {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.stars-label {
+    -fx-font-size: 18px;
+    -fx-text-fill: #f07ab3;
+}
+
+.separator-line {
+    -fx-background-color: #f07ab3;
+    -fx-pref-height: 2;
+    -fx-pref-width: 180;
+}
+
+.welcome-label {
+    -fx-font-size: 20px;
+    -fx-background-color: white;
+    -fx-padding: 20;
+}
+
+.exit-view {
+    -fx-padding: 20;
+}
+
+.exit-view-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.advance-btn {
+    -fx-font-size: 12px;
 }
