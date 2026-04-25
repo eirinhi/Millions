@@ -230,4 +230,30 @@ public class Exchange extends Subject {
                 .limit(limit)
                 .toList();
     }
+
+    public List<Stock> getAllStocks() {
+        return stockMap.values().stream().toList();
+    }
+
+    /**
+     * Returns stocks filtered by search term and price range.
+     *
+     * @param searchTerm matches against symbol or company name
+     * @param minPrice minimum sales price
+     * @param maxPrice maximum sales price
+     * @return filtered list of stocks
+     */
+    public List<Stock> getFilteredStocks(
+            final String searchTerm,
+            final BigDecimal minPrice,
+            final BigDecimal maxPrice) {
+
+        return stockMap.values().stream()
+            .filter(s -> searchTerm == null || searchTerm.isBlank()
+                || s.getSymbol().toLowerCase().contains(searchTerm)
+                || s.getCompany().toLowerCase().contains(searchTerm))
+            .filter(s -> s.getSalesPrice().compareTo(minPrice) >= 0)
+            .filter(s -> s.getSalesPrice().compareTo(maxPrice) <= 0)
+            .toList();
+    }
 }
