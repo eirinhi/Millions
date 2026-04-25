@@ -205,8 +205,8 @@ public class Exchange extends Subject {
             throw new IllegalArgumentException("Limit must be greater than 0.");
         }
         return stockMap.values().stream()
-                .sorted((s1, s2) -> s2.getLatestPriceChange()
-                .compareTo(s1.getLatestPriceChange()))
+                .sorted((s1, s2) -> s2.getWeeklyReturnPercentage()
+                .compareTo(s1.getWeeklyReturnPercentage()))
                 .limit(limit)
                 .toList();
     }
@@ -225,8 +225,8 @@ public class Exchange extends Subject {
         }
 
         return stockMap.values().stream()
-                .sorted((s1, s2) -> s1.getLatestPriceChange()
-                .compareTo(s2.getLatestPriceChange()))
+                .sorted((s1, s2) -> s1.getWeeklyReturnPercentage()
+                .compareTo(s2.getWeeklyReturnPercentage()))
                 .limit(limit)
                 .toList();
     }

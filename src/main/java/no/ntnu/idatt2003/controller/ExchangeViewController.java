@@ -48,5 +48,14 @@ public class ExchangeViewController implements Observer {
 
     public void updateTable() {
         exchangeView.updateStocks(exchange.getFilteredStocks(searchQuery, minPrice, maxPrice));
+        exchangeView.updateWinnersLosers(exchange.getGainers(5), exchange.getLosers(5));
+    }
+
+    public List<Stock> getGainers() {
+        return exchange.getGainers(5);
+    }
+
+    public List<Stock> getLosers() {
+        return exchange.getLosers(5);
     }
 }
