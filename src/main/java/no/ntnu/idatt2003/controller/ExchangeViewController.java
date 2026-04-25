@@ -16,6 +16,7 @@ public class ExchangeViewController implements Observer {
     private String searchQuery = "";
     private BigDecimal minPrice = BigDecimal.ZERO;
     private BigDecimal maxPrice = BigDecimal.valueOf(10000);
+    private String sortBy = "name";
 
     public ExchangeViewController(Exchange exchange) {
         this.exchange = exchange;
@@ -47,7 +48,21 @@ public class ExchangeViewController implements Observer {
     }
 
     public void updateTable() {
-        exchangeView.updateStocks(exchange.getFilteredStocks(searchQuery, minPrice, maxPrice));
+        List<Stock> stocks = exchange.getFilteredStocks(searchQuery, minPrice, maxPrice);
+
+        List<Stock> sorted = switch (sortBy) {
+            case "priceAsc" -> stocks.stream()
+                    .sorted((s1, s2) -> s1.getSalesPrice().compareTo(s2.getSalesPrice()))
+                    .toList();
+            case "priceDesc" -> stocks.stream()
+                    .sorted((s1, s2) -> s2.getSalesPrice().compareTo(s1.getSalesPrice()))
+                    .toList();
+            default -> stocks.stream()
+                    .sorted((s1, s2) -> s1.getSymbol().compareTo(s2.getSymbol()))
+                    .toList();
+        };
+
+        exchangeView.updateStocks(sorted);
         exchangeView.updateWinnersLosers(exchange.getGainers(5), exchange.getLosers(5));
     }
 
@@ -58,4 +73,10 @@ public class ExchangeViewController implements Observer {
     public List<Stock> getLosers() {
         return exchange.getLosers(5);
     }
+
+    public void onSort(String sortBy) {
+        this.sortBy = sortBy;
+        updateTable();
+    }
+
 }
