@@ -4,6 +4,8 @@ import java.util.List;
 
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import no.ntnu.idatt2003.model.entity.Stock;
 
@@ -14,14 +16,17 @@ public class WinnersLosersComponent extends VBox {
 
     public WinnersLosersComponent(List<Stock> gainers, List<Stock> losers) {
         super(10);
-
         Label winnersLabel = new Label("Winners");
-        winnersList = new VBox(5);
-        VBox winnersBox = new VBox(5, winnersLabel, winnersList);
+        winnersLabel.getStyleClass().add("winners-title");
+        winnersList = new VBox(6);
+        VBox winnersBox = new VBox(6, winnersLabel, winnersList);
+        winnersBox.getStyleClass().add("winners-box");
 
         Label losersLabel = new Label("Losers");
-        losersList = new VBox(5);
-        VBox losersBox = new VBox(5, losersLabel, losersList);
+        losersLabel.getStyleClass().add("losers-title");
+        losersList = new VBox(6);
+        VBox losersBox = new VBox(6, losersLabel, losersList);
+        losersBox.getStyleClass().add("losers-box");
 
         this.getChildren().addAll(winnersBox, losersBox);
         update(gainers, losers);
@@ -42,9 +47,25 @@ public class WinnersLosersComponent extends VBox {
 
     private HBox createStockRow(Stock stock, boolean winner) {
         Label nameLabel = new Label(stock.getSymbol());
-        Label returnLabel = new Label(stock.getWeeklyReturnPercentage() + "%");
+        nameLabel.getStyleClass().add("stock-row-name");
 
-        HBox row = new HBox(nameLabel, returnLabel);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        String returnText = stock.getWeeklyReturnPercentage().toPlainString() + "%";
+        if (winner) {
+            returnText = "+" + returnText;
+        }
+        Label returnLabel = new Label(returnText);
+
+        String returnStyle = "return-negative";
+        if (winner) {
+            returnStyle = "return-positive";
+        }
+        returnLabel.getStyleClass().addAll("return-label", returnStyle);
+
+        HBox row = new HBox(nameLabel, spacer, returnLabel);
+        row.getStyleClass().add("stock-row");
         return row;
     }
 }

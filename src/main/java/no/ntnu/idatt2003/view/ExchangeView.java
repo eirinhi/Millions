@@ -2,8 +2,11 @@ package no.ntnu.idatt2003.view;
 
 import java.util.List;
 
-import javafx.scene.control.Label;
+import javafx.geometry.Insets;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.RowConstraints;
 import no.ntnu.idatt2003.controller.ExchangeViewController;
 import no.ntnu.idatt2003.model.entity.Stock;
 import no.ntnu.idatt2003.view.components.PriceFilterComponent;
@@ -17,10 +20,26 @@ public class ExchangeView extends GridPane {
     private final WinnersLosersComponent winnersLosers;
 
     public ExchangeView(ExchangeViewController controller) {
+        this.setHgap(16);
+        this.setVgap(16);
+        this.setPadding(new Insets(24));
+
         SearchBarComponent searchBar = new SearchBarComponent(controller);
         PriceFilterComponent priceFilter = new PriceFilterComponent(controller);
         stockTable = new StockTableComponent(controller.getAllStocks(), controller);
         winnersLosers = new WinnersLosersComponent(controller.getGainers(), controller.getLosers());
+
+        ColumnConstraints col0 = new ColumnConstraints();
+        col0.setHgrow(Priority.ALWAYS);
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setHgrow(Priority.NEVER);
+        this.getColumnConstraints().addAll(col0, col1);
+
+        RowConstraints row0 = new RowConstraints();
+        row0.setVgrow(Priority.NEVER);
+        RowConstraints row1 = new RowConstraints();
+        row1.setVgrow(Priority.ALWAYS);
+        this.getRowConstraints().addAll(row0, row1);
 
         this.add(searchBar, 0, 0);
         this.add(priceFilter, 1, 0);

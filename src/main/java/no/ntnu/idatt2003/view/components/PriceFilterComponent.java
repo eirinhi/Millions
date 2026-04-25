@@ -2,6 +2,7 @@ package no.ntnu.idatt2003.view.components;
 
 import java.math.BigDecimal;
 
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
@@ -12,6 +13,8 @@ public class PriceFilterComponent extends HBox {
 
     public PriceFilterComponent(ExchangeViewController controller) {
         super(12);
+        this.setFillHeight(false);
+        this.setAlignment(Pos.CENTER_LEFT);
 
         Slider minSlider = new Slider(0, 10000, 0);
         Slider maxSlider = new Slider(0, 10000, 10000);
