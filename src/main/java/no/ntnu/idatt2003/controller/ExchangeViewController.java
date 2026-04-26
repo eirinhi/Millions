@@ -97,29 +97,14 @@ public class ExchangeViewController implements Observer {
     }
 
     /**
-     * Handles the sort action by updating the sorting criteria
-     * and refreshing the table.
+     * Fetches filtered and sorted stocks from the exchange and passes
+     * them to the view.
      */
     public void updateTable() {
-        List<Stock> stocks = exchange.getFilteredStocks(
-                searchQuery, minPrice, maxPrice);
+        List<Stock> stocks = exchange.getFilteredAndSortedStocks(
+                searchQuery, minPrice, maxPrice, sortBy);
 
-        List<Stock> sorted = switch (sortBy) {
-            case "priceAsc" -> stocks.stream()
-                    .sorted((s1, s2) -> s1.getSalesPrice()
-                        .compareTo(s2.getSalesPrice()))
-                    .toList();
-            case "priceDesc" -> stocks.stream()
-                    .sorted((s1, s2) -> s2.getSalesPrice()
-                        .compareTo(s1.getSalesPrice()))
-                    .toList();
-            default -> stocks.stream()
-                    .sorted((s1, s2) -> s1.getSymbol()
-                        .compareTo(s2.getSymbol()))
-                    .toList();
-        };
-
-        exchangeView.updateStocks(sorted);
+        exchangeView.updateStocks(stocks);
         exchangeView.updateWinnersLosers(
                 exchange.getGainers(TOP_LIST_LIMIT),
                 exchange.getLosers(TOP_LIST_LIMIT));
