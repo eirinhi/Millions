@@ -2,11 +2,7 @@ package no.ntnu.idatt2003.view;
 
 import java.math.BigDecimal;
 
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import no.ntnu.idatt2003.view.components.SideBarComponent;

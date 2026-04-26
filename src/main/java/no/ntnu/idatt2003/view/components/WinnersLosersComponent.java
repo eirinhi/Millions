@@ -9,30 +9,55 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import no.ntnu.idatt2003.model.entity.Stock;
 
+/**
+ * Component for displaying the winners and losers in the stock exchange.
+ */
 public class WinnersLosersComponent extends VBox {
 
-    VBox winnersList;
-    VBox losersList;
+    /** Spacing between elements. */
+    private static final int SPACING = 10;
 
-    public WinnersLosersComponent(List<Stock> gainers, List<Stock> losers) {
-        super(10);
+    /** Spacing between elements in the winners/losers boxes. */
+    private static final int BOX_SPACING = 6;
+
+    /** The list displaying the winning stocks. */
+    private VBox winnersList;
+
+    /** The list displaying the losing stocks. */
+    private VBox losersList;
+
+    /**
+     * Creates a new WinnersLosersComponent with the given gainers and losers.
+     * @param gainers the list of stocks that gained the most last week
+     * @param losers the list of stocks that lost the most last week
+     */
+    public WinnersLosersComponent(
+        final List<Stock> gainers, final List<Stock> losers) {
+        super(SPACING);
+
         Label winnersLabel = new Label("Winners");
         winnersLabel.getStyleClass().add("winners-title");
-        winnersList = new VBox(6);
-        VBox winnersBox = new VBox(6, winnersLabel, winnersList);
+        winnersList = new VBox(BOX_SPACING);
+        VBox winnersBox = new VBox(BOX_SPACING, winnersLabel, winnersList);
         winnersBox.getStyleClass().add("winners-box");
 
         Label losersLabel = new Label("Losers");
         losersLabel.getStyleClass().add("losers-title");
-        losersList = new VBox(6);
-        VBox losersBox = new VBox(6, losersLabel, losersList);
+        losersList = new VBox(BOX_SPACING);
+        VBox losersBox = new VBox(BOX_SPACING, losersLabel, losersList);
         losersBox.getStyleClass().add("losers-box");
 
         this.getChildren().addAll(winnersBox, losersBox);
         update(gainers, losers);
     }
 
-    public void update(List<Stock> gainers, List<Stock> losers) {
+    /**
+     * Updates the winners and losers lists with new data.
+     * @param gainers the new list of winning stocks to display
+     * @param losers the new list of losing stocks to display
+     */
+    public void update(
+        final List<Stock> gainers, final List<Stock> losers) {
         winnersList.getChildren().clear();
         losersList.getChildren().clear();
 
@@ -45,14 +70,21 @@ public class WinnersLosersComponent extends VBox {
         }
     }
 
-    private HBox createStockRow(Stock stock, boolean winner) {
+    /**
+     * Creates a row for a stock in the winners or losers list.
+     * @param stock the stock to create a row for
+     * @param winner whether the stock is a winner or loser
+     * @return an HBox representing the row for the stock
+     */
+    private HBox createStockRow(final Stock stock, final boolean winner) {
         Label nameLabel = new Label(stock.getSymbol());
         nameLabel.getStyleClass().add("stock-row-name");
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        String returnText = stock.getWeeklyReturnPercentage().toPlainString() + "%";
+        String returnText =
+            stock.getWeeklyReturnPercentage().toPlainString() + "%";
         if (winner) {
             returnText = "+" + returnText;
         }
