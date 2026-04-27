@@ -158,4 +158,30 @@ class ExchangeTest {
         List<Stock> losers = exchange.getLosers(3);
         assertEquals(List.of(s3, s2, s1), losers);
     }
+
+    @Test
+    void testGetFilteredStocks() {
+        assertEquals(List.of(s1), exchange.getFilteredStocks("s1", BigDecimal.ZERO, new BigDecimal("9999")));
+        assertEquals(List.of(s1), exchange.getFilteredStocks("company1", BigDecimal.ZERO, new BigDecimal("9999")));
+        assertEquals(List.of(), exchange.getFilteredStocks("NOTFOUND", BigDecimal.ZERO, new BigDecimal("9999")));
+        assertEquals(List.of(), exchange.getFilteredStocks(null, new BigDecimal("2000"), new BigDecimal("9999")));
+        assertEquals(List.of(), exchange.getFilteredStocks(null, BigDecimal.ZERO, new BigDecimal("500")));
+    }
+
+    @Test
+    void testGetFilteredAndSortedStocks() {
+        Stock cheap = new Stock("A", "Alpha", List.of(new BigDecimal("100")));
+        Stock mid   = new Stock("B", "Beta",  List.of(new BigDecimal("500")));
+        Stock pricey = new Stock("C", "Gamma", List.of(new BigDecimal("900")));
+        Exchange ex = new Exchange("SortTest", List.of(pricey, cheap, mid));
+
+        List<Stock> byPriceAsc = ex.getFilteredAndSortedStocks("", BigDecimal.ZERO, new BigDecimal("9999"), "priceAsc");
+        assertEquals(List.of(cheap, mid, pricey), byPriceAsc);
+
+        List<Stock> byPriceDesc = ex.getFilteredAndSortedStocks("", BigDecimal.ZERO, new BigDecimal("9999"), "priceDesc");
+        assertEquals(List.of(pricey, mid, cheap), byPriceDesc);
+
+        List<Stock> byName = ex.getFilteredAndSortedStocks("", BigDecimal.ZERO, new BigDecimal("9999"), "name");
+        assertEquals(List.of(cheap, mid, pricey), byName);
+    }
 }

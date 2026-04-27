@@ -1,5 +1,6 @@
 package no.ntnu.idatt2003.model.entity;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -165,6 +166,25 @@ public class Stock {
     BigDecimal previous = prices.get(prices.size() - 2);
 
     return latest.subtract(previous);
+  }
+
+  /**
+   * Returns the weekly return percentage.
+   *
+   * @return the weekly return percentage
+   */
+  public BigDecimal getWeeklyReturnPercentage() {
+    BigDecimal change = getLatestPriceChange();
+    if (change.compareTo(BigDecimal.ZERO) == 0) {
+      return BigDecimal.ZERO;
+    }
+    BigDecimal previous = getSalesPrice().subtract(change);
+    if (previous.compareTo(BigDecimal.ZERO) == 0) {
+      return BigDecimal.ZERO;
+    }
+    return change.divide(previous, 4, RoundingMode.HALF_UP)
+        .multiply(BigDecimal.valueOf(100))
+        .setScale(2, RoundingMode.HALF_UP);
   }
 
 
