@@ -1,13 +1,13 @@
 package no.ntnu.idatt2003.controller;
-
+ 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-
+ 
 import javafx.scene.control.Label;
 import no.ntnu.idatt2003.model.entity.Player;
 import no.ntnu.idatt2003.model.logic.Exchange;
 import no.ntnu.idatt2003.view.MainView;
-
+ 
 /**
  * Controller for the main application view.
  *
@@ -16,11 +16,12 @@ import no.ntnu.idatt2003.view.MainView;
  * keeping the header and status display in sync with model state.
  */
 public class MainViewController {
-
+ 
     private final Exchange exchange;
     private final Player player;
     private final MainView mainLayout;
-
+    private PortfolioController portfolioController;
+ 
     /**
      * Creates the controller and wires up the main view.
      *
@@ -31,15 +32,17 @@ public class MainViewController {
         this.exchange = exchange;
         this.player = player;
         this.mainLayout = new MainView(player.getName(), player.getMoney(), exchange.getWeek());
+        
+        this.portfolioController = new PortfolioController(mainLayout, player, exchange);
 
         mainLayout.setAdvanceAction(this::advanceWeek);
-        mainLayout.setPortfolioAction(() -> mainLayout.setView(new Label("Portfolio trykket")));
+        mainLayout.setPortfolioAction(portfolioController::showPortfolioView);
         mainLayout.setExchangeAction(() -> mainLayout.setView(new Label("Exchange trykket")));
         mainLayout.setExitAction(mainLayout::showExitView);
-
+ 
         updateView();
     }
-
+ 
     /**
      * Returns the main layout node to be placed in the scene graph.
      *
@@ -48,15 +51,17 @@ public class MainViewController {
     public MainView getView() {
         return mainLayout;
     }
-
+ 
     /**
-     * Advances the simulation by one week and refreshes the view.
+     * Advances the simulation by one week, records a chart point,
+     * and refreshes the view.
      */
     public void advanceWeek() {
         exchange.advance();
+        portfolioController.recordWeek(); // legg til nytt punkt på grafen
         updateView();
     }
-
+ 
     /**
      * Refreshes all dynamic UI elements to reflect current model state,
      * including the week counter, player balance, rank, stars, and goals.
@@ -64,17 +69,17 @@ public class MainViewController {
     private void updateView() {
         mainLayout.updateHeader(exchange.getWeek());
         mainLayout.updateMoney(player.getMoney());
-
+ 
         String rank = player.getStatus();
         int weeksTraded = player.getTransactionArchive().countDistinctWeeks();
         double gainPercent = calculateGainPercent();
-
+ 
         String stars;
         String goal1Text;
         boolean goal1Met;
         String goal2Text;
         boolean goal2Met;
-
+ 
         switch (rank) {
             case "Speculator" -> {
                 stars = "★ ★ ★";
@@ -98,10 +103,10 @@ public class MainViewController {
                 goal2Met = gainPercent >= 20;
             }
         }
-
+ 
         mainLayout.updateStatusDisplay(rank, stars, goal1Text, goal1Met, goal2Text, goal2Met);
     }
-
+ 
     /**
      * Calculates the player's net worth gain as a percentage of their starting money.
      *
