@@ -152,3 +152,22 @@
 .advance-btn {
     -fx-font-size: 12px;
 }
+
+.table-header {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333;
+}
+
+.table-cell {
+    -fx-font-size: 12px;
+    -fx-text-fill: #444;
+}
+
+.label.negative-value {
+    -fx-text-fill: #d90a0a;
+}
+
+.label.positive-value {
+    -fx-text-fill: #27ae60;
+}
