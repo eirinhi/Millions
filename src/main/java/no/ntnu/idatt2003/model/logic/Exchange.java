@@ -2,6 +2,7 @@ package no.ntnu.idatt2003.model.logic;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -166,6 +167,23 @@ public class Exchange extends Subject {
         } catch (UnknownTransactionException e) {
             throw new IllegalStateException("Unexpected transaction type", e);
         }
+    }
+
+    /**
+     * Allows for a player to sell all shares in their portfolio.
+     * All shares in the player's portfolio will be sold at the current price
+     * on the exchange, and a list of the sell transactions will be returned.
+     *
+     * @param player the player selling all their shares
+     * @return the list of transactions from selling all shares
+     */
+    public List<Transaction> sellAll(final Player player) {
+        List<Share> shares = new ArrayList<>(player.getPortfolio().getShares());
+        List<Transaction> transactions = new ArrayList<>();
+        for (Share share : shares) {
+            transactions.add(sell(share, player));
+        }
+        return transactions;
     }
 
     /**
