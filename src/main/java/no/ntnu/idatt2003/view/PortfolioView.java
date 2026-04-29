@@ -1,103 +1,155 @@
 package no.ntnu.idatt2003.view;
- 
+
+import java.util.List;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
-import java.util.List;
- 
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
+import no.ntnu.idatt2003.controller.PortfolioFormatter.HoldingRow;
+import no.ntnu.idatt2003.controller.PortfolioFormatter.ReceiptData;
+import no.ntnu.idatt2003.view.components.HoldingsTableComponent;
+import no.ntnu.idatt2003.view.components.TransactionsPanelComponent;
+
 /**
  * Portfolio view shown when the player clicks the "Portfolio" button.
  *
- * <p>Displays:
- * <ul>
- *   <li>A summary bar (performance, equity, cash)</li>
- *   <li>A line chart showing portfolio growth over time</li>
- *   <li>A holdings list on the left</li>
- *   <li>BUY / SELL buttons</li>
- *   <li>A transaction list on the right</li>
- * </ul>
+ * <p>Data population is delegated to {@link HoldingsTableComponent}
+ * and {@link TransactionsPanelComponent}.
  */
 public class PortfolioView extends VBox {
- 
-    private final Label performanceValue;
-    private final Label equityValue;
-    private final Label moneyValue;
- 
-    private final ListView<String> holdingsList;
-    private final ListView<String> transactionList;
- 
-    private final XYChart.Series<Number, Number> chartSeries;
-    private int chartWeekCounter = 0;
- 
+
+    // --- Summary labels ---
+    private final Label performanceValue = new Label("--");
+    private final Label equityValue      = new Label("-- NOK");
+    private final Label moneyValue       = new Label("-- NOK");
+
+    // --- Chart ---
+    private final XYChart.Series<Number, Number> chartSeries = new XYChart.Series<>();
+    private int chartWeek = 0;
+
+    // --- Components ---
+    private final HoldingsTableComponent     holdingsTable;
+    private final TransactionsPanelComponent transactionsPanel;
+
+    // --- Button callbacks ---
     private Runnable buyAction;
     private Runnable sellAction;
- 
+
+    // -----------------------------------------------------------------------
+    // Constructor
+    // -----------------------------------------------------------------------
+
     public PortfolioView() {
-        setSpacing(20);
+        setSpacing(16);
         setPadding(new Insets(20));
         getStyleClass().add("portfolio-view");
- 
-        performanceValue = new Label("--");
-        equityValue      = new Label("-- NOK");
-        moneyValue       = new Label("-- NOK");
-        holdingsList     = new ListView<>();
-        transactionList  = new ListView<>();
-        chartSeries      = new XYChart.Series<>();
+
         chartSeries.setName("Net Worth");
- 
-        getChildren().addAll(createSummaryBar(), createContentArea());
+        holdingsTable     = new HoldingsTableComponent();
+        transactionsPanel = new TransactionsPanelComponent();
+
+        getChildren().addAll(
+            buildSummaryBar(),
+            buildCenterRow(),
+            buildBottomRow()
+        );
     }
- 
-    private HBox createSummaryBar() {
+
+    // -----------------------------------------------------------------------
+    // Public API (called by PortfolioController)
+    // -----------------------------------------------------------------------
+
+    /**
+     * Updates the three summary labels.
+     *
+     * @param performance formatted string, e.g. "+3,50%"
+     * @param equity      formatted equity
+     * @param money       formatted cash balance
+     * @param positive    true → green, false → red for the performance label
+     */
+    public void updateStats(String performance, String equity,
+                            String money, boolean positive) {
+        performanceValue.setText(performance);
+        performanceValue.setStyle(
+            "-fx-text-fill:" + (positive ? "#27ae60" : "#e74c3c") + ";"
+        );
+        equityValue.setText(equity);
+        moneyValue.setText(money);
+    }
+
+    /**
+     * Replaces all holdings rows.
+     *
+     * @param rows one row per share currently owned
+     */
+    public void setHoldingRows(List<HoldingRow> rows) {
+        holdingsTable.update(rows);
+    }
+
+    /**
+     * Replaces all transaction receipt cards.
+     *
+     * @param receipts all transactions; newest will appear at the top
+     */
+    public void setReceipts(List<ReceiptData> receipts) {
+        transactionsPanel.update(receipts);
+    }
+
+    /** Appends one data point to the growth chart. */
+    public void addChartPoint(double netWorth) {
+        chartSeries.getData().add(new XYChart.Data<>(++chartWeek, netWorth));
+    }
+
+    /** Replaces the entire chart history (e.g. on initial load). */
+    public void setChartHistory(List<Double> values) {
+        chartSeries.getData().clear();
+        chartWeek = 0;
+        values.forEach(v ->
+            chartSeries.getData().add(new XYChart.Data<>(++chartWeek, v)));
+    }
+
+    public void setBuyAction(Runnable r)  { this.buyAction  = r; }
+    public void setSellAction(Runnable r) { this.sellAction = r; }
+
+    // -----------------------------------------------------------------------
+    // Layout builders (private)
+    // -----------------------------------------------------------------------
+
+    private HBox buildSummaryBar() {
         HBox bar = new HBox(40);
         bar.setAlignment(Pos.CENTER_LEFT);
-        bar.setPadding(new Insets(15));
+        bar.setPadding(new Insets(12, 16, 12, 16));
         bar.getStyleClass().add("summary-bar");
- 
         bar.getChildren().addAll(
-            createStatBox("Performance this week", performanceValue),
-            createStatBox("Equity",                equityValue),
-            createStatBox("Money",                 moneyValue)
+            statBox("Performance this week", performanceValue),
+            statBox("Equity",                equityValue),
+            statBox("Money",                 moneyValue)
         );
         return bar;
     }
- 
-    private VBox createStatBox(String title, Label valueLabel) {
-        Label titleLabel = new Label(title);
-        titleLabel.getStyleClass().add("stat-title");
-        valueLabel.getStyleClass().add("stat-value");
-        return new VBox(5, titleLabel, valueLabel);
+
+    private VBox statBox(String title, Label value) {
+        Label t = new Label(title);
+        t.getStyleClass().add("stat-title");
+        value.getStyleClass().add("stat-value");
+        return new VBox(4, t, value);
     }
- 
-    private HBox createContentArea() {
-        HBox content = new HBox(20);
-        VBox.setVgrow(content, Priority.ALWAYS);
- 
-        // Left: Holdings + BUY/SELL
-        Label holdingsTitle = new Label("Holdings");
-        holdingsTitle.getStyleClass().add("section-title");
- 
-        Button buyBtn  = new Button("BUY");
-        Button sellBtn = new Button("SELL");
-        buyBtn.getStyleClass().add("buy-btn");
-        sellBtn.getStyleClass().add("sell-btn");
-        buyBtn.setPrefWidth(90);
-        sellBtn.setPrefWidth(90);
- 
-        buyBtn.setOnAction(e -> { if (buyAction  != null) buyAction.run(); });
-        sellBtn.setOnAction(e -> { if (sellAction != null) sellAction.run(); });
- 
-        HBox btnRow = new HBox(10, buyBtn, sellBtn);
-        btnRow.setAlignment(Pos.CENTER_LEFT);
- 
-        VBox left = new VBox(10, holdingsTitle, holdingsList, btnRow);
-        left.setPrefWidth(220);
- 
-        // Middle: Line chart
+
+    /** Chart (left, grows) + transactions panel (right, fixed width). */
+    private HBox buildCenterRow() {
+        HBox row = new HBox(16, buildChart(), transactionsPanel);
+        VBox.setVgrow(row, Priority.ALWAYS);
+        return row;
+    }
+
+    private VBox buildChart() {
         NumberAxis xAxis = new NumberAxis();
         NumberAxis yAxis = new NumberAxis();
         xAxis.setLabel("Week");
@@ -105,9 +157,7 @@ public class PortfolioView extends VBox {
         xAxis.setForceZeroInRange(false);
         xAxis.setTickLabelFormatter(new NumberAxis.DefaultFormatter(xAxis) {
             @Override
-            public String toString(Number value) {
-                return String.valueOf(value.intValue());
-            }
+            public String toString(Number v) { return String.valueOf(v.intValue()); }
         });
 
         LineChart<Number, Number> chart = new LineChart<>(xAxis, yAxis);
@@ -117,91 +167,27 @@ public class PortfolioView extends VBox {
         chart.setAnimated(false);
         chart.getStyleClass().add("portfolio-chart");
         HBox.setHgrow(chart, Priority.ALWAYS);
- 
-        VBox middle = new VBox(chart);
+
+        VBox wrapper = new VBox(chart);
         VBox.setVgrow(chart, Priority.ALWAYS);
-        HBox.setHgrow(middle, Priority.ALWAYS);
- 
-        // Right: Transactions
-        Label txTitle = new Label("Transactions");
-        txTitle.getStyleClass().add("section-title");
- 
-        VBox right = new VBox(10, txTitle, transactionList);
-        right.setPrefWidth(220);
- 
-        content.getChildren().addAll(left, middle, right);
-        return content;
+        HBox.setHgrow(wrapper, Priority.ALWAYS);
+        return wrapper;
     }
- 
-    /**
-     * Updates the three summary labels at the top.
-     *
-     * @param performance formatted performance string (e.g. "+3.50%")
-     * @param equity      formatted equity string
-     * @param money       formatted cash string
-     * @param isPositive  true → green, false → red for performance label
-     */
-    public void updateStats(String performance, String equity, String money, boolean isPositive) {
-        performanceValue.setText(performance);
-        performanceValue.setStyle("-fx-text-fill: " + (isPositive ? "#27ae60" : "#e74c3c") + ";");
-        equityValue.setText(equity);
-        moneyValue.setText(money);
+
+    /** Holdings table + BUY / SELL buttons. */
+    private VBox buildBottomRow() {
+        Button buyBtn  = new Button("BUY");
+        Button sellBtn = new Button("SELL");
+        buyBtn.getStyleClass().add("buy-btn");
+        sellBtn.getStyleClass().add("sell-btn");
+        buyBtn.setPrefWidth(90);
+        sellBtn.setPrefWidth(90);
+        buyBtn.setOnAction(e ->  { if (buyAction  != null) buyAction.run();  });
+        sellBtn.setOnAction(e -> { if (sellAction != null) sellAction.run(); });
+
+        HBox buttons = new HBox(10, buyBtn, sellBtn);
+        buttons.setPadding(new Insets(8, 0, 0, 0));
+
+        return new VBox(8, holdingsTable, buttons);
     }
- 
-    /**
-     * Replaces the holdings list items.
-     *
-     * @param items formatted strings like "AAPL x5, gave 1 234,00 NOK"
-     */
-    public void setHoldings(List<String> items) {
-        holdingsList.getItems().setAll(items);
-    }
- 
-    /**
-     * Replaces the transaction list items.
-     *
-     * @param items formatted transaction strings
-     */
-    public void setTransactions(List<String> items) {
-        transactionList.getItems().setAll(items);
-    }
- 
-    /**
-     * Appends a new data point to the portfolio growth chart.
-     * Call once per refresh with the player's current net worth.
-     *
-     * @param netWorthValue the current net worth to plot
-     */
-    public void addChartPoint(double netWorthValue) {
-        chartSeries.getData().add(
-            new XYChart.Data<>(++chartWeekCounter, netWorthValue)
-        );
-    }
- 
-    /**
-     * Replaces all chart data (e.g. on initial load from history).
-     *
-     * @param weeklyNetWorths ordered list of net worth values, index 0 = week 1
-     */
-    public void setChartHistory(List<Double> weeklyNetWorths) {
-        chartSeries.getData().clear();
-        chartWeekCounter = 0;
-        for (double v : weeklyNetWorths) {
-            chartSeries.getData().add(new XYChart.Data<>(++chartWeekCounter, v));
-        }
-    }
- 
-    /**
-     * Registers the action to run when the BUY button is clicked.
-     *
-     * @param action the callback
-     */
-    public void setBuyAction(Runnable action)  { this.buyAction  = action; }
- 
-    /**
-     * Registers the action to run when the SELL button is clicked.
-     *
-     * @param action the callback
-     */
-    public void setSellAction(Runnable action) { this.sellAction = action; }
 }
