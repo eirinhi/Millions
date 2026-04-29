@@ -105,6 +105,23 @@ class ExchangeTest {
     }
 
     @Test
+    void testSellAll() {
+        Player player = new Player("Name", new BigDecimal("1000"));
+
+        Share share1 = new Share(s1, new BigDecimal("5"), new BigDecimal("1000"));
+        Stock s2 = new Stock("S2", "Company", prices);
+        Share share2 = new Share(s2, new BigDecimal("8"), new BigDecimal("1000"));
+
+        player.getPortfolio().addShare(share1);
+        player.getPortfolio().addShare(share2);
+
+        List<Transaction> transactions = exchange.sellAll(player);
+
+        assertEquals(2, transactions.size());
+        assertTrue(player.getPortfolio().getShares().isEmpty());
+    }
+
+    @Test
     void testAdvance() {
         assertEquals(1, exchange.getWeek());
         BigDecimal currentPrice = s1.getSalesPrice();
