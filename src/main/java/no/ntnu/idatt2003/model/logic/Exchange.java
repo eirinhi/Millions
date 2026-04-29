@@ -230,4 +230,13 @@ public class Exchange extends Subject {
                 .limit(limit)
                 .toList();
     }
+    
+    /**
+     * Returns an unmodifiable list of all stocks listed on the exchange.
+     *
+     * @return list of all stocks
+     */
+    public List<Stock> getAllStocks() {
+        return List.copyOf(stockMap.values());
+    }
 }
