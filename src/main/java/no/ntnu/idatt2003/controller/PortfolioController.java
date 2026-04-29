@@ -1,278 +1,135 @@
 package no.ntnu.idatt2003.controller;
- 
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
 
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.VBox;
+import java.math.BigDecimal;
+
 import no.ntnu.idatt2003.model.entity.Player;
-import no.ntnu.idatt2003.model.entity.Share;
 import no.ntnu.idatt2003.model.logic.Exchange;
+import no.ntnu.idatt2003.model.observer.Observer;
 import no.ntnu.idatt2003.view.MainView;
 import no.ntnu.idatt2003.view.PortfolioView;
- 
+
 /**
- * Controller for {@link PortfolioView}.
+ * Controller responsible for managing the {@link PortfolioView}.
  *
- * <p>Responsibilities:
+ * <p>This class acts as a mediator between the model layer
+ * ({@link Player}, {@link Exchange}) and the portfolio UI.
+ * It ensures that the view is always synchronized with the
+ * latest portfolio state.
+ *
+ * <p>The controller implements {@link Observer} so it can react
+ * automatically to updates from the {@link Exchange}, such as
+ * when time advances or trades are executed.
+ *
+ * <p>Responsibilities include:
  * <ul>
- *   <li>Create (or reuse) the view</li>
- *   <li>Populate it with model data on every {@link #refresh()}</li>
- *   <li>Record a new chart point on every week advance via {@link #recordWeek()}</li>
- *   <li>Wire up BUY / SELL button actions</li>
- *   <li>Pass the view to {@link MainView} for display</li>
+ *     <li>Initializing and displaying the portfolio view</li>
+ *     <li>Refreshing UI data when the model changes</li>
+ *     <li>Delegating formatting logic to {@code PortfolioFormatter}</li>
+ *     <li>Delegating trade dialogs to {@code TradeDialogHelper}</li>
+ *     <li>Updating performance history for chart visualization</li>
  * </ul>
+ *
+ * <p>This class does not perform business logic itself but coordinates
+ * between view, model, and helper components.
  */
-public class PortfolioController {
- 
-    // --- Formatters ---
-    private static final DecimalFormat MONEY_FMT;
-    private static final DecimalFormat PCT_FMT;
- 
-    static {
-        DecimalFormatSymbols nok = new DecimalFormatSymbols(new Locale("nb", "NO"));
-        MONEY_FMT = new DecimalFormat("#,##0.00 NOK", nok);
-        PCT_FMT   = new DecimalFormat("+0.00%;-0.00%", nok);
-    }
- 
+public class PortfolioController implements Observer {
+
     private final MainView mainView;
     private final Player player;
-    private PortfolioView view;
     private final Exchange exchange;
- 
-    // -----------------------------------------------------------------------
-    // Constructor
-    // -----------------------------------------------------------------------
 
+    private PortfolioView view;
+    private TradeDialogHelper tradeHelper;
+    private final PortfolioFormatter formatter = new PortfolioFormatter();
+
+    /**
+     * Creates a new PortfolioController and registers it as an observer
+     * of the exchange.
+     *
+     * @param mainView the main application view used for view switching
+     * @param player the currently active player whose portfolio is displayed
+     * @param exchange the stock exchange providing market updates
+     */
     public PortfolioController(MainView mainView, Player player, Exchange exchange) {
         this.mainView = mainView;
-        this.player   = player;
+        this.player = player;
         this.exchange = exchange;
+        this.exchange.attach(this);
     }
- 
-    // -----------------------------------------------------------------------
-    // Public API
-    // -----------------------------------------------------------------------
- 
+
     /**
-     * Creates (or reuses) the {@link PortfolioView}, refreshes its content,
-     * and displays it in the center of the main layout.
+     * Called automatically when the {@link Exchange} notifies observers
+     * of a state change. Triggers a refresh of the portfolio view.
+     */
+    @Override
+    public void update() {
+        refresh();
+    }
+
+    /**
+     * Displays the portfolio view in the main application window.
+     * The view is created slowly if it does not already exist.
      */
     public void showPortfolioView() {
         if (mainView == null) {
-            throw new IllegalStateException("MainView not available");
+            throw new IllegalStateException("MainView is not initialized");
         }
- 
-        if (this.view == null) {
-            this.view = new PortfolioView();
-            wireBuyAction();
-            wireSellAction();
+
+        if (view == null) {
+            view = new PortfolioView();
+            tradeHelper = new TradeDialogHelper(exchange, player, this::refresh);
+
+            view.setBuyAction(tradeHelper::showBuyDialog);
+            view.setSellAction(tradeHelper::showSellDialog);
         }
- 
+
         refresh();
-        mainView.setView(this.view);
+        mainView.setView(view);
     }
- 
+
     /**
-     * Pulls fresh data from the model and updates labels, holdings,
-     * and transactions. Does NOT touch the chart — chart points are
-     * only added via {@link #recordWeek()}.
+     * Refreshes all displayed portfolio data.
+     * <p>This method is safe to call even if the view has not yet been created.
+     * In that case, the call is ignored.
      */
     public void refresh() {
         if (view == null) return;
- 
-        BigDecimal money   = safe(player.getMoney());
-        BigDecimal equity  = computeEquity();
-        double perfPercent = computePerformancePercent();
- 
+
+        double performance = formatter.performancePercent(player);
+
         view.updateStats(
-            formatPercent(perfPercent),
-            formatMoney(equity),
-            formatMoney(money),
-            perfPercent >= 0
+            String.format("%+.2f%%", performance),
+            String.format("%.2f NOK", formatter.equity(player)),
+            String.format("%.2f NOK", player.getMoney()),
+            performance >= 0
         );
-        view.setHoldings(formatHoldings());
-        view.setTransactions(formatTransactions());
+
+        view.setHoldingRows(formatter.holdingRows(player));
+        view.setReceipts(formatter.receipts(player));
     }
- 
+
     /**
-     * Appends a new data point to the portfolio growth chart.
-     * Should be called by {@link MainViewController#advanceWeek()} each time
-     * the week advances, never when the portfolio view is merely opened.
+     * Records the current total portfolio value as a new data point
+     * in the performance chart.
+     *
+     * <p>This method should be called once per simulated time step,
+     * typically when a new week is advanced in the application.
      */
     public void recordWeek() {
         if (view == null) return;
-        BigDecimal money  = safe(player.getMoney());
-        BigDecimal equity = computeEquity();
-        view.addChartPoint(money.add(equity).doubleValue());
+
+        BigDecimal totalValue = player.getMoney()
+            .add(formatter.equity(player));
+
+        view.addChartPoint(totalValue.doubleValue());
     }
- 
+
     /**
-     * Releases any resources held by this controller.
+     * Removes this controller from the exchange observer list.
+     * <p>Should be called when the controller is no longer needed
+     * to prevent memory leaks.
      */
     public void dispose() {
-        // Unregister observers here if added later
+        exchange.detach(this);
     }
- 
-    // -----------------------------------------------------------------------
-    // Private – button wiring
-    // -----------------------------------------------------------------------
- 
-    private void wireBuyAction() {
-        view.setBuyAction(() -> {
-            Dialog<ButtonType> dialog = new Dialog<>();
-            dialog.setTitle("BUY");
-            ComboBox<String> symbolBox = new ComboBox<>();
-            symbolBox.setPromptText("Select a stock");
-
-            TextField quantityField = new TextField();
-            quantityField.setPromptText("Enter quantity");
-
-            Label errorLabel = new Label();
-
-            VBox content = new VBox(10,
-                new Label("Symbol:"), symbolBox,
-                new Label("Quantity:"), quantityField,
-                errorLabel  
-            );
-            dialog.getDialogPane().setContent(content);
-            dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-
-            dialog.showAndWait().ifPresent(result -> {
-                if (result != ButtonType.OK) return;
-                try {
-                    String symbol = symbolBox.getValue();
-                    BigDecimal quantity = new BigDecimal(quantityField.getText().trim());
-                    exchange.buy(symbol, quantity, player);
-                    refresh();
-                } catch (IllegalArgumentException | IllegalStateException e) {
-                    errorLabel.setText("Wrong: " + e.getMessage());
-                }
-            });
-        });
-    }
- 
-    private void wireSellAction() {
-        view.setSellAction(() -> {
-            List<Share> shares = player.getPortfolio().getShares();
-
-            if (shares.isEmpty()) {
-                Alert alert = new Alert(Alert.AlertType.INFORMATION, "You do not own any shares.");
-                alert.setTitle("Sell share");
-                alert.showAndWait();
-                return;
-            }
-
-            Dialog<ButtonType> dialog = new Dialog<>();
-            dialog.setTitle("SELL");
-
-            ComboBox<Share> shareBox = new ComboBox<>();
-            shareBox.getItems().addAll(shares);
-
-            shareBox.setConverter(new javafx.util.StringConverter<>() {
-                @Override
-                public String toString(Share share) {
-                    if (share == null) return "";
-                    return share.getStock().getSymbol()
-                            + " x" + share.getQuantity()
-                            + " (Price: " + share.getStock().getSalesPrice() + ")";
-                }
-
-                @Override
-                public Share fromString(String string) {
-                    return null;
-            }
-        });
-
-        Label errorLabel = new Label();
-        errorLabel.setStyle("-fx-text-fill: red;");
-
-        VBox content = new VBox(10,
-            new Label("Choose share:"), shareBox, errorLabel);
-        dialog.getDialogPane().setContent(content);
-        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-
-        dialog.showAndWait().ifPresent(result -> {
-            if (result != ButtonType.OK) return;
-            try {
-                Share selected = shareBox.getValue();
-                if (selected == null) {
-                    errorLabel.setText("Choose stock first.");
-                    return;
-                }
-                exchange.sell(selected, player);
-                refresh();
-
-            } catch (IllegalArgumentException | IllegalStateException e) {
-                errorLabel.setStyle("-fx-text-fill: red;");
-                errorLabel.setText("Error: " + e.getMessage());
-            }
-        });
-    });
 }
-
-    // -----------------------------------------------------------------------
-    // Private – business logic
-    // -----------------------------------------------------------------------
- 
-    private BigDecimal computeEquity() {
-        try {
-            return player.getPortfolio().getShares().stream()
-                    .map(s -> safe(s.getStock().getSalesPrice()).multiply(s.getQuantity()))
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-        } catch (Exception e) {
-            return BigDecimal.ZERO;
-        }
-    }
- 
-    private double computePerformancePercent() {
-        BigDecimal starting = player.getStartingMoney() == null
-                ? BigDecimal.ZERO : player.getStartingMoney();
-        BigDecimal current  = safe(player.getMoney()).add(computeEquity());
-        if (starting.compareTo(BigDecimal.ZERO) <= 0) return 0.0;
-        return current.subtract(starting)
-                .multiply(new BigDecimal("100"))
-                .divide(starting, 4, java.math.RoundingMode.HALF_UP)
-                .doubleValue();
-    }
- 
-    private List<String> formatHoldings() {
-        try {
-            return player.getPortfolio().getShares().stream()
-                    .map(s -> s.getStock().getSymbol()
-                            + " x" + s.getQuantity()
-                            + " gave " + formatMoney(s.getStock().getSalesPrice()))
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            return List.of();
-        }
-    }
- 
-    private List<String> formatTransactions() {
-        try {
-            return player.getTransactionArchive().getAll().stream()
-                    .map(Object::toString)
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            return List.of();
-        }
-    }
- 
-    // -----------------------------------------------------------------------
-    // Private – formatting helpers
-    // -----------------------------------------------------------------------
- 
-    private BigDecimal safe(BigDecimal v)    { return v == null ? BigDecimal.ZERO : v; }
-    private String formatMoney(BigDecimal v) { return MONEY_FMT.format(v); }
-    private String formatPercent(double p)   { return PCT_FMT.format(p / 100.0); }
-}
- 
