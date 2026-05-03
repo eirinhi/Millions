@@ -7,7 +7,6 @@ import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import no.ntnu.idatt2003.model.entity.Player;
 import no.ntnu.idatt2003.model.logic.Exchange;
-import no.ntnu.idatt2003.view.GameSummaryView;
 import no.ntnu.idatt2003.view.ExchangeView;
 import no.ntnu.idatt2003.view.MainView;
 
@@ -132,6 +131,6 @@ public class MainViewController {
      */
     private void showGameSummaryView() {
         Stage stage = (Stage) mainView.getScene().getWindow();
-        stage.setScene(new GameSummaryView(player).getScene());
+        stage.setScene(new GameSummaryViewController(exchange, player).getView().getScene());
     }
 }
