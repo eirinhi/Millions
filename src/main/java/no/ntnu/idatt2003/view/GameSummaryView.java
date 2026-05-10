@@ -1,5 +1,6 @@
 package no.ntnu.idatt2003.view;
 
+import java.io.InputStream;
 import java.math.BigDecimal;
 
 import javafx.geometry.Pos;
@@ -93,9 +94,11 @@ public class GameSummaryView {
         achievedStatus.setAlignment(Pos.CENTER);
         achievedStatus.getStyleClass().add("achieved-status");
 
-        Image image = new Image(
-            getClass().getResourceAsStream(imagePath(status)));
-        ImageView imageView = new ImageView(image);
+        InputStream imageStream =
+            getClass().getResourceAsStream(imagePath(status));
+        ImageView imageView = imageStream != null
+            ? new ImageView(new Image(imageStream))
+            : new ImageView();
         imageView.setPreserveRatio(true);
         content.setAlignment(Pos.CENTER);
         content.getChildren().addAll(achievedStatus, imageView);
@@ -173,11 +176,11 @@ public class GameSummaryView {
     private String imagePath(final String status) {
         return switch (status) {
             case "Speculator" ->
-                "/no/ntnu/idatt2003/images/three-stars-medal.png";
+                "/no/ntnu/idatt2003/img/three-stars-medal.png";
             case "Investor" ->
-                "/no/ntnu/idatt2003/images/two-stars-medal.png";
+                "/no/ntnu/idatt2003/img/two-stars-medal.png";
             default ->
-                "/no/ntnu/idatt2003/images/one-star-medal.png";
+                "/no/ntnu/idatt2003/img/one-star-medal.png";
         };
     }
 
