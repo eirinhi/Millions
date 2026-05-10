@@ -288,3 +288,45 @@
 .table-view .table-row-cell:selected .table-cell {
     -fx-text-fill: #222;
 }
+
+.achieved-status {
+    -fx-text-fill: gray;
+    -fx-font-weight: bold;
+    -fx-font-size: 18px;
+}
+
+.game-summary-view {
+    -fx-background-color: #f9d0e6;
+    -fx-padding: 150px 200px;
+}
+
+.content-box {
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 0px 20px;
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e8a0c4;
+}
+
+.summary-box {
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 20px;
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e8a0c4;
+}
+
+.summary-value {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+}
+
+.summary-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.status-label {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
