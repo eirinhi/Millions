@@ -7,7 +7,6 @@ import javafx.geometry.Pos;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -31,7 +30,8 @@ import no.ntnu.idatt2003.view.components.TransactionsPanelComponent;
  * <p>The class contains only UI logic. All business logic and data
  * manipulation is handled externally (controller/services).
  *
- * <p>User actions (BUY/SELL) are handled via callbacks.
+ * <p>Trade actions (buy/sell) are handled by the dedicated TradeView,
+ * not from this view.
  */
 public class PortfolioView extends VBox {
 
@@ -44,9 +44,6 @@ public class PortfolioView extends VBox {
 
     private final HoldingsTableComponent     holdingsTable;
     private final TransactionsPanelComponent transactionsPanel;
-
-    private Runnable buyAction;
-    private Runnable sellAction;
 
     /**
      * Constructs the portfolio view and initializes all UI components.
@@ -124,24 +121,6 @@ public class PortfolioView extends VBox {
     }
 
     /**
-     * Sets callback for BUY button action.
-     *
-     * @param r runnable executed when BUY is clicked
-     */
-    public void setBuyAction(Runnable r) {
-        this.buyAction = r;
-    }
-
-    /**
-     * Sets callback for SELL button action.
-     *
-     * @param r runnable executed when SELL is clicked
-     */
-    public void setSellAction(Runnable r) {
-        this.sellAction = r;
-    }
-
-    /**
      * Builds the summary bar at the top of the view.
      *
      * @return configured HBox containing summary labels
@@ -216,23 +195,14 @@ public class PortfolioView extends VBox {
     }
 
     /**
-     * Builds the bottom section containing holdings table and action buttons.
+     * Builds the bottom section containing the holdings table.
      *
-     * @return VBox containing holdings table and BUY/SELL buttons
+     * <p>Trade actions (buy/sell) are no longer initiated from this view.
+     * They are handled by the dedicated TradeView instead.
+     *
+     * @return VBox containing the holdings table
      */
     private VBox buildBottomRow() {
-        Button buyBtn  = new Button("BUY");
-        Button sellBtn = new Button("SELL");
-        buyBtn.getStyleClass().add("buy-btn");
-        sellBtn.getStyleClass().add("sell-btn");
-        buyBtn.setPrefWidth(90);
-        sellBtn.setPrefWidth(90);
-        buyBtn.setOnAction(e ->  { if (buyAction  != null) buyAction.run();  });
-        sellBtn.setOnAction(e -> { if (sellAction != null) sellAction.run(); });
-
-        HBox buttons = new HBox(10, buyBtn, sellBtn);
-        buttons.setPadding(new Insets(8, 0, 0, 0));
-
-        return new VBox(8, holdingsTable, buttons);
+        return new VBox(8, holdingsTable);
     }
 }
