@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
  
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
 import no.ntnu.idatt2003.model.entity.Player;
 import no.ntnu.idatt2003.model.logic.Exchange;
 import no.ntnu.idatt2003.view.MainView;
@@ -19,8 +20,12 @@ public class MainViewController {
  
     private final Exchange exchange;
     private final Player player;
-    private final MainView mainLayout;
-    private PortfolioController portfolioController;
+
+    private final MainView mainView;
+    private final PortfolioController portfolioController;
+
+    private final ExchangeViewController exchangeViewController;
+    private final ExchangeView exchangeView;
  
     /**
      * Creates the controller and wires up the main view.
@@ -31,15 +36,22 @@ public class MainViewController {
     public MainViewController(Exchange exchange, Player player) {
         this.exchange = exchange;
         this.player = player;
-        this.mainLayout = new MainView(player.getName(), player.getMoney(), exchange.getWeek());
-        
-        this.portfolioController = new PortfolioController(mainLayout, player, exchange);
 
-        mainLayout.setAdvanceAction(this::advanceWeek);
-        mainLayout.setPortfolioAction(portfolioController::showPortfolioView);
-        mainLayout.setExchangeAction(() -> mainLayout.setView(new Label("Exchange trykket")));
-        mainLayout.setExitAction(mainLayout::showExitView);
- 
+        this.mainView = new MainView(
+            player.getName(), 
+            player.getMoney(), 
+            exchange.getWeek());
+
+        this.portfolioController = new PortfolioController(mainView, player, exchange);
+
+        this.exchangeViewController = new ExchangeViewController(exchange, player);
+        this.exchangeView = new ExchangeView(exchangeViewController);
+
+        mainView.setAdvanceAction(this::advanceWeek);
+        mainView.setPortfolioAction(portfolioController::showPortfolioView);
+        mainView.setExchangeAction(() -> mainView.setView(exchangeView));
+        mainView.setExitAction(mainView::showGameSummaryView);
+
         updateView();
     }
  
@@ -49,7 +61,7 @@ public class MainViewController {
      * @return the {@link MainView} managed by this controller
      */
     public MainView getView() {
-        return mainLayout;
+        return mainView;
     }
  
     /**
@@ -67,9 +79,9 @@ public class MainViewController {
      * including the week counter, player balance, rank, stars, and goals.
      */
     private void updateView() {
-        mainLayout.updateHeader(exchange.getWeek());
-        mainLayout.updateMoney(player.getMoney());
- 
+        mainView.updateHeader(exchange.getWeek());
+        mainView.updateMoney(player.getMoney());
+
         String rank = player.getStatus();
         int weeksTraded = player.getTransactionArchive().countDistinctWeeks();
         double gainPercent = calculateGainPercent();
@@ -103,8 +115,14 @@ public class MainViewController {
                 goal2Met = gainPercent >= 20;
             }
         }
- 
-        mainLayout.updateStatusDisplay(rank, stars, goal1Text, goal1Met, goal2Text, goal2Met);
+
+        mainView.updateStatusDisplay(
+            rank, 
+            stars, 
+            goal1Text, 
+            goal1Met, 
+            goal2Text, 
+            goal2Met);
     }
  
     /**
@@ -121,5 +139,13 @@ public class MainViewController {
                        .doubleValue();
         }
         return 0.0;
+    }
+
+    /**
+     * Shows the game summary view after the player ends the game.
+     */
+    private void showGameSummaryView() {
+        Stage stage = (Stage) mainView.getScene().getWindow();
+        stage.setScene(new GameSummaryViewController(exchange, player).getView().getScene());
     }
 }
