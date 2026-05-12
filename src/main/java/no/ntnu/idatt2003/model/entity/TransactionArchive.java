@@ -42,6 +42,15 @@ public class TransactionArchive {
     }
 
     /**
+     * Retrieves all transactions in the archive.
+     *
+     * @return an unmodifiable list of all transactions
+     */
+    public List<Transaction> getAll() {
+        return List.copyOf(transactions);
+    }
+
+    /**
      * Retrieves all transactions that occurred in the specified week.
      *
      * @param week the week to filter transactions by
