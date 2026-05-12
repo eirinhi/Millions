@@ -3,8 +3,6 @@ package no.ntnu.idatt2003.controller;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
  
-import javafx.scene.control.Label;
-import javafx.stage.Stage;
 import javafx.stage.Stage;
 import no.ntnu.idatt2003.model.entity.Player;
 import no.ntnu.idatt2003.model.logic.Exchange;
@@ -22,8 +20,13 @@ public class MainViewController {
  
     private final Exchange exchange;
     private final Player player;
-    private final MainView mainLayout;
 
+    private final MainView mainView;
+    private final PortfolioController portfolioController;
+
+    private final ExchangeViewController exchangeViewController;
+    private final ExchangeView exchangeView;
+ 
     /**
      * Creates the controller and wires up the main view.
      *
@@ -77,8 +80,8 @@ public class MainViewController {
      * including the week counter, player balance, rank, stars, and goals.
      */
     private void updateView() {
-        mainLayout.updateHeader(exchange.getWeek());
-        mainLayout.updateMoney(player.getMoney());
+        mainView.updateHeader(exchange.getWeek());
+        mainView.updateMoney(player.getMoney());
 
         String rank = player.getStatus();
         int weeksTraded = player.getTransactionArchive().countDistinctWeeks();
@@ -114,7 +117,13 @@ public class MainViewController {
             }
         }
 
-        mainView.updateStatusDisplay(rank, stars, goal1Text, goal1Met, goal2Text, goal2Met);
+        mainView.updateStatusDisplay(
+            rank, 
+            stars, 
+            goal1Text, 
+            goal1Met, 
+            goal2Text, 
+            goal2Met);
     }
  
     /**
