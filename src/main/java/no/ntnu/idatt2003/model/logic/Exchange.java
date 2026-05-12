@@ -232,11 +232,75 @@ public class Exchange extends Subject {
     }
     
     /**
-     * Returns an unmodifiable list of all stocks listed on the exchange.
+     * Returns a list of all stocks available on the exchange.
      *
-     * @return list of all stocks
+     * @return a list of all stocks available on the exchange
      */
     public List<Stock> getAllStocks() {
-        return List.copyOf(stockMap.values());
+        return stockMap.values().stream().toList();
     }
+
+    /**
+ * Returns stocks filtered by search term and price range.
+ *
+ * @param searchTerm matches against symbol or company name
+ * @param minPrice minimum sales price
+ * @param maxPrice maximum sales price
+ * @return filtered list of stocks
+ */
+public List<Stock> getFilteredStocks(
+        final String searchTerm,
+        final BigDecimal minPrice,
+        final BigDecimal maxPrice) {
+
+    return stockMap.values().stream()
+        .filter(s -> searchTerm == null || searchTerm.isBlank()
+            || s.getSymbol().toLowerCase()
+                .contains(searchTerm.toLowerCase())
+            || s.getCompany().toLowerCase()
+                .contains(searchTerm.toLowerCase()))
+        .filter(s -> s.getSalesPrice().compareTo(minPrice) >= 0)
+        .filter(s -> s.getSalesPrice().compareTo(maxPrice) <= 0)
+        .toList();
+}
+
+/**
+ * Returns stocks filtered by search term and price range,
+ * sorted by the given criteria.
+ *
+ * @param searchTerm matches against symbol or company name
+ * @param minPrice minimum sales price
+ * @param maxPrice maximum sales price
+ * @param sortBy sorting criteria
+ * @return filtered and sorted list of stocks
+ */
+public List<Stock> getFilteredAndSortedStocks(
+        final String searchTerm,
+        final BigDecimal minPrice,
+        final BigDecimal maxPrice,
+        final String sortBy) {
+
+    List<Stock> filtered = getFilteredStocks(
+        searchTerm,
+        minPrice,
+        maxPrice
+    );
+
+    return switch (sortBy) {
+        case "priceAsc" -> filtered.stream()
+            .sorted((s1, s2) -> s1.getSalesPrice()
+                .compareTo(s2.getSalesPrice()))
+            .toList();
+
+        case "priceDesc" -> filtered.stream()
+            .sorted((s1, s2) -> s2.getSalesPrice()
+                .compareTo(s1.getSalesPrice()))
+            .toList();
+
+        default -> filtered.stream()
+            .sorted((s1, s2) -> s1.getSymbol()
+                .compareTo(s2.getSymbol()))
+            .toList();
+    };
+}
 }
