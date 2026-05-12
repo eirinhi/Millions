@@ -5,8 +5,10 @@ import java.math.RoundingMode;
  
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
+import javafx.stage.Stage;
 import no.ntnu.idatt2003.model.entity.Player;
 import no.ntnu.idatt2003.model.logic.Exchange;
+import no.ntnu.idatt2003.view.ExchangeView;
 import no.ntnu.idatt2003.view.MainView;
  
 /**
@@ -20,13 +22,8 @@ public class MainViewController {
  
     private final Exchange exchange;
     private final Player player;
+    private final MainView mainLayout;
 
-    private final MainView mainView;
-    private final PortfolioController portfolioController;
-
-    private final ExchangeViewController exchangeViewController;
-    private final ExchangeView exchangeView;
- 
     /**
      * Creates the controller and wires up the main view.
      *
@@ -38,19 +35,20 @@ public class MainViewController {
         this.player = player;
 
         this.mainView = new MainView(
-            player.getName(), 
-            player.getMoney(), 
-            exchange.getWeek());
+            player.getName(),
+            player.getMoney(),
+            exchange.getWeek()
+        );
 
         this.portfolioController = new PortfolioController(mainView, player, exchange);
 
-        this.exchangeViewController = new ExchangeViewController(exchange, player);
+        this.exchangeViewController = new ExchangeViewController(exchange);
         this.exchangeView = new ExchangeView(exchangeViewController);
 
         mainView.setAdvanceAction(this::advanceWeek);
         mainView.setPortfolioAction(portfolioController::showPortfolioView);
         mainView.setExchangeAction(() -> mainView.setView(exchangeView));
-        mainView.setExitAction(mainView::showGameSummaryView);
+        mainView.setExitAction(this::showGameSummaryView);
 
         updateView();
     }
@@ -70,7 +68,7 @@ public class MainViewController {
      */
     public void advanceWeek() {
         exchange.advance();
-        portfolioController.recordWeek(); // legg til nytt punkt på grafen
+        portfolioController.recordWeek(); 
         updateView();
     }
  
@@ -79,8 +77,8 @@ public class MainViewController {
      * including the week counter, player balance, rank, stars, and goals.
      */
     private void updateView() {
-        mainView.updateHeader(exchange.getWeek());
-        mainView.updateMoney(player.getMoney());
+        mainLayout.updateHeader(exchange.getWeek());
+        mainLayout.updateMoney(player.getMoney());
 
         String rank = player.getStatus();
         int weeksTraded = player.getTransactionArchive().countDistinctWeeks();
@@ -116,13 +114,7 @@ public class MainViewController {
             }
         }
 
-        mainView.updateStatusDisplay(
-            rank, 
-            stars, 
-            goal1Text, 
-            goal1Met, 
-            goal2Text, 
-            goal2Met);
+        mainView.updateStatusDisplay(rank, stars, goal1Text, goal1Met, goal2Text, goal2Met);
     }
  
     /**

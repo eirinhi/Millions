@@ -2,6 +2,7 @@ package no.ntnu.idatt2003.model.logic;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -169,6 +170,23 @@ public class Exchange extends Subject {
     }
 
     /**
+     * Allows for a player to sell all shares in their portfolio.
+     * All shares in the player's portfolio will be sold at the current price
+     * on the exchange, and a list of the sell transactions will be returned.
+     *
+     * @param player the player selling all their shares
+     * @return the list of transactions from selling all shares
+     */
+    public List<Transaction> sellAll(final Player player) {
+        List<Share> shares = new ArrayList<>(player.getPortfolio().getShares());
+        List<Transaction> transactions = new ArrayList<>();
+        for (Share share : shares) {
+            transactions.add(sell(share, player));
+        }
+        return transactions;
+    }
+
+    /**
      * Advances the exchange to the next week, updating stock prices randomly.
      */
     public void advance() {
@@ -205,8 +223,8 @@ public class Exchange extends Subject {
             throw new IllegalArgumentException("Limit must be greater than 0.");
         }
         return stockMap.values().stream()
-                .sorted((s1, s2) -> s2.getLatestPriceChange()
-                .compareTo(s1.getLatestPriceChange()))
+                .sorted((s1, s2) -> s2.getWeeklyReturnPercentage()
+                .compareTo(s1.getWeeklyReturnPercentage()))
                 .limit(limit)
                 .toList();
     }
@@ -225,82 +243,9 @@ public class Exchange extends Subject {
         }
 
         return stockMap.values().stream()
-                .sorted((s1, s2) -> s1.getLatestPriceChange()
-                .compareTo(s2.getLatestPriceChange()))
+                .sorted((s1, s2) -> s1.getWeeklyReturnPercentage()
+                .compareTo(s2.getWeeklyReturnPercentage()))
                 .limit(limit)
                 .toList();
     }
-    
-    /**
-     * Returns a list of all stocks available on the exchange.
-     *
-     * @return a list of all stocks available on the exchange
-     */
-    public List<Stock> getAllStocks() {
-        return stockMap.values().stream().toList();
-    }
-
-    /**
- * Returns stocks filtered by search term and price range.
- *
- * @param searchTerm matches against symbol or company name
- * @param minPrice minimum sales price
- * @param maxPrice maximum sales price
- * @return filtered list of stocks
- */
-public List<Stock> getFilteredStocks(
-        final String searchTerm,
-        final BigDecimal minPrice,
-        final BigDecimal maxPrice) {
-
-    return stockMap.values().stream()
-        .filter(s -> searchTerm == null || searchTerm.isBlank()
-            || s.getSymbol().toLowerCase()
-                .contains(searchTerm.toLowerCase())
-            || s.getCompany().toLowerCase()
-                .contains(searchTerm.toLowerCase()))
-        .filter(s -> s.getSalesPrice().compareTo(minPrice) >= 0)
-        .filter(s -> s.getSalesPrice().compareTo(maxPrice) <= 0)
-        .toList();
-}
-
-/**
- * Returns stocks filtered by search term and price range,
- * sorted by the given criteria.
- *
- * @param searchTerm matches against symbol or company name
- * @param minPrice minimum sales price
- * @param maxPrice maximum sales price
- * @param sortBy sorting criteria
- * @return filtered and sorted list of stocks
- */
-public List<Stock> getFilteredAndSortedStocks(
-        final String searchTerm,
-        final BigDecimal minPrice,
-        final BigDecimal maxPrice,
-        final String sortBy) {
-
-    List<Stock> filtered = getFilteredStocks(
-        searchTerm,
-        minPrice,
-        maxPrice
-    );
-
-    return switch (sortBy) {
-        case "priceAsc" -> filtered.stream()
-            .sorted((s1, s2) -> s1.getSalesPrice()
-                .compareTo(s2.getSalesPrice()))
-            .toList();
-
-        case "priceDesc" -> filtered.stream()
-            .sorted((s1, s2) -> s2.getSalesPrice()
-                .compareTo(s1.getSalesPrice()))
-            .toList();
-
-        default -> filtered.stream()
-            .sorted((s1, s2) -> s1.getSymbol()
-                .compareTo(s2.getSymbol()))
-            .toList();
-    };
-}
 }

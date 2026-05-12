@@ -2,13 +2,11 @@ package no.ntnu.idatt2003.view;
 
 import java.math.BigDecimal;
 
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
+import no.ntnu.idatt2003.view.components.SideBarComponent;
+import no.ntnu.idatt2003.view.components.TopBarComponent;
 
 /**
  * Main application view.
@@ -19,17 +17,8 @@ import javafx.scene.layout.*;
  */
 public class MainView extends BorderPane {
 
-    private final String playerName;
-    private Label headerWeekLabel;
-    private Label moneyLabel;
-    private Label rankLabel;
-    private Label starsLabel;
-    private CheckBox weekGoal;
-    private CheckBox growthGoal;
-    private Button nextWeekBtn;
-    private Button portfolioBtn;
-    private Button exchangeBtn;
-    private Button exitButton;
+    private TopBarComponent topBar;
+    private SideBarComponent sideBar;
 
     /**
      * Constructs the main view and initialises the header and sidebar.
@@ -39,16 +28,19 @@ public class MainView extends BorderPane {
      * @param initialWeek the week number shown on first render
      */
     public MainView(String playerName, BigDecimal money, int initialWeek) {
-        this.playerName = playerName;
         getStylesheets().add(getClass().getResource("/no/ntnu/idatt2003/styles.css").toExternalForm());
         getStyleClass().add("app-view");
 
-        this.setTop(createHeader(initialWeek));
-        this.setLeft(createSidebar(money));
+        topBar = new TopBarComponent(playerName, initialWeek);
+        sideBar = new SideBarComponent(money);
+        this.setTop(topBar);
+        this.setLeft(sideBar);
 
         Label center = new Label("Welcome to Millions!");
         center.getStyleClass().add("welcome-label");
         this.setCenter(center);
+
+
     }
 
     /**
@@ -57,7 +49,7 @@ public class MainView extends BorderPane {
      * @param action callback to run on click
      */
     public void setAdvanceAction(Runnable action) {
-        nextWeekBtn.setOnAction(e -> action.run());
+        topBar.setAdvanceAction(action);
     }
 
     /**
@@ -66,7 +58,7 @@ public class MainView extends BorderPane {
      * @param action callback to run on click
      */
     public void setPortfolioAction(Runnable action) {
-        portfolioBtn.setOnAction(e -> action.run());
+        sideBar.setPortfolioAction(action);
     }
 
     /**
@@ -75,7 +67,7 @@ public class MainView extends BorderPane {
      * @param action callback to run on click
      */
     public void setExchangeAction(Runnable action) {
-        exchangeBtn.setOnAction(e -> action.run());
+        sideBar.setExchangeAction(action);
     }
 
     /**
@@ -84,84 +76,7 @@ public class MainView extends BorderPane {
      * @param action callback to run on click
      */
     public void setExitAction(Runnable action) {
-        exitButton.setOnAction(e -> action.run());
-    }
-
-    /**
-     * Builds the top header bar containing the player/week label and the advance button.
-     *
-     * @param initialWeek the week number to display initially
-     * @return the constructed header node
-     */
-    private HBox createHeader(int initialWeek) {
-        HBox header = new HBox();
-        header.setAlignment(Pos.CENTER);
-        header.getStyleClass().add("header");
-
-        headerWeekLabel = new Label(playerName + " - Week: " + initialWeek);
-        headerWeekLabel.getStyleClass().add("header-week-label");
-
-        nextWeekBtn = new Button("Advance ->");
-        nextWeekBtn.getStyleClass().add("advance-btn");
-
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-        header.getChildren().addAll(headerWeekLabel, spacer, nextWeekBtn);
-        return header;
-    }
-
-    /**
-     * Builds the left sidebar containing balance, navigation buttons, and status display.
-     *
-     * @param money the player's current balance shown on construction
-     * @return the constructed sidebar node
-     */
-    private VBox createSidebar(BigDecimal money) {
-        VBox sidebar = new VBox(10);
-        sidebar.getStyleClass().add("sidebar");
-
-        Label moneyTitle = new Label("$ Money");
-        moneyTitle.getStyleClass().add("money-title");
-
-        moneyLabel = new Label(money != null ? money.toString() + " NOK" : "N/A");
-        moneyLabel.getStyleClass().add("money-label");
-
-        portfolioBtn = new Button("Portfolio");
-        portfolioBtn.getStyleClass().add("primary-btn");
-        VBox.setMargin(portfolioBtn, new Insets(80, 0, 0, 0));
-
-        exchangeBtn = new Button("Exchange");
-        exchangeBtn.getStyleClass().add("primary-btn");
-
-        Label statusTitle = new Label("Status");
-        statusTitle.getStyleClass().add("status-title");
-        VBox.setMargin(statusTitle, new Insets(40, 0, 0, 0));
-
-        rankLabel = new Label("Novice");
-        rankLabel.getStyleClass().add("rank-label");
-
-        starsLabel = new Label("★ ☆ ☆");
-        starsLabel.getStyleClass().add("stars-label");
-
-        HBox rankRow = new HBox(10, rankLabel, starsLabel);
-        rankRow.setAlignment(Pos.BASELINE_LEFT);
-
-        Region line = new Region();
-        line.getStyleClass().add("separator-line");
-
-        weekGoal = new CheckBox("Traded for at least 10 weeks");
-        growthGoal = new CheckBox("Gained 20% net worth");
-        weekGoal.setMouseTransparent(true);
-        growthGoal.setMouseTransparent(true);
-
-        Region spacer = new Region();
-        VBox.setVgrow(spacer, Priority.ALWAYS);
-
-        exitButton = new Button("EXIT");
-        exitButton.getStyleClass().add("danger-btn");
-
-        sidebar.getChildren().addAll(moneyTitle, moneyLabel, portfolioBtn, exchangeBtn, statusTitle, rankRow, line, weekGoal, growthGoal, spacer, exitButton);
-        return sidebar;
+        sideBar.setExitAction(action);
     }
 
     /**
@@ -170,7 +85,7 @@ public class MainView extends BorderPane {
      * @param week the new week number to display
      */
     public void updateHeader(int week) {
-        headerWeekLabel.setText(playerName + " - Week: " + week);
+        topBar.updateWeek(week);
     }
 
     /**
@@ -179,7 +94,7 @@ public class MainView extends BorderPane {
      * @param money the new balance, or {@code null} to display "N/A"
      */
     public void updateMoney(BigDecimal money) {
-        moneyLabel.setText(money != null ? money.toString() + " NOK" : "N/A");
+        sideBar.updateMoney(money);
     }
 
     /**
@@ -193,12 +108,7 @@ public class MainView extends BorderPane {
      * @param goal2Met  whether the second goal has been reached
      */
     public void updateStatusDisplay(String rank, String stars, String goal1Text, boolean goal1Met, String goal2Text, boolean goal2Met) {
-        rankLabel.setText(rank);
-        starsLabel.setText(stars);
-        weekGoal.setText(goal1Text);
-        weekGoal.setSelected(goal1Met);
-        growthGoal.setText(goal2Text);
-        growthGoal.setSelected(goal2Met);
+        sideBar.updateStatusDisplay(rank, stars, goal1Text, goal1Met, goal2Text, goal2Met);
     }
 
     /**
