@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
 import no.ntnu.idatt2003.model.entity.Player;
 import no.ntnu.idatt2003.model.logic.Exchange;
 import no.ntnu.idatt2003.view.ExchangeView;
@@ -42,7 +43,7 @@ public class MainViewController {
         mainView.setAdvanceAction(this::advanceWeek);
         mainView.setPortfolioAction(() -> mainView.setView(new Label("Portfolio trykket")));
         mainView.setExchangeAction(() -> mainView.setView(exchangeView));
-        mainView.setExitAction(mainView::showExitView);
+        mainView.setExitAction(this::showGameSummaryView);
 
         updateView();
     }
@@ -123,5 +124,13 @@ public class MainViewController {
                        .doubleValue();
         }
         return 0.0;
+    }
+
+    /**
+     * Shows the game summary view after the player ends the game.
+     */
+    private void showGameSummaryView() {
+        Stage stage = (Stage) mainView.getScene().getWindow();
+        stage.setScene(new GameSummaryViewController(exchange, player).getView().getScene());
     }
 }
