@@ -20,26 +20,22 @@ import no.ntnu.idatt2003.view.PortfolioView;
  * automatically to updates from the {@link Exchange}, such as
  * when time advances or trades are executed.
  *
- * <p>Responsibilities include:
+ * <p>Responsibilities:
  * <ul>
  *     <li>Initializing and displaying the portfolio view</li>
  *     <li>Refreshing UI data when the model changes</li>
- *     <li>Delegating formatting logic to {@code PortfolioFormatter}</li>
- *     <li>Delegating trade dialogs to {@code TradeDialogHelper}</li>
+ *     <li>Delegating formatting logic to {@link PortfolioFormatter}</li>
+ *     <li>Delegating trade dialogs to {@link TradeController}</li>
  *     <li>Updating performance history for chart visualization</li>
  * </ul>
- *
- * <p>This class does not perform business logic itself but coordinates
- * between view, model, and helper components.
  */
 public class PortfolioController implements Observer {
 
     private final MainView mainView;
-    private final Player player;
+    private final Player   player;
     private final Exchange exchange;
 
     private PortfolioView view;
-    private TradeDialogHelper tradeHelper;
     private final PortfolioFormatter formatter = new PortfolioFormatter();
 
     /**
@@ -47,12 +43,12 @@ public class PortfolioController implements Observer {
      * of the exchange.
      *
      * @param mainView the main application view used for view switching
-     * @param player the currently active player whose portfolio is displayed
+     * @param player   the currently active player whose portfolio is displayed
      * @param exchange the stock exchange providing market updates
      */
     public PortfolioController(MainView mainView, Player player, Exchange exchange) {
         this.mainView = mainView;
-        this.player = player;
+        this.player   = player;
         this.exchange = exchange;
         this.exchange.attach(this);
     }
@@ -68,7 +64,9 @@ public class PortfolioController implements Observer {
 
     /**
      * Displays the portfolio view in the main application window.
-     * The view is created slowly if it does not already exist.
+     * The view is created lazily if it does not already exist.
+     *
+     * @throws IllegalStateException if {@code MainView} has not been set
      */
     public void showPortfolioView() {
         if (mainView == null) {
@@ -77,10 +75,6 @@ public class PortfolioController implements Observer {
 
         if (view == null) {
             view = new PortfolioView();
-            tradeHelper = new TradeDialogHelper(exchange, player, this::refresh);
-
-            view.setBuyAction(tradeHelper::showBuyDialog);
-            view.setSellAction(tradeHelper::showSellDialog);
         }
 
         refresh();
@@ -89,8 +83,9 @@ public class PortfolioController implements Observer {
 
     /**
      * Refreshes all displayed portfolio data.
-     * <p>This method is safe to call even if the view has not yet been created.
-     * In that case, the call is ignored.
+     *
+     * <p>Safe to call even before the view has been created;
+     * in that case the call is silently ignored.
      */
     public void refresh() {
         if (view == null) return;
@@ -112,7 +107,7 @@ public class PortfolioController implements Observer {
      * Records the current total portfolio value as a new data point
      * in the performance chart.
      *
-     * <p>This method should be called once per simulated time step,
+     * <p>Should be called once per simulated time step,
      * typically when a new week is advanced in the application.
      */
     public void recordWeek() {
@@ -126,6 +121,7 @@ public class PortfolioController implements Observer {
 
     /**
      * Removes this controller from the exchange observer list.
+     *
      * <p>Should be called when the controller is no longer needed
      * to prevent memory leaks.
      */
