@@ -37,7 +37,16 @@ public class MainViewController {
         this.player = player;
         this.mainView = new MainView(player.getName(), player.getMoney(), exchange.getWeek());
 
-        this.exchangeViewController = new ExchangeViewController(exchange);
+        this.exchangeViewController = new ExchangeViewController(
+            exchange,
+            stock -> {
+                TradeViewController tradeController =
+                    new TradeViewController(exchange, player, stock, this::updateView);
+
+                mainView.setView(tradeController.getView());
+            }
+        );
+
         this.exchangeView = new ExchangeView(exchangeViewController);
 
         mainView.setAdvanceAction(this::advanceWeek);
