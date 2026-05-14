@@ -7,12 +7,16 @@ import no.ntnu.idatt2003.model.entity.Stock;
 import no.ntnu.idatt2003.model.logic.Exchange;
 import no.ntnu.idatt2003.model.observer.Observer;
 import no.ntnu.idatt2003.view.ExchangeView;
+import java.util.function.Consumer;
 
 /**
  * Controller for the exchange view.
  * Handles user interactions and updates the view.
  */
 public class ExchangeViewController implements Observer {
+
+    /** The callback to be invoked when a stock is selected. */
+    private final Consumer<Stock> onStockSelected;
 
     /** The exchange. */
     private final Exchange exchange;
@@ -44,8 +48,13 @@ public class ExchangeViewController implements Observer {
      *
      * @param initialExchange the exchange to control
      */
-    public ExchangeViewController(final Exchange initialExchange) {
+    public ExchangeViewController(
+            final Exchange initialExchange,
+            final Consumer<Stock> onStockSelected) {
+
         this.exchange = initialExchange;
+        this.onStockSelected = onStockSelected;
+
         this.exchange.attach(this);
     }
 
@@ -134,5 +143,9 @@ public class ExchangeViewController implements Observer {
     public void onSort(final String sort) {
         this.sortBy = sort;
         updateTable();
+    }
+
+    public void onStockSelected(Stock stock) {
+        onStockSelected.accept(stock);
     }
 }
