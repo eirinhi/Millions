@@ -1,14 +1,25 @@
 package no.ntnu.idatt2003.view;
 
+import java.io.File;
+import java.util.List;
+
+import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import no.ntnu.idatt2003.model.io.GameFileHandler;
+import no.ntnu.idatt2003.model.io.GameSave;
+import no.ntnu.idatt2003.model.io.GameSaveException;
 
 /**
  * StartView is the initial view of the application.
@@ -27,6 +38,8 @@ public class StartView {
     private final Label fileNameLabel;
     private final Button fileButton;
     private final Button startButton;
+    private final Button loadButton;
+    private final TableView<GameSave> loadTable;
 
     /**
      * Constructs the StartView.
@@ -97,13 +110,57 @@ public class StartView {
         stockSection.setAlignment(Pos.CENTER);
 
 
+        // Load game
+        Label loadLabel = new Label("Load saved game : ");
+
+        loadButton = new Button("LOAD GAME");
+        loadButton.setDisable(true);
+        loadButton.getStyleClass().add("small-btn");
+
+        Region loadSpacer = new Region();
+        HBox.setHgrow(loadSpacer, Priority.ALWAYS);
+        HBox loadHeader = new HBox(loadLabel, loadSpacer, loadButton);
+        loadHeader.setAlignment(Pos.CENTER_LEFT);
+        loadHeader.setFillHeight(false);
+
+        loadTable = new TableView<>();
+        loadTable.setPlaceholder(new Label("No saved games found."));
+
+        TableColumn<GameSave, String> nameCol = new TableColumn<>("Save name");
+        nameCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getSaveName()));
+
+        TableColumn<GameSave, String> playerCol = new TableColumn<>("Player");
+        playerCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getPlayerName()));
+
+        TableColumn<GameSave, String> dateCol = new TableColumn<>("Saved");
+        dateCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getSavedAt()));
+
+        loadTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+        loadTable.setPrefHeight(150);
+        loadTable.getColumns().addAll(List.of(nameCol, playerCol, dateCol));
+
+        for (File file : GameFileHandler.getSavedGames()) {
+            try {
+                loadTable.getItems().add(GameFileHandler.readSave(file));
+            } catch (GameSaveException e) {
+                // skip corrupted files
+            }
+        }
+
+        loadTable.getSelectionModel().selectedItemProperty().addListener(
+            (obs, oldVal, newVal) -> loadButton.setDisable(newVal == null)
+        );
+
+        VBox loadSection = new VBox(6, loadHeader, loadTable);
+
+
         // Start button
-        startButton = new Button("START GAME");
+        startButton = new Button("START NEW GAME");
         startButton.getStyleClass().add("large-btn");
 
 
         // Card layout containing all input fields and the start button
-        VBox card = new VBox(20, welcomeLabel, nameSection, capitalSection, stockSection, startButton);
+        VBox card = new VBox(10, welcomeLabel, nameSection, capitalSection, stockSection, loadSection, startButton);
         card.setAlignment(Pos.CENTER);
         card.setMaxWidth(560);
         card.setPadding(new Insets(40));
@@ -198,6 +255,24 @@ public class StartView {
      */
     public void hideFileError() {
         fileError.setVisible(false);
+    }
+
+    /**
+     * Sets the action for the load game button.
+     *
+     * @param action action to run when load is clicked
+     */
+    public void setLoadAction(Runnable action) {
+        loadButton.setOnAction(e -> action.run());
+    }
+
+    /**
+     * Returns the currently selected save in the load table, or null if none selected.
+     *
+     * @return the selected GameSave, or null
+     */
+    public GameSave getSelectedSave() {
+        return loadTable.getSelectionModel().getSelectedItem();
     }
 
     /**

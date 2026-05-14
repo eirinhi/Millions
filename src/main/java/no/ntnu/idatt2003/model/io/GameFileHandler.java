@@ -117,6 +117,28 @@ public class GameFileHandler {
 
 
     /**
+     * Reads only the metadata from a save file without reconstructing the game.
+     * Used to display save information in the UI before loading.
+     *
+     * @param file the save file to read
+     * @return the GameSave object containing save metadata
+     * @throws GameSaveException if the file could not be read or is corrupted
+     */
+    public static GameSave readSave(final File file) throws GameSaveException {
+        try (FileInputStream fis = new FileInputStream(file);
+            ObjectInputStream ois = new ObjectInputStream(fis)) {
+                return (GameSave) ois.readObject();
+        } catch (FileNotFoundException e) {
+            throw new GameSaveException(
+                "Save file not found: " + e.getMessage(), e);
+        } catch (ClassNotFoundException | IOException e) {
+            throw new GameSaveException(
+                "Could not read save file: " + e.getMessage(), e);
+        }
+    }
+
+
+    /**
      * Loads a saved game state from file.
      *
      * @param file the file to load the game state from

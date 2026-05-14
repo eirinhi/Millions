@@ -7,8 +7,13 @@ import java.util.List;
 import javafx.scene.Scene;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.scene.control.Alert;
 import no.ntnu.idatt2003.model.entity.Player;
 import no.ntnu.idatt2003.model.entity.Stock;
+import no.ntnu.idatt2003.model.io.GameFileHandler;
+import no.ntnu.idatt2003.model.io.GameLoadResult;
+import no.ntnu.idatt2003.model.io.GameSave;
+import no.ntnu.idatt2003.model.io.GameSaveException;
 import no.ntnu.idatt2003.model.io.StockFileHandler;
 import no.ntnu.idatt2003.model.logic.Exchange;
 import no.ntnu.idatt2003.view.StartView;
@@ -37,6 +42,7 @@ public class StartController {
 
         startView.setSelectFileAction(this::onSelectFile);
         startView.setStartAction(this::onStartGame);
+        startView.setLoadAction(this::onLoadGame);
     }
 
     /**
@@ -91,6 +97,36 @@ public class StartController {
         }
 
         primaryStage.setScene(mainScene);
+    }
+
+    /**
+     * Handles load game button click.
+     * Loads the selected save and navigates to the main scene.
+     */
+    private void onLoadGame() {
+        GameSave selected = startView.getSelectedSave();
+
+        if (selected == null) return;
+
+        try {
+            File file = GameFileHandler.getSavedGames().stream()
+                .filter(f -> f.getName().startsWith(selected.getSaveName()))
+                .findFirst()
+                .orElseThrow();
+
+            GameLoadResult result = GameFileHandler.loadGame(file);
+
+            MainViewController controller = new MainViewController(
+                result.getExchange(), result.getPlayer(), file, selected.getSaveName());
+            primaryStage.setScene(new Scene(controller.getView(), 1000, 700));
+
+        } catch (GameSaveException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Load failed");
+            alert.setHeaderText("Could not load the saved game.");
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
+        }
     }
 
     /**
