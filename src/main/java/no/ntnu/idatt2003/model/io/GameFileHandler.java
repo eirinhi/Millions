@@ -7,7 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +51,7 @@ public class GameFileHandler {
             dir.mkdirs();
         }
 
-        String timestamp = LocalDate.now().format(FORMATTER);
+        String timestamp = LocalDateTime.now().format(FORMATTER);
 
         // Builds the list of stocks
         List<GameSave.StockSave> stocks = new ArrayList<>();
