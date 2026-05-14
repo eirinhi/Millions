@@ -73,6 +73,52 @@ public class Portfolio {
                 .toList();
     }
 
+    public BigDecimal getQuantityOwned(final Stock stock) {
+        if (stock == null) {
+            return BigDecimal.ZERO;
+        }
+
+        return shares.stream()
+                .filter(share -> share.getStock().getSymbol().equals(stock.getSymbol()))
+                .map(Share::getQuantity)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public Share getOwnedShare(final Stock stock) {
+        return shares.stream()
+                .filter(share -> share.getStock().getSymbol().equals(stock.getSymbol()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public void sellPartialShare(final Stock stock, final BigDecimal quantity) {
+        Share ownedShare = getOwnedShare(stock);
+
+        if (ownedShare == null) {
+            throw new IllegalStateException("You do not own this stock.");
+        }
+
+        if (quantity.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than zero.");
+        }
+
+        if (quantity.compareTo(ownedShare.getQuantity()) > 0) {
+            throw new IllegalStateException("You cannot sell more shares than you own.");
+        }
+
+        shares.remove(ownedShare);
+
+        BigDecimal remainingQuantity = ownedShare.getQuantity().subtract(quantity);
+
+        if (remainingQuantity.compareTo(BigDecimal.ZERO) > 0) {
+            shares.add(new Share(
+                    stock,
+                    remainingQuantity,
+                    ownedShare.getPurchasePrice()
+            ));
+        }
+    }
+
     /**
      * Checks if the portfolio contains the given share.
      *
