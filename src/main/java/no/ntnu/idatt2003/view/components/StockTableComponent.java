@@ -5,6 +5,7 @@ import java.util.List;
 
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -63,7 +64,20 @@ public class StockTableComponent extends VBox {
         table.setMaxHeight(Double.MAX_VALUE);
         VBox.setVgrow(table, Priority.ALWAYS);
 
+        table.setRowFactory(tv -> {
+            TableRow<Stock> row = new TableRow<>();
+
+            row.setOnMouseClicked(event -> {
+                if (!row.isEmpty()) {
+                    controller.onStockSelected(row.getItem());
+                }
+            });
+
+            return row;
+        });
+
         update(stocks);
+
         this.setMaxHeight(Double.MAX_VALUE);
         this.getChildren().add(table);
     }
