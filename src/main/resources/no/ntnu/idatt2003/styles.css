@@ -330,3 +330,52 @@
     -fx-font-size: 24px;
     -fx-font-weight: bold;
 }
+.trade-view {
+    -fx-background-color: #eeeeee;
+    -fx-padding: 40;
+}
+
+.trade-card {
+    -fx-background-color: #f9d0e6;
+    -fx-border-color: #e8a0c4;
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 16px;
+    -fx-background-radius: 16px;
+    -fx-padding: 24;
+}
+
+.trade-title {
+    -fx-font-size: 34px;
+    -fx-font-weight: bold;
+}
+
+.trade-symbol {
+    -fx-font-size: 18px;
+    -fx-text-fill: gray;
+}
+
+.trade-price {
+    -fx-font-size: 30px;
+    -fx-font-weight: bold;
+}
+
+.trade-small-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: gray;
+}
+
+.trade-value-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.trade-total-label {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.trade-mode-label {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #f5629d;
+}
