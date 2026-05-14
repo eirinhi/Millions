@@ -28,8 +28,17 @@ public class PriceChartComponent extends Canvas {
      *
      * @param prices the historical stock prices to display
      */
-    public PriceChartComponent(List<BigDecimal> prices) {
+    public PriceChartComponent(final List<BigDecimal> prices) {
         super(WIDTH, HEIGHT);
+        draw(prices);
+    }
+
+    /**
+     * Redraws the chart with updated prices.
+     *
+     * @param prices the updated historical stock prices
+     */
+    public void updatePrices(final List<BigDecimal> prices) {
         draw(prices);
     }
 
@@ -41,9 +50,8 @@ public class PriceChartComponent extends Canvas {
      *
      * <p>If fewer than two prices are available, the chart will not be drawn.</p>
      *
-     * @param prices the historical stock prices to display
      */
-    private void draw(List<BigDecimal> prices) {
+    private void draw(final List<BigDecimal> prices) {
         GraphicsContext gc = getGraphicsContext2D();
 
         gc.clearRect(0, 0, WIDTH, HEIGHT);
@@ -58,6 +66,10 @@ public class PriceChartComponent extends Canvas {
 
         double maxValue = max.doubleValue();
         double minValue = min.doubleValue();
+
+        if (Double.compare(maxValue, minValue) == 0) {
+            return;
+        }
 
         double xStep = (double) WIDTH / (prices.size() - 1);
 

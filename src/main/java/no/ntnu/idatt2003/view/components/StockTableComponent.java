@@ -3,6 +3,7 @@ package no.ntnu.idatt2003.view.components;
 import java.math.BigDecimal;
 import java.util.List;
 
+import javafx.scene.Cursor;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TableRow;
@@ -66,6 +67,7 @@ public class StockTableComponent extends VBox {
 
         table.setRowFactory(tv -> {
             TableRow<Stock> row = new TableRow<>();
+            row.setCursor(Cursor.HAND);
 
             row.setOnMouseClicked(event -> {
                 if (!row.isEmpty()) {

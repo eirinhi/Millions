@@ -73,6 +73,12 @@ public class Portfolio {
                 .toList();
     }
 
+    /**
+     * Returns the quantity of the given stock owned by the player.
+     *
+     * @param stock the stock to check
+     * @return the quantity owned
+     */
     public BigDecimal getQuantityOwned(final Stock stock) {
         if (stock == null) {
             return BigDecimal.ZERO;
@@ -84,6 +90,12 @@ public class Portfolio {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
+    /**
+     * Returns the share owned by the player for the given stock.
+     *
+     * @param stock the stock to check
+     * @return the owned share, or null if not owned
+     */
     public Share getOwnedShare(final Stock stock) {
         return shares.stream()
                 .filter(share -> share.getStock().getSymbol().equals(stock.getSymbol()))
@@ -91,6 +103,15 @@ public class Portfolio {
                 .orElse(null);
     }
 
+    /**
+     * Sells a specified quantity of shares from the player's owned shares.
+     *
+     * @param stock the stock to sell
+     * @param quantity the quantity to sell
+     * @throws IllegalStateException if the player does not own the stock
+     * @throws IllegalArgumentException if the quantity is negative
+     * @throws IllegalStateException if the quantity exceeds owned quantity
+     */
     public void sellPartialShare(final Stock stock, final BigDecimal quantity) {
         Share ownedShare = getOwnedShare(stock);
 

@@ -1,13 +1,19 @@
 package no.ntnu.idatt2003.view;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import javafx.geometry.Insets;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 import no.ntnu.idatt2003.controller.TradeViewController;
 import no.ntnu.idatt2003.model.entity.Player;
@@ -25,7 +31,13 @@ import no.ntnu.idatt2003.view.components.PriceChartComponent;
  * {@link TradeViewController} and updates dynamically
  * based on the current trade mode and portfolio state.</p>
  */
-public class TradeView extends HBox {
+public class TradeView extends GridPane {
+
+    /** Gap between grid cells. */
+    private static final int GAP = 32;
+
+    /** Padding around the trade view. */
+    private static final int PADDING = 24;
 
     private final Spinner<Integer> quantitySpinner;
 
@@ -38,6 +50,7 @@ public class TradeView extends HBox {
     private final Label priceLabel = new Label();
     private final Label moneyValueLabel = new Label();
     private final Label ownedQuantityLabel = new Label();
+    private final PriceChartComponent chart;
 
     private final Button confirmButton = new Button("BUY");
 
@@ -53,8 +66,9 @@ public class TradeView extends HBox {
             Stock stock,
             Player player) {
 
-        setSpacing(32);
-        setPadding(new Insets(24));
+        setHgap(GAP);
+        setVgap(GAP);
+        setPadding(new Insets(PADDING));
         getStyleClass().add("trade-view");
 
         Label title = new Label(stock.getCompany());
@@ -78,8 +92,7 @@ public class TradeView extends HBox {
         buyButton.setOnAction(e -> controller.setBuyMode());
         sellButton.setOnAction(e -> controller.setSellMode());
 
-        PriceChartComponent chart =
-                new PriceChartComponent(stock.getHistoricalPrices());
+        chart = new PriceChartComponent(stock.getHistoricalPrices());
 
         VBox chartSection = new VBox(16);
         chartSection.getStyleClass().add("trade-card");
@@ -100,6 +113,7 @@ public class TradeView extends HBox {
 
         Button cancelButton = new Button("Cancel");
         cancelButton.getStyleClass().add("primary-btn");
+        cancelButton.setOnAction(e -> controller.cancelTrade());
 
         confirmButton.setOnAction(e -> {
             BigDecimal quantity = BigDecimal.valueOf(quantitySpinner.getValue());
@@ -120,7 +134,7 @@ public class TradeView extends HBox {
                 player.getPortfolio().getQuantityOwned(stock);
 
         ownedQuantityLabel.setText(
-                "My quantity: " + ownedQuantity + " stk"
+                "My quantity: " + ownedQuantity + " shares"
         );
         ownedQuantityLabel.getStyleClass().add("trade-small-label");
 
@@ -171,7 +185,18 @@ public class TradeView extends HBox {
                 buttonBox
         );
 
-        getChildren().addAll(chartSection, orderPanel);
+        ColumnConstraints col0 = new ColumnConstraints();
+        col0.setHgrow(Priority.ALWAYS);
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setHgrow(Priority.NEVER);
+        getColumnConstraints().addAll(col0, col1);
+
+        RowConstraints row0 = new RowConstraints();
+        row0.setVgrow(Priority.ALWAYS);
+        getRowConstraints().add(row0);
+
+        add(chartSection, 0, 0);
+        add(orderPanel, 1, 0);
     }
 
     /**
@@ -263,7 +288,29 @@ public class TradeView extends HBox {
      */
     public void updateOwnedQuantity(final BigDecimal quantity) {
         ownedQuantityLabel.setText(
-                "My quantity: " + quantity + " stk"
+                "My quantity: " + quantity + " shares"
         );
+    }
+
+    /**
+     * Displays an error dialog with the given message.
+     *
+     * @param message the error message to display
+     */ 
+    public void showError(final String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Trade error");
+        alert.setHeaderText("Could not complete trade");
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    /**
+     * Updates the displayed price chart.
+     *
+     * @param prices the updated historical stock prices
+     */
+    public void updatePriceChart(final List<BigDecimal> prices) {
+        chart.updatePrices(prices);
     }
 }

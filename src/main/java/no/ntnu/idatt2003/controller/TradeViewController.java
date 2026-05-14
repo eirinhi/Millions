@@ -2,7 +2,6 @@ package no.ntnu.idatt2003.controller;
 
 import java.math.BigDecimal;
 
-import javafx.scene.control.Alert;
 import no.ntnu.idatt2003.model.entity.Player;
 import no.ntnu.idatt2003.model.entity.Share;
 import no.ntnu.idatt2003.model.entity.Stock;
@@ -10,53 +9,55 @@ import no.ntnu.idatt2003.model.logic.Exchange;
 import no.ntnu.idatt2003.model.logic.PurchaseCalculator;
 import no.ntnu.idatt2003.model.logic.SaleCalculator;
 import no.ntnu.idatt2003.model.logic.TransactionCalculator;
+import no.ntnu.idatt2003.model.observer.Observer;
 import no.ntnu.idatt2003.view.TradeView;
 
 /**
- * /**
  * Controller for the trade view.
  *
  * <p>Handles stock purchases and sales for a selected stock.
  * The controller validates trades, calculates transaction previews,
- * updates the trade view, and coordinates communication between
- * the model ({@link Exchange}, {@link Player}, {@link Stock})
- * and the {@link TradeView}.</p>
- *
- * <p>The controller supports both buy and sell modes,
- * including validation of available funds and owned shares.</p>
+ * updates the trade view, and observes the exchange for price changes.</p>
  */
-public class TradeViewController {
+public class TradeViewController implements Observer {
 
     private final Exchange exchange;
     private final Player player;
     private final Stock stock;
     private final TradeView view;
     private final Runnable onTradeCompleted;
+    private final Runnable onCancel;
 
     private boolean buyMode = true;
 
     /**
-     * Creates a new TradeViewController for the selected stock.
+     * Creates a new trade view controller for the selected stock.
      *
-     * @param exchange        the exchange to use for trading
-     * @param player          the player making the trades
-     * @param stock           the stock to trade
-     * @param onTradeCompleted a callback to invoke when a trade is completed
+     * @param exchange the exchange used to execute trades
+     * @param player the current player performing trades
+     * @param stock the stock currently displayed in the trade view
+     * @param onTradeCompleted callback executed after a successful trade
+     * @param onCancel callback executed when the trade view is cancelled
      */
     public TradeViewController(
             final Exchange exchange,
             final Player player,
             final Stock stock,
-            final Runnable onTradeCompleted) {
+            final Runnable onTradeCompleted,
+            final Runnable onCancel) {
 
         this.exchange = exchange;
         this.player = player;
         this.stock = stock;
         this.onTradeCompleted = onTradeCompleted;
+        this.onCancel = onCancel;
 
         this.view = new TradeView(this, stock, player);
 
+        this.exchange.attach(this);
+
         setBuyMode();
+        updateView();
     }
 
     /**
@@ -69,10 +70,18 @@ public class TradeViewController {
     }
 
     /**
-     * Switches the trade view into buy mode.
+     * Updates the trade view when the exchange model changes.
      *
-     * <p>Updates the UI to display purchase-related information and enables
-     * unrestricted quantity selection.</p>
+     * <p>This is called through the Observer pattern when stock prices
+     * are updated by the exchange.</p>
+     */
+    @Override
+    public void update() {
+        updateView();
+    }
+
+    /**
+     * Switches the trade view into buy mode.
      */
     public void setBuyMode() {
         buyMode = true;
@@ -84,9 +93,6 @@ public class TradeViewController {
 
     /**
      * Switches the trade view into sell mode.
-     *
-     * <p>Updates the UI to display sale-related information and limits
-     * the maximum quantity selection to the amount owned by the player.</p>
      */
     public void setSellMode() {
         buyMode = false;
@@ -97,7 +103,7 @@ public class TradeViewController {
 
         if (ownedQuantity.compareTo(BigDecimal.ZERO) <= 0) {
             view.setMaxQuantity(1);
-            showError("You do not own this stock.");
+            view.showError("You do not own this stock.");
         } else {
             view.setMaxQuantity(ownedQuantity.intValue());
         }
@@ -106,12 +112,15 @@ public class TradeViewController {
     }
 
     /**
+     * Cancels the trade view and returns to the previous view.
+     */
+    public void cancelTrade() {
+        exchange.detach(this);
+        onCancel.run();
+    }
+
+    /**
      * Updates the transaction preview displayed in the trade view.
-     *
-     * <p>Calculates gross value, commission, tax, and total transaction value
-     * using appropriate {@link TransactionCalculator} implementation.</p>
-     *
-     * <p>If the transaction cannot be calculated all preview values are reset to zero.</p>
      */
     public void updateOrderPreview() {
         BigDecimal quantity = view.getQuantity();
@@ -140,11 +149,6 @@ public class TradeViewController {
 
     /**
      * Executes a stock purchase or sale transaction.
-     * 
-     * <p>The method validates the request quantity and ensures that the player either has enough
-     * money to buy shares or own enough shares to sell.</p>
-     * 
-     * <p>After a successful transaction, the main view and trade view are refreshed.</p>
      *
      * @param quantity the quantity of shares to trade
      */
@@ -173,16 +177,10 @@ public class TradeViewController {
             updateView();
 
         } catch (IllegalStateException | IllegalArgumentException e) {
-            showError(e.getMessage());
+            view.showError(e.getMessage());
         }
     }
 
-    /**
-     * Creates a transaction calculator for a stock purchase.
-     *
-     * @param quantity the quantity of shares to purchase
-     * @return a transaction calculator for the purchase
-     */
     private TransactionCalculator createPurchaseCalculator(
             final BigDecimal quantity) {
 
@@ -195,13 +193,6 @@ public class TradeViewController {
         return new PurchaseCalculator(share);
     }
 
-    /**
-     * Creates a calculator for previewing a sale transaction.
-     *
-     * @param quantity the quantity of shares to sell
-     * @return a transaction calculator for the sale
-     * @throws IllegalStateException if the player does not own the stock or tries to sell more than owned
-     */
     private TransactionCalculator createSaleCalculator(
             final BigDecimal quantity) {
 
@@ -220,12 +211,6 @@ public class TradeViewController {
         return new SaleCalculator(share);
     }
 
-    /**
-     * Validates the requested trade quantity is positive.
-     *
-     * @param quantity the quantity of shares to trade
-     * @throws IllegalArgumentException if the quantity is null or negative
-     */
     private void validateQuantity(final BigDecimal quantity) {
         if (quantity == null || quantity.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException(
@@ -234,12 +219,6 @@ public class TradeViewController {
         }
     }
 
-    /**
-     * Validates that the player can afford the requested purchase.
-     *
-     * @param quantity the quantity of shares to purchase
-     * @throws IllegalStateException if the player does not have enough money to complete the purchase
-     */
     private void validateCanAfford(final BigDecimal quantity) {
         TransactionCalculator calculator = createPurchaseCalculator(quantity);
 
@@ -250,12 +229,6 @@ public class TradeViewController {
         }
     }
 
-    /**
-     * Validates that the player owns enough shares to complete the sale.
-     *
-     * @param quantity the quantity of shares to sell
-     * @throws IllegalStateException if the player does not own the stock or tries to sell more than owned
-     */
     private void validateCanSell(final BigDecimal quantity) {
         BigDecimal ownedQuantity = player.getPortfolio().getQuantityOwned(stock);
 
@@ -270,12 +243,10 @@ public class TradeViewController {
         }
     }
 
-    /**
-     * Updates the view with the current stock, portfolio and player information.
-     */
     private void updateView() {
         view.updateCurrentPrice(stock.getSalesPrice());
         view.updateMoney(player.getMoney());
+        view.updatePriceChart(stock.getHistoricalPrices());
 
         BigDecimal ownedQuantity =
                 player.getPortfolio().getQuantityOwned(stock);
@@ -287,18 +258,5 @@ public class TradeViewController {
         }
 
         updateOrderPreview();
-    }
-
-    /**
-     * Displays an error message to the user.
-     *
-     * @param message the error message to display
-     */
-    private void showError(final String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Trade error");
-        alert.setHeaderText("Could not complete trade");
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 }

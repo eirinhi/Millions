@@ -41,7 +41,13 @@ public class MainViewController {
             exchange,
             stock -> {
                 TradeViewController tradeController =
-                    new TradeViewController(exchange, player, stock, this::updateView);
+                    new TradeViewController(
+                        exchange,
+                        player,
+                        stock,
+                        this::updateView,
+                        this::showExchangeView
+                    );
 
                 mainView.setView(tradeController.getView());
             }
@@ -119,19 +125,25 @@ public class MainViewController {
         mainView.updateStatusDisplay(rank, stars, goal1Text, goal1Met, goal2Text, goal2Met);
     }
 
-    /**
-     * Calculates the player's net worth gain as a percentage of their starting money.
+   /**
+     * Calculates the player's net worth gain as a percentage
+     * of their starting money.
+     *
+     * <p>This includes both available money and current portfolio value.</p>
      *
      * @return gain percentage, or {@code 0.0} if starting money is zero
      */
     private double calculateGainPercent() {
         BigDecimal starting = player.getStartingMoney();
+
         if (starting.compareTo(BigDecimal.ZERO) > 0) {
-            BigDecimal diff = player.getMoney().subtract(starting);
+            BigDecimal diff = player.getNetWorth().subtract(starting);
+
             return diff.multiply(new BigDecimal("100"))
-                       .divide(starting, 6, RoundingMode.HALF_UP)
-                       .doubleValue();
+                    .divide(starting, 6, RoundingMode.HALF_UP)
+                    .doubleValue();
         }
+
         return 0.0;
     }
 
@@ -141,5 +153,12 @@ public class MainViewController {
     private void showGameSummaryView() {
         Stage stage = (Stage) mainView.getScene().getWindow();
         stage.setScene(new GameSummaryViewController(exchange, player).getView().getScene());
+    }
+
+    /**
+     * Shows the exchange view in the center of the main layout.
+     */
+    private void showExchangeView() {
+        mainView.setView(exchangeView);
     }
 }

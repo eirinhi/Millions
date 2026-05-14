@@ -145,7 +145,12 @@ public class ExchangeViewController implements Observer {
         updateTable();
     }
 
-    public void onStockSelected(Stock stock) {
+    /**
+     * Handles selection of a stock in the exchange view.
+     *
+     * @param stock the selected stock
+     */
+    public void onStockSelected(final Stock stock) {
         onStockSelected.accept(stock);
     }
 }
