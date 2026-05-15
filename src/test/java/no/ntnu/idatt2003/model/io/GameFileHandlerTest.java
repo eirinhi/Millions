@@ -42,12 +42,20 @@ class GameFileHandlerTest {
         }
     }
 
+    private File saveAndGetFile(String name) throws GameSaveException {
+        GameFileHandler.saveGame(name, player, exchange);
+        return GameFileHandler.getSavedGames().stream()
+            .filter(f -> !filesBeforeTest.contains(f))
+            .findFirst()
+            .orElseThrow();
+    }
+
     @Test
     void testSaveAndLoad_restoresPlayerBalance() throws GameSaveException {
         player.withdrawMoney(new BigDecimal("2000"));
-        GameFileHandler.saveGame("test", player, exchange);
+        File saved = saveAndGetFile("test");
 
-        GameLoadResult result = GameFileHandler.loadGame(GameFileHandler.getSavedGames().get(0));
+        GameLoadResult result = GameFileHandler.loadGame(saved);
 
         assertEquals(new BigDecimal("8000"), result.getPlayer().getMoney());
     }
@@ -56,9 +64,9 @@ class GameFileHandlerTest {
     void testSaveAndLoad_restoresPortfolio() throws GameSaveException {
         Share share = new Share(stock, new BigDecimal("5"), new BigDecimal("150.00"));
         player.getPortfolio().addShare(share);
-        GameFileHandler.saveGame("test", player, exchange);
+        File saved = saveAndGetFile("test");
 
-        GameLoadResult result = GameFileHandler.loadGame(GameFileHandler.getSavedGames().get(0));
+        GameLoadResult result = GameFileHandler.loadGame(saved);
 
         assertEquals(1, result.getPlayer().getPortfolio().getShares().size());
     }
@@ -68,9 +76,9 @@ class GameFileHandlerTest {
         Share share = new Share(stock, new BigDecimal("5"), new BigDecimal("150.00"));
         Purchase purchase = new Purchase(share, 1);
         purchase.commit(player);
-        GameFileHandler.saveGame("test", player, exchange);
+        File saved = saveAndGetFile("test");
 
-        GameLoadResult result = GameFileHandler.loadGame(GameFileHandler.getSavedGames().get(0));
+        GameLoadResult result = GameFileHandler.loadGame(saved);
 
         assertEquals(1, result.getPlayer().getTransactionArchive().getAll().size());
     }
@@ -78,9 +86,9 @@ class GameFileHandlerTest {
     @Test
     void testSaveAndLoad_restoresWeek() throws GameSaveException {
         exchange.setWeek(5);
-        GameFileHandler.saveGame("test", player, exchange);
+        File saved = saveAndGetFile("test");
 
-        GameLoadResult result = GameFileHandler.loadGame(GameFileHandler.getSavedGames().get(0));
+        GameLoadResult result = GameFileHandler.loadGame(saved);
 
         assertEquals(5, result.getExchange().getWeek());
     }
@@ -88,9 +96,9 @@ class GameFileHandlerTest {
     @Test
     void testSaveAndLoad_restoresNetWorthHistory() throws GameSaveException {
         player.recordNetWorth();
-        GameFileHandler.saveGame("test", player, exchange);
+        File saved = saveAndGetFile("test");
 
-        GameLoadResult result = GameFileHandler.loadGame(GameFileHandler.getSavedGames().get(0));
+        GameLoadResult result = GameFileHandler.loadGame(saved);
 
         assertEquals(1, result.getPlayer().getNetWorthHistory().size());
     }
@@ -99,5 +107,23 @@ class GameFileHandlerTest {
     void testLoadGame_invalidFile_throwsException() {
         File invalidFile = new File("nonexistent.sav");
         assertThrows(GameSaveException.class, () -> GameFileHandler.loadGame(invalidFile));
+    }
+
+    @Test
+    void testReadSave_returnsCorrectMetadata() throws GameSaveException {
+        File saved = saveAndGetFile("metaTest");
+
+        GameSave save = GameFileHandler.readSave(saved);
+
+        assertEquals("metaTest", save.getSaveName());
+        assertEquals("TestPlayer", save.getPlayerName());
+        assertEquals(new BigDecimal("10000"), save.getBalance());
+        assertEquals(1, save.getWeek());
+    }
+
+    @Test
+    void testReadSave_invalidFile_throwsException() {
+        File invalidFile = new File("nonexistent.sav");
+        assertThrows(GameSaveException.class, () -> GameFileHandler.readSave(invalidFile));
     }
 }

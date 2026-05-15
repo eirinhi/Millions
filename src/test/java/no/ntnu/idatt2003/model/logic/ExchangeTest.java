@@ -186,6 +186,22 @@ class ExchangeTest {
     }
 
     @Test
+    void testSetWeek_validValue() {
+        exchange.setWeek(5);
+        assertEquals(5, exchange.getWeek());
+    }
+
+    @Test
+    void testSetWeek_zeroThrows() {
+        assertThrows(IllegalArgumentException.class, () -> exchange.setWeek(0));
+    }
+
+    @Test
+    void testSetWeek_negativeThrows() {
+        assertThrows(IllegalArgumentException.class, () -> exchange.setWeek(-3));
+    }
+
+    @Test
     void testGetFilteredAndSortedStocks() {
         Stock cheap = new Stock("A", "Alpha", List.of(new BigDecimal("100")));
         Stock mid   = new Stock("B", "Beta",  List.of(new BigDecimal("500")));

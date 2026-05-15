@@ -128,4 +128,23 @@ class TransactionArchiveTest {
             archive.add(purchase);
             assertEquals(2, archive.countDistinctWeeks());
         }
+
+        @Test
+        void testAddCommitted_addsTransaction() {
+            archive.addCommitted(purchase);
+            assertEquals(1, archive.getAll().size());
+            assertEquals(purchase, archive.getAll().get(0));
+        }
+
+        @Test
+        void testAddCommitted_nullIsIgnored() {
+            archive.addCommitted(null);
+            assertTrue(archive.isEmpty());
+        }
+
+        @Test
+        void testAddCommitted_doesNotRequireCommittedState() {
+            archive.addCommitted(sale);
+            assertFalse(archive.isEmpty());
+        }
     }

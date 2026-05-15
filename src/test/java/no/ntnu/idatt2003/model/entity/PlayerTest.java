@@ -152,6 +152,82 @@ void testEmptyName() {
 
 
   @Test
+  void testFullConstructor_valid() {
+    Portfolio portfolio = new Portfolio();
+    TransactionArchive archive = new TransactionArchive();
+    Player loaded = new Player("Loaded", new BigDecimal("5000"), new BigDecimal("3000"), portfolio, archive);
+    assertEquals("Loaded", loaded.getName());
+    assertEquals(new BigDecimal("5000"), loaded.getStartingMoney());
+    assertEquals(new BigDecimal("3000"), loaded.getMoney());
+  }
+
+  @Test
+  void testFullConstructor_nullName() {
+    assertThrows(IllegalArgumentException.class, () ->
+        new Player(null, new BigDecimal("1000"), new BigDecimal("1000"), new Portfolio(), new TransactionArchive()));
+  }
+
+  @Test
+  void testFullConstructor_nullStartingMoney() {
+    assertThrows(IllegalArgumentException.class, () ->
+        new Player("Name", null, new BigDecimal("1000"), new Portfolio(), new TransactionArchive()));
+  }
+
+  @Test
+  void testFullConstructor_nullCurrentMoney() {
+    assertThrows(IllegalArgumentException.class, () ->
+        new Player("Name", new BigDecimal("1000"), null, new Portfolio(), new TransactionArchive()));
+  }
+
+  @Test
+  void testFullConstructor_nullPortfolio() {
+    assertThrows(IllegalArgumentException.class, () ->
+        new Player("Name", new BigDecimal("1000"), new BigDecimal("1000"), null, new TransactionArchive()));
+  }
+
+  @Test
+  void testFullConstructor_nullTransactionArchive() {
+    assertThrows(IllegalArgumentException.class, () ->
+        new Player("Name", new BigDecimal("1000"), new BigDecimal("1000"), new Portfolio(), null));
+  }
+
+  @Test
+  void testRecordNetWorth_addsCurrentNetWorth() {
+    assertEquals(0, player.getNetWorthHistory().size());
+    player.recordNetWorth();
+    assertEquals(1, player.getNetWorthHistory().size());
+    assertEquals(player.getNetWorth(), player.getNetWorthHistory().get(0));
+  }
+
+  @Test
+  void testRecordNetWorth_multipleEntries() {
+    player.recordNetWorth();
+    player.addMoney(new BigDecimal("500"));
+    player.recordNetWorth();
+    assertEquals(2, player.getNetWorthHistory().size());
+  }
+
+  @Test
+  void testGetNetWorthHistory_isUnmodifiable() {
+    player.recordNetWorth();
+    assertThrows(UnsupportedOperationException.class, () ->
+        player.getNetWorthHistory().add(BigDecimal.ONE));
+  }
+
+  @Test
+  void testAddNetWorthRecord_addsValue() {
+    player.addNetWorthRecord(new BigDecimal("999"));
+    assertEquals(1, player.getNetWorthHistory().size());
+    assertEquals(new BigDecimal("999"), player.getNetWorthHistory().get(0));
+  }
+
+  @Test
+  void testAddNetWorthRecord_nullIsIgnored() {
+    player.addNetWorthRecord(null);
+    assertEquals(0, player.getNetWorthHistory().size());
+  }
+
+  @Test
   void testGetStatusSpeculator() {
     assertEquals("Novice", player.getStatus());
 
