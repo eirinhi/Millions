@@ -74,6 +74,11 @@
     -fx-pref-height: 44;
 }
 
+.small-btn {
+    -fx-padding: 4 12;
+    -fx-font-size: 13px;
+}
+
 .large-btn {
     -fx-font-size: 26px;
     -fx-pref-width: 500;
@@ -164,11 +169,11 @@
     -fx-padding: 20;
 }
 
-.exit-view {
+.endGame-view {
     -fx-padding: 20;
 }
 
-.exit-view-title {
+.endGame-view-title {
     -fx-font-size: 20px;
     -fx-font-weight: bold;
 }

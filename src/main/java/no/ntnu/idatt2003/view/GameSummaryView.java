@@ -3,8 +3,10 @@ package no.ntnu.idatt2003.view;
 import java.io.InputStream;
 import java.math.BigDecimal;
 
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -24,6 +26,9 @@ public class GameSummaryView {
 
     /** The scene for the game summary view. */
     private final Scene scene;
+
+    /** The button for returning to the main menu. */
+    private final Button mainMenuButton;
 
     /** Spacing between the two main columns. */
     private static final int ROOT_SPACING = 50;
@@ -82,7 +87,6 @@ public class GameSummaryView {
         final boolean returnPositive) {
 
         HBox root = new HBox(ROOT_SPACING);
-        root.getStyleClass().add("game-summary-view");
 
         Label statusLabel = new Label("Achieved Status");
         statusLabel.getStyleClass().add("status-label");
@@ -130,6 +134,11 @@ public class GameSummaryView {
         Region spacer5 = new Region();
         VBox.setVgrow(spacer5, Priority.ALWAYS);
 
+        mainMenuButton = new Button("MAIN MENU");
+        mainMenuButton.getStyleClass().add("large-btn");
+        mainMenuButton.setMaxWidth(Double.MAX_VALUE);
+        VBox.setMargin(mainMenuButton, new Insets(30, 0, 20, 0));
+
         summary.getChildren().addAll(
             spacer1, startingMoney,
             spacer2, endingCapital,
@@ -141,8 +150,15 @@ public class GameSummaryView {
 
         root.setFillHeight(false);
         root.setAlignment(Pos.CENTER_LEFT);
+        root.setMaxWidth(Double.MAX_VALUE);
         root.getChildren().addAll(contentWrapper, summary);
-        scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
+        VBox.setVgrow(root, Priority.ALWAYS);
+
+        VBox outer = new VBox(10, root, mainMenuButton);
+        outer.setAlignment(Pos.CENTER);
+        outer.getStyleClass().add("game-summary-view");
+
+        scene = new Scene(outer, SCENE_WIDTH, SCENE_HEIGHT);
         scene.getStylesheets().add(
             getClass().getResource(
                 "/no/ntnu/idatt2003/styles.css").toExternalForm()
@@ -165,6 +181,15 @@ public class GameSummaryView {
      */
     public Scene getScene() {
         return scene;
+    }
+
+    /**
+     * Sets the action for the main menu button.
+     *
+     * @param action action to run when the button is clicked
+     */
+    public void setMainMenuAction(Runnable action) {
+        mainMenuButton.setOnAction(e -> action.run());
     }
 
     /**

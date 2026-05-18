@@ -91,6 +91,18 @@ public class TransactionArchive {
     }
 
     /**
+     * Adds an already committed transaction directly to the archive.
+     * Used when restoring a saved game state.
+     *
+     * @param transaction the committed transaction to add
+     */
+    public void addCommitted(final Transaction transaction) {
+        if (transaction != null) {
+            transactions.add(transaction);
+        }
+    }
+
+    /**
      * Counts the number of distinct weeks in which transactions occurred.
      *
      * @return the number of distinct weeks with transactions
