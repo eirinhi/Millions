@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import no.ntnu.idatt2003.model.entity.Player;
 import no.ntnu.idatt2003.model.entity.Share;
 import no.ntnu.idatt2003.model.entity.Stock;
+import no.ntnu.idatt2003.model.entity.Transaction;
 import no.ntnu.idatt2003.model.logic.Exchange;
 import no.ntnu.idatt2003.model.logic.PurchaseCalculator;
 import no.ntnu.idatt2003.model.logic.SaleCalculator;
@@ -21,13 +22,28 @@ import no.ntnu.idatt2003.view.TradeView;
  */
 public class TradeViewController implements Observer {
 
+    /** Maximum allowed quantity for a buy order. */
+    private static final int MAX_BUY_QUANTITY = 9999;
+
+    /** The exchange used for market operations. */
     private final Exchange exchange;
+
+    /** The player executing trades. */
     private final Player player;
+
+    /** The stock currently selected for trading. */
     private final Stock stock;
+
+    /** The trade view managed by this controller. */
     private final TradeView view;
+
+    /** Callback invoked after a trade completes successfully. */
     private final Runnable onTradeCompleted;
+
+    /** Callback invoked when the user cancels the trade view. */
     private final Runnable onCancel;
 
+    /** Whether the controller is currently in buy mode. */
     private boolean buyMode = true;
 
     /**
@@ -85,9 +101,8 @@ public class TradeViewController implements Observer {
      */
     public void setBuyMode() {
         buyMode = true;
-        view.updateTradeButtonText(true);
-        view.updateModeLabel("Buy this share");
-        view.setMaxQuantity(9999);
+        view.updateOrderPanelMode(true);
+        view.setMaxQuantity(MAX_BUY_QUANTITY);
         updateOrderPreview();
     }
 
@@ -96,17 +111,11 @@ public class TradeViewController implements Observer {
      */
     public void setSellMode() {
         buyMode = false;
-        view.updateTradeButtonText(false);
-        view.updateModeLabel("Sell this share");
+        view.updateOrderPanelMode(false);
 
-        BigDecimal ownedQuantity = player.getPortfolio().getQuantityOwned(stock);
-
-        if (ownedQuantity.compareTo(BigDecimal.ZERO) <= 0) {
-            view.setMaxQuantity(1);
-            view.showError("You do not own this stock.");
-        } else {
-            view.setMaxQuantity(ownedQuantity.intValue());
-        }
+        BigDecimal ownedQuantity =
+            player.getPortfolio().getQuantityOwned(stock);
+        view.setMaxQuantity(ownedQuantity.intValue());
 
         updateOrderPreview();
     }
@@ -127,22 +136,22 @@ public class TradeViewController implements Observer {
 
         try {
             TransactionCalculator calculator = buyMode
-                    ? createPurchaseCalculator(quantity)
-                    : createSaleCalculator(quantity);
+                ? createPurchaseCalculator(quantity)
+                : createSaleCalculator(quantity);
 
             view.updateOrderPreview(
-                    calculator.calculateGross(),
-                    calculator.calculateCommission(),
-                    calculator.calculateTax(),
-                    calculator.calculateTotal()
+                calculator.calculateGross(),
+                calculator.calculateCommission(),
+                calculator.calculateTax(),
+                calculator.calculateTotal()
             );
 
         } catch (IllegalStateException | IllegalArgumentException e) {
             view.updateOrderPreview(
-                    BigDecimal.ZERO,
-                    BigDecimal.ZERO,
-                    BigDecimal.ZERO,
-                    BigDecimal.ZERO
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO
             );
         }
     }
@@ -156,25 +165,28 @@ public class TradeViewController implements Observer {
         try {
             validateQuantity(quantity);
 
+            Transaction transaction;
+
             if (buyMode) {
                 validateCanAfford(quantity);
-                exchange.buy(stock.getSymbol(), quantity, player);
+                transaction = exchange.buy(stock.getSymbol(), quantity, player);
             } else {
                 validateCanSell(quantity);
 
                 Share ownedShare = player.getPortfolio().getOwnedShare(stock);
 
                 Share shareToSell = new Share(
-                        stock,
-                        quantity,
-                        ownedShare.getPurchasePrice()
+                    stock,
+                    quantity,
+                    ownedShare.getPurchasePrice()
                 );
 
-                exchange.sell(shareToSell, player);
+                transaction = exchange.sell(shareToSell, player);
             }
 
             onTradeCompleted.run();
             updateView();
+            view.showReceipt(transaction);
 
         } catch (IllegalStateException | IllegalArgumentException e) {
             view.showError(e.getMessage());
@@ -182,19 +194,19 @@ public class TradeViewController implements Observer {
     }
 
     private TransactionCalculator createPurchaseCalculator(
-            final BigDecimal quantity) {
+        final BigDecimal quantity) {
 
         Share share = new Share(
-                stock,
-                quantity,
-                stock.getSalesPrice()
+            stock,
+            quantity,
+            stock.getSalesPrice()
         );
 
         return new PurchaseCalculator(share);
     }
 
     private TransactionCalculator createSaleCalculator(
-            final BigDecimal quantity) {
+        final BigDecimal quantity) {
 
         Share ownedShare = player.getPortfolio().getOwnedShare(stock);
 
@@ -203,9 +215,9 @@ public class TradeViewController implements Observer {
         }
 
         Share share = new Share(
-                stock,
-                quantity,
-                ownedShare.getPurchasePrice()
+            stock,
+            quantity,
+            ownedShare.getPurchasePrice()
         );
 
         return new SaleCalculator(share);
@@ -214,7 +226,7 @@ public class TradeViewController implements Observer {
     private void validateQuantity(final BigDecimal quantity) {
         if (quantity == null || quantity.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException(
-                    "Quantity must be greater than zero."
+                "Quantity must be greater than zero."
             );
         }
     }
@@ -224,13 +236,14 @@ public class TradeViewController implements Observer {
 
         if (player.getMoney().compareTo(calculator.calculateTotal()) < 0) {
             throw new IllegalStateException(
-                    "You do not have enough money to complete this purchase."
+                "You do not have enough money to complete this purchase."
             );
         }
     }
 
     private void validateCanSell(final BigDecimal quantity) {
-        BigDecimal ownedQuantity = player.getPortfolio().getQuantityOwned(stock);
+        BigDecimal ownedQuantity =
+            player.getPortfolio().getQuantityOwned(stock);
 
         if (ownedQuantity.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalStateException("You do not own this stock.");
@@ -238,7 +251,7 @@ public class TradeViewController implements Observer {
 
         if (quantity.compareTo(ownedQuantity) > 0) {
             throw new IllegalStateException(
-                    "You cannot sell more shares than you own."
+                "You cannot sell more shares than you own."
             );
         }
     }
@@ -249,12 +262,12 @@ public class TradeViewController implements Observer {
         view.updatePriceChart(stock.getHistoricalPrices());
 
         BigDecimal ownedQuantity =
-                player.getPortfolio().getQuantityOwned(stock);
+            player.getPortfolio().getQuantityOwned(stock);
 
         view.updateOwnedQuantity(ownedQuantity);
 
         if (!buyMode) {
-            view.setMaxQuantity(Math.max(1, ownedQuantity.intValue()));
+            view.setMaxQuantity(ownedQuantity.intValue());
         }
 
         updateOrderPreview();

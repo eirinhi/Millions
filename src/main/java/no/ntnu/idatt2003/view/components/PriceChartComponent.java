@@ -7,82 +7,240 @@ import java.util.List;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 
 /**
  * Component for displaying a stock price chart.
  *
- * <p>Renders a simple line chart based on a list
- * of historical stock prices.</p>
- *
- * <p>The chart is drawn on a JavaFX {@link Canvas}
- * and automatically scales values between the minimum
- * and maximum price in the provided dataset.</p>
+ * <p>Renders a line chart with a y-axis price scale on the left
+ * and x-axis week numbers along the bottom.
+ * Green and red dots mark the highest and lowest prices.</p>
  */
 public class PriceChartComponent extends Canvas {
 
-    private static final int WIDTH = 500;
-    private static final int HEIGHT = 300;
+    /** Default canvas width in pixels. */
+    private static final double DEFAULT_WIDTH  = 400;
+
+    /** Default canvas height in pixels. */
+    private static final double DEFAULT_HEIGHT = 222;
+
+    /** Left padding reserved for y-axis labels. */
+    private static final double LEFT_PAD  = 58;
+
+    /** Right padding inside the plot area. */
+    private static final double RIGHT_PAD = 10;
+
+    /** Top padding inside the plot area. */
+    private static final double TOP_PAD   = 10;
+
+    /** Bottom padding reserved for x-axis labels. */
+    private static final double BOT_PAD   = 24;
+
+    /** Radius of the min/max highlight dots. */
+    private static final double DOT_R     = 5;
+
+    /** Number of y-axis tick intervals. */
+    private static final int    Y_TICKS   = 3;
+
+    /** Maximum number of x-axis labels shown. */
+    private static final int    X_LABELS  = 5;
+
+    /** Colour used for the maximum price dot and label. */
+    private static final Color COLOR_MAX  = Color.web("#2bbd6e");
+
+    /** Colour used for the minimum price dot and label. */
+    private static final Color COLOR_MIN  = Color.web("#e34c4c");
+
+    /** Corner arc radius for the rounded background rectangle. */
+    private static final double CORNER_ARC = 10;
+
+    /** Font size used for axis labels. */
+    private static final double FONT_SIZE = 10;
+
+    /** Horizontal distance from the plot edge to the y-axis label anchor. */
+    private static final double Y_LABEL_X_OFFSET = 7;
+
+    /** Vertical offset added to each y-axis label for visual centring. */
+    private static final double Y_LABEL_Y_OFFSET = 4;
+
+    /** Vertical distance below the plot bottom for x-axis labels. */
+    private static final double X_LABEL_Y_OFFSET = 15;
+
+    /** Price threshold above which labels are shown without decimals. */
+    private static final double PRICE_INTEGER_THRESHOLD = 1000;
+
+    /** The historical prices rendered by this chart. */
+    private List<BigDecimal> prices;
 
     /**
      * Creates a new price chart component.
      *
-     * @param prices the historical stock prices to display
+     * @param priceList the historical stock prices to display
      */
-    public PriceChartComponent(final List<BigDecimal> prices) {
-        super(WIDTH, HEIGHT);
-        draw(prices);
+    public PriceChartComponent(final List<BigDecimal> priceList) {
+        super(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        this.prices = priceList;
+        widthProperty().addListener(e -> draw());
+        heightProperty().addListener(e -> draw());
+        draw();
     }
 
     /**
      * Redraws the chart with updated prices.
      *
-     * @param prices the updated historical stock prices
+     * @param priceList the updated historical stock prices
      */
-    public void updatePrices(final List<BigDecimal> prices) {
-        draw(prices);
+    public void updatePrices(final List<BigDecimal> priceList) {
+        this.prices = priceList;
+        draw();
     }
 
-    /**
-     * Draws the price chart on the canvas.
-     * 
-     * <p>The method clears the canvas, calculates scaling based on the minimum prices,
-     * and displays the price history as a connected line graph.</p>
-     *
-     * <p>If fewer than two prices are available, the chart will not be drawn.</p>
-     *
-     */
-    private void draw(final List<BigDecimal> prices) {
-        GraphicsContext gc = getGraphicsContext2D();
+    private void draw() {
+        double w = getWidth();
+        double h = getHeight();
+        if (w <= 0 || h <= 0) {
+            return;
+        }
 
-        gc.clearRect(0, 0, WIDTH, HEIGHT);
-        gc.strokeRect(0, 0, WIDTH, HEIGHT);
+        GraphicsContext gc = getGraphicsContext2D();
+        gc.clearRect(0, 0, w, h);
+
+        double arc = CORNER_ARC;
+        gc.save();
+        gc.beginPath();
+        gc.moveTo(arc, 0);
+        gc.lineTo(w - arc, 0);
+        gc.arcTo(w, 0, w, arc, arc);
+        gc.lineTo(w, h - arc);
+        gc.arcTo(w, h, w - arc, h, arc);
+        gc.lineTo(arc, h);
+        gc.arcTo(0, h, 0, h - arc, arc);
+        gc.lineTo(0, arc);
+        gc.arcTo(0, 0, arc, 0, arc);
+        gc.closePath();
+        gc.clip();
+
+        gc.setFill(Color.WHITE);
+        gc.fillRect(0, 0, w, h);
 
         if (prices == null || prices.size() < 2) {
+            gc.restore();
             return;
         }
 
-        BigDecimal max = Collections.max(prices);
-        BigDecimal min = Collections.min(prices);
-
-        double maxValue = max.doubleValue();
-        double minValue = min.doubleValue();
-
-        if (Double.compare(maxValue, minValue) == 0) {
+        double maxVal = Collections.max(prices).doubleValue();
+        double minVal = Collections.min(prices).doubleValue();
+        if (Double.compare(maxVal, minVal) == 0) {
+            gc.restore();
             return;
         }
 
-        double xStep = (double) WIDTH / (prices.size() - 1);
+        double plotX = LEFT_PAD;
+        double plotY = TOP_PAD;
+        double plotW = w - LEFT_PAD - RIGHT_PAD;
+        double plotH = h - TOP_PAD - BOT_PAD;
+        double xStep = plotW / (prices.size() - 1);
+
+        drawYAxis(gc, plotX, plotY, plotH, maxVal, minVal);
+        drawXAxis(gc, plotX, plotY, plotW, plotH, xStep);
+
+        drawLine(gc, plotX, plotY, plotH, xStep, maxVal, minVal);
+        drawExtremes(gc, plotX, plotY, plotH, xStep, maxVal, minVal);
+
+        gc.restore();
+    }
+
+    private void drawYAxis(
+            final GraphicsContext gc,
+            final double plotX,
+            final double plotY,
+            final double plotH,
+            final double maxVal,
+            final double minVal) {
+
+        gc.setFont(Font.font(FONT_SIZE));
+        gc.setTextAlign(TextAlignment.RIGHT);
+
+        for (int t = 0; t <= Y_TICKS; t++) {
+            double fraction = (double) t / Y_TICKS;
+            double price    = maxVal - fraction * (maxVal - minVal);
+            double y        = plotY + plotH * fraction;
+
+            if (t == 0) {
+                gc.setFill(COLOR_MAX);
+            } else if (t == Y_TICKS) {
+                gc.setFill(COLOR_MIN);
+            } else {
+                gc.setFill(Color.DARKGRAY);
+            }
+
+            gc.fillText(
+                formatPrice(price),
+                plotX - Y_LABEL_X_OFFSET,
+                y + Y_LABEL_Y_OFFSET
+            );
+        }
+
+        gc.setTextAlign(TextAlignment.LEFT);
+    }
+
+    private void drawXAxis(
+            final GraphicsContext gc,
+            final double plotX,
+            final double plotY,
+            final double plotW,
+            final double plotH,
+            final double xStep) {
+
+        int n    = prices.size();
+        int step = Math.max(1, (int) Math.ceil((double) (n - 1) / X_LABELS));
+
+        gc.setFont(Font.font(FONT_SIZE));
+        gc.setTextAlign(TextAlignment.CENTER);
+        gc.setFill(Color.DARKGRAY);
+
+        for (int i = 0; i < n; i += step) {
+            double x = plotX + xStep * i;
+            gc.fillText(
+                String.valueOf(i + 1),
+                x,
+                plotY + plotH + X_LABEL_Y_OFFSET
+            );
+        }
+
+        int last = n - 1;
+        if (last % step != 0) {
+            double x = plotX + xStep * last;
+            gc.setFill(Color.DARKGRAY);
+            gc.fillText(
+                String.valueOf(n),
+                x,
+                plotY + plotH + X_LABEL_Y_OFFSET
+            );
+        }
+
+        gc.setTextAlign(TextAlignment.LEFT);
+    }
+
+    private void drawLine(
+            final GraphicsContext gc,
+            final double plotX,
+            final double plotY,
+            final double plotH,
+            final double xStep,
+            final double maxVal,
+            final double minVal) {
 
         gc.setStroke(Color.BLACK);
-        gc.setLineWidth(3);
-
+        gc.setLineWidth(2);
         gc.beginPath();
 
         for (int i = 0; i < prices.size(); i++) {
-            double price = prices.get(i).doubleValue();
-
-            double x = i * xStep;
-            double y = HEIGHT - ((price - minValue) / (maxValue - minValue)) * HEIGHT;
+            double v = prices.get(i).doubleValue();
+            double x = plotX + xStep * i;
+            double y = plotY
+                + plotH * (1 - (v - minVal) / (maxVal - minVal));
 
             if (i == 0) {
                 gc.moveTo(x, y);
@@ -92,5 +250,45 @@ public class PriceChartComponent extends Canvas {
         }
 
         gc.stroke();
+    }
+
+    private void drawExtremes(
+            final GraphicsContext gc,
+            final double plotX,
+            final double plotY,
+            final double plotH,
+            final double xStep,
+            final double maxVal,
+            final double minVal) {
+
+        int hiIdx = 0;
+        int loIdx = 0;
+        for (int i = 0; i < prices.size(); i++) {
+            double v = prices.get(i).doubleValue();
+            if (Double.compare(v, maxVal) == 0) {
+                hiIdx = i;
+            }
+            if (Double.compare(v, minVal) == 0) {
+                loIdx = i;
+            }
+        }
+
+        double xHi = plotX + xStep * hiIdx;
+        double yHi = plotY;
+        double xLo = plotX + xStep * loIdx;
+        double yLo = plotY + plotH;
+
+        gc.setFill(COLOR_MAX);
+        gc.fillOval(xHi - DOT_R, yHi - DOT_R, 2 * DOT_R, 2 * DOT_R);
+
+        gc.setFill(COLOR_MIN);
+        gc.fillOval(xLo - DOT_R, yLo - DOT_R, 2 * DOT_R, 2 * DOT_R);
+    }
+
+    private String formatPrice(final double price) {
+        if (price >= PRICE_INTEGER_THRESHOLD) {
+            return String.format("%.0f", price);
+        }
+        return String.format("%.1f", price);
     }
 }

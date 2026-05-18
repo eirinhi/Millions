@@ -102,6 +102,13 @@ public class MainViewController {
     public MainView getView() {
         return mainView;
     }
+
+    /**
+     * Shows the portfolio view immediately.
+     */
+    public void showPortfolioView() {
+        portfolioController.showPortfolioView();
+    }
  
     /**
      * Advances the simulation by one week, records a chart point,
