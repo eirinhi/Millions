@@ -2,6 +2,8 @@ package no.ntnu.idatt2003.model.entity;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a player in the stock game.
@@ -35,6 +37,9 @@ public class Player {
   /**The archive storing all committed transactions for this player. */
   private TransactionArchive transactionArchive;
 
+  /** The history of the player's net worth over time. */
+  private final List<BigDecimal> netWorthHistory = new ArrayList<>();
+
   /**
    * Creates a new player with the specified name and starting money.
    * The current money is initialized to the starting amount and a new
@@ -62,6 +67,54 @@ public class Player {
     this.money = startingMoney;
     this.portfolio = new Portfolio();
     this.transactionArchive = new TransactionArchive();
+  }
+
+  /**
+   * Creates a new player with the specified parameters.
+   *
+   * This constructor is used for loading a player from a saved game state,
+   * allowing all fields to be initialized directly.
+   *
+   * @param name the name of the player
+   * @param startingMoney the original starting capital of the player
+   * @param currentMoney the current money balance of the player
+   * @param portfolio the portfolio containing the player's owned shares
+   * @param transactionArchive the archive storing the player's committed transactions
+   * @throws IllegalArgumentException if any of the parameters are invalid
+   */
+  public Player(
+    final String name,
+    final BigDecimal startingMoney,
+    BigDecimal currentMoney,
+    Portfolio portfolio,
+    TransactionArchive transactionArchive)
+    {
+
+      if (name == null || name.trim().isEmpty()) {
+        throw new IllegalArgumentException("Name cannot be null or empty");
+      }
+
+      if (startingMoney == null || startingMoney.compareTo(BigDecimal.ZERO) <= 0) {
+        throw new IllegalArgumentException("Starting money cannot be null or negative");
+      }
+
+      if (currentMoney == null || currentMoney.compareTo(BigDecimal.ZERO) <= 0) {
+        throw new IllegalArgumentException("Current money cannot be null or negative");
+      }
+
+      if (portfolio == null) {
+        throw new IllegalArgumentException("Portfolio cannot be null");
+      }
+
+      if (transactionArchive == null) {
+        throw new IllegalArgumentException("Transaction archive cannot be null");
+      }
+
+      this.name = name;
+      this.startingMoney = startingMoney;
+      this.money = currentMoney;
+      this.portfolio = portfolio;
+      this.transactionArchive = transactionArchive;
   }
 
   /**
@@ -194,5 +247,36 @@ public class Player {
     }
 
     return "Novice";
+  }
+
+  /**
+   * Records the player's current net worth in the history list.
+   *
+   * This method should be called at the end of each week to track the player's
+   * net worth over time.
+   */
+  public void recordNetWorth() {
+    netWorthHistory.add(getNetWorth());
+  }
+
+  /**
+   * Returns a copy of the player's net worth history list.
+   *
+   * @return a list containing the player's net worth history over time.
+   */
+  public List<BigDecimal> getNetWorthHistory() {
+    return List.copyOf(netWorthHistory);
+  }
+
+  /**
+   * Adds a net worth record directly to the history.
+   * Used when restoring a saved game state.
+   *
+   * @param value the net worth value to add
+   */
+  public void addNetWorthRecord(final BigDecimal value) {
+    if (value != null) {
+      netWorthHistory.add(value);
+    }
   }
 }

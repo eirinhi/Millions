@@ -71,12 +71,21 @@ public class MainView extends BorderPane {
     }
 
     /**
-     * Sets the action triggered when the "EXIT" button is clicked.
+     * Sets the action triggered when the "SAVE & EXIT" button is clicked.
      *
      * @param action callback to run on click
      */
-    public void setExitAction(Runnable action) {
-        sideBar.setExitAction(action);
+    public void setSaveAction(Runnable action) {
+        sideBar.setSaveAction(action);
+    }
+
+    /**
+     * Sets the action triggered when the "END GAME" button is clicked.
+     *
+     * @param action callback to run on click
+     */
+    public void setEndGameAction(Runnable action) {
+        sideBar.setEndGameAction(action);
     }
 
     /**
@@ -112,10 +121,10 @@ public class MainView extends BorderPane {
     }
 
     /**
-     * Replaces the center area with the exit/results view.
+     * Replaces the center area with the endGame/results view.
      */
-    public void showExitView() {
-        setView(createExitView());
+    public void showEndGameView() {
+        setView(createEndGameView());
     }
 
     /**
@@ -128,15 +137,15 @@ public class MainView extends BorderPane {
     }
 
     /**
-     * Builds a placeholder exit view shown when the player ends the game.
+     * Builds a placeholder endGame view shown when the player ends the game.
      *
-     * @return the constructed exit view node
+     * @return the constructed endGame view node
      */
-    private Node createExitView() {
+    private Node createEndGameView() {
         VBox box = new VBox(10);
-        box.getStyleClass().add("exit-view");
+        box.getStyleClass().add("end-game-view");
         Label title = new Label("Avslutningsside");
-        title.getStyleClass().add("exit-view-title");
+        title.getStyleClass().add("end-game-view-title");
         Label info = new Label("Resultater kommer her. Implementer senere for å vise spillerens statistikk.");
         info.setWrapText(true);
         box.getChildren().addAll(title, info);

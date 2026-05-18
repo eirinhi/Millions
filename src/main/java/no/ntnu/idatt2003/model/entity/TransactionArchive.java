@@ -42,6 +42,15 @@ public class TransactionArchive {
     }
 
     /**
+     * Retrieves all transactions in the archive.
+     *
+     * @return an unmodifiable list of all transactions
+     */
+    public List<Transaction> getAll() {
+        return List.copyOf(transactions);
+    }
+
+    /**
      * Retrieves all transactions that occurred in the specified week.
      *
      * @param week the week to filter transactions by
@@ -79,6 +88,18 @@ public class TransactionArchive {
                 .filter(t -> t.getWeek() == week)
                 .map(t -> (Sale) t)
                 .toList();
+    }
+
+    /**
+     * Adds an already committed transaction directly to the archive.
+     * Used when restoring a saved game state.
+     *
+     * @param transaction the committed transaction to add
+     */
+    public void addCommitted(final Transaction transaction) {
+        if (transaction != null) {
+            transactions.add(transaction);
+        }
     }
 
     /**

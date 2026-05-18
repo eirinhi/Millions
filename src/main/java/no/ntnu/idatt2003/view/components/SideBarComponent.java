@@ -31,8 +31,11 @@ public class SideBarComponent extends VBox {
     /** The button for navigating to the exchange view. */
     private Button exchangeBtn;
 
-    /** The button for exiting the application. */
-    private Button exitButton;
+    /** The button for saving the game. */
+    private Button saveButton;
+
+    /** The button for ending the game. */
+    private Button endGameButton;
 
     /** The component for displaying status information. */
     private StatusComponent statusComponent;
@@ -63,12 +66,17 @@ public class SideBarComponent extends VBox {
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
 
-        exitButton = new Button("EXIT");
-        exitButton.getStyleClass().add("exit-btn");
+        saveButton = new Button("SAVE & EXIT");
+        saveButton.getStyleClass().add("save-btn");
+        saveButton.setMaxWidth(Double.MAX_VALUE);
+
+        endGameButton = new Button("END GAME");
+        endGameButton.getStyleClass().add("end-game-btn");
+        endGameButton.setMaxWidth(Double.MAX_VALUE);
 
         this.getChildren().addAll(
             moneyTitle, moneyLabel, portfolioBtn, exchangeBtn,
-            statusComponent, spacer, exitButton);
+            statusComponent, spacer, saveButton, endGameButton);
     }
 
     /**
@@ -88,11 +96,19 @@ public class SideBarComponent extends VBox {
     }
 
     /**
-     * Sets the action to perform when the "EXIT" button is clicked.
+     * Sets the action to perform when the "SAVE & EXIT" button is clicked.
      * @param action the action to perform on click
      */
-    public void setExitAction(final Runnable action) {
-        exitButton.setOnAction(e -> action.run());
+    public void setSaveAction(final Runnable action) {
+        saveButton.setOnAction(e -> action.run());
+    }
+
+    /**
+     * Sets the action to perform when the "END GAME" button is clicked.
+     * @param action the action to perform on click
+     */
+    public void setEndGameAction(final Runnable action) {
+        endGameButton.setOnAction(e -> action.run());
     }
 
     /**

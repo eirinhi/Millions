@@ -315,4 +315,20 @@ public class Exchange extends Subject {
                     .toList();
         };
     }
+
+    /**
+     * Sets the the given week of the exchange.
+     *
+     * This method is intended for setting the week when loading
+     * a saved game.
+     *
+     * @param week the week to set
+     * @throws IllegalArgumentException if week is less than 1
+     */
+    public void setWeek(final int week) {
+        if (week <= 0) {
+            throw new IllegalArgumentException("Week cannot be less than 1");
+        }
+        this.week = week;
+    }
 }
