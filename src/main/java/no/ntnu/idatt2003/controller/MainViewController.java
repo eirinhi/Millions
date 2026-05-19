@@ -67,7 +67,22 @@ public class MainViewController {
 
         this.portfolioController = new PortfolioController(mainView, player, exchange);
 
-        this.exchangeViewController = new ExchangeViewController(exchange);
+        this.exchangeViewController = new ExchangeViewController(
+            exchange,
+            stock -> {
+                TradeViewController tradeController =
+                    new TradeViewController(
+                        exchange,
+                        player,
+                        stock,
+                        this::updateView,
+                        this::showExchangeView
+                    );
+
+                mainView.setView(tradeController.getView());
+            }
+        );
+
         this.exchangeView = new ExchangeView(exchangeViewController);
 
         mainView.setAdvanceAction(this::advanceWeek);
@@ -86,6 +101,13 @@ public class MainViewController {
      */
     public MainView getView() {
         return mainView;
+    }
+
+    /**
+     * Shows the portfolio view immediately.
+     */
+    public void showPortfolioView() {
+        portfolioController.showPortfolioView();
     }
  
     /**
@@ -148,20 +170,26 @@ public class MainViewController {
             goal2Text, 
             goal2Met);
     }
- 
-    /**
-     * Calculates the player's net worth gain as a percentage of their starting money.
+
+   /**
+     * Calculates the player's net worth gain as a percentage
+     * of their starting money.
+     *
+     * <p>This includes both available money and current portfolio value.</p>
      *
      * @return gain percentage, or {@code 0.0} if starting money is zero
      */
     private double calculateGainPercent() {
         BigDecimal starting = player.getStartingMoney();
+
         if (starting.compareTo(BigDecimal.ZERO) > 0) {
-            BigDecimal diff = player.getMoney().subtract(starting);
+            BigDecimal diff = player.getNetWorth().subtract(starting);
+
             return diff.multiply(new BigDecimal("100"))
-                       .divide(starting, 6, RoundingMode.HALF_UP)
-                       .doubleValue();
+                    .divide(starting, 6, RoundingMode.HALF_UP)
+                    .doubleValue();
         }
+
         return 0.0;
     }
 
@@ -211,5 +239,12 @@ public class MainViewController {
         GameSummaryView summaryView = new GameSummaryViewController(exchange, player).getView();
         summaryView.setMainMenuAction(() -> stage.setScene(new StartController(stage).getScene()));
         stage.setScene(summaryView.getScene());
+    }
+
+    /**
+     * Shows the exchange view in the center of the main layout.
+     */
+    private void showExchangeView() {
+        mainView.setView(exchangeView);
     }
 }

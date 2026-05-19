@@ -2,11 +2,13 @@ package no.ntnu.idatt2003.view.components;
 
 import java.util.List;
 
+import javafx.scene.Cursor;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import no.ntnu.idatt2003.controller.ExchangeViewController;
 import no.ntnu.idatt2003.model.entity.Stock;
 
 /**
@@ -26,14 +28,22 @@ public class WinnersLosersComponent extends VBox {
     /** The list displaying the losing stocks. */
     private VBox losersList;
 
+    /** The controller notified when a stock is selected. */
+    private final ExchangeViewController controller;
+
     /**
      * Creates a new WinnersLosersComponent with the given gainers and losers.
      * @param gainers the list of stocks that gained the most last week
      * @param losers the list of stocks that lost the most last week
+     * @param controller the controller handling stock selections
      */
     public WinnersLosersComponent(
-        final List<Stock> gainers, final List<Stock> losers) {
+        final List<Stock> gainers,
+        final List<Stock> losers,
+        final ExchangeViewController controller) {
         super(SPACING);
+
+        this.controller = controller;
 
         Label winnersLabel = new Label("Winners");
         winnersLabel.getStyleClass().add("winners-title");
@@ -98,6 +108,8 @@ public class WinnersLosersComponent extends VBox {
 
         HBox row = new HBox(nameLabel, spacer, returnLabel);
         row.getStyleClass().add("stock-row");
+        row.setCursor(Cursor.HAND);
+        row.setOnMouseClicked(event -> controller.onStockSelected(stock));
         return row;
     }
 }

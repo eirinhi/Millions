@@ -35,12 +35,6 @@ public class MainView extends BorderPane {
         sideBar = new SideBarComponent(money);
         this.setTop(topBar);
         this.setLeft(sideBar);
-
-        Label center = new Label("Welcome to Millions!");
-        center.getStyleClass().add("welcome-label");
-        this.setCenter(center);
-
-
     }
 
     /**

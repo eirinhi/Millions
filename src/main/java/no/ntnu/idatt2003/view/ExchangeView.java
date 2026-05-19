@@ -48,7 +48,7 @@ public class ExchangeView extends GridPane {
         stockTable = new StockTableComponent(
             controller.getAllStocks(), controller);
         winnersLosers = new WinnersLosersComponent(
-            controller.getGainers(), controller.getLosers());
+            controller.getGainers(), controller.getLosers(), controller);
 
         // Set up layout constraints
         ColumnConstraints col0 = new ColumnConstraints();

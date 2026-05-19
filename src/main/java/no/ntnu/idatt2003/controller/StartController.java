@@ -26,6 +26,12 @@ import no.ntnu.idatt2003.view.StartView;
  */
 public class StartController {
 
+    /** Width of the main game scene in pixels. */
+    private static final int SCENE_WIDTH = 1000;
+
+    /** Height of the main game scene in pixels. */
+    private static final int SCENE_HEIGHT = 700;
+
     private final Stage primaryStage;
     private final StartView startView;
     private File selectedFile;
@@ -106,7 +112,9 @@ public class StartController {
     private void onLoadGame() {
         GameSave selected = startView.getSelectedSave();
 
-        if (selected == null) return;
+        if (selected == null) {
+            return;
+        }
 
         try {
             File file = GameFileHandler.getSavedGames().stream()
@@ -117,8 +125,14 @@ public class StartController {
             GameLoadResult result = GameFileHandler.loadGame(file);
 
             MainViewController controller = new MainViewController(
-                result.getExchange(), result.getPlayer(), file, selected.getSaveName());
-            primaryStage.setScene(new Scene(controller.getView(), 1000, 700));
+                result.getExchange(),
+                result.getPlayer(),
+                file,
+                selected.getSaveName());
+            controller.showPortfolioView();
+            primaryStage.setScene(
+                    new Scene(controller.getView(), SCENE_WIDTH, SCENE_HEIGHT)
+            );
 
         } catch (GameSaveException e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -202,6 +216,9 @@ public class StartController {
         Player player = createPlayer(name, capital);
         Exchange exchange = createExchange(stocks);
         MainViewController controller = new MainViewController(exchange, player);
-        return new Scene(controller.getView(), 1000, 700);
+        controller.showPortfolioView();
+        return new Scene(
+                controller.getView(), SCENE_WIDTH, SCENE_HEIGHT
+        );
     }
 }

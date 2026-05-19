@@ -27,13 +27,18 @@ class ExchangeViewControllerTest {
         Stock s3 = new Stock("S3", "Stock3", List.of(BigDecimal.valueOf(50), BigDecimal.valueOf(55)));
 
         exchange = new Exchange("TestExchange", List.of(s1, s2, s3));
-        controller = new ExchangeViewController(exchange);
-
+        controller = new ExchangeViewController(
+                exchange,
+                stock -> {}
+        );
         // AI was used to discuss how to verify that a method is called without mocking
         // the entire class. The solution is an anonymous subclass (spy pattern) that
         // overrides the method and sets a flag when it is called.
         updateTableCalled = new boolean[]{false};
-        spy = new ExchangeViewController(exchange) {
+        spy = new ExchangeViewController(
+                exchange,
+                stock -> {}
+        ) {
             @Override
             public void updateTable() {
                 updateTableCalled[0] = true;

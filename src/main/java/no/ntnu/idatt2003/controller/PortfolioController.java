@@ -1,6 +1,7 @@
 package no.ntnu.idatt2003.controller;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import no.ntnu.idatt2003.model.entity.Player;
 import no.ntnu.idatt2003.model.logic.Exchange;
@@ -75,6 +76,13 @@ public class PortfolioController implements Observer {
 
         if (view == null) {
             view = new PortfolioView();
+            List<Double> history = player.getNetWorthHistory().stream()
+                .map(BigDecimal::doubleValue)
+                .toList();
+            view.setChartHistory(history);
+            if (history.isEmpty()) {
+                recordWeek();
+            }
         }
 
         refresh();
@@ -116,6 +124,7 @@ public class PortfolioController implements Observer {
         BigDecimal totalValue = player.getMoney()
             .add(formatter.equity(player));
 
+        player.recordNetWorth();
         view.addChartPoint(totalValue.doubleValue());
     }
 
