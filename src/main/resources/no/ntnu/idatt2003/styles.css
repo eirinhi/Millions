@@ -168,6 +168,12 @@
     -fx-font-size: 12px;
 }
 
+.section-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111;
+}
+
 .table-header {
     -fx-font-size: 12px;
     -fx-font-weight: bold;

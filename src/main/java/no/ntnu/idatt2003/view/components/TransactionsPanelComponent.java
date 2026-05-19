@@ -1,6 +1,7 @@
 package no.ntnu.idatt2003.view.components;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
@@ -16,20 +17,35 @@ import no.ntnu.idatt2003.controller.PortfolioFormatter.ReceiptData;
  */
 public class TransactionsPanelComponent extends VBox {
 
+    /** Preferred width of this panel in pixels. */
     private static final double PANEL_WIDTH  = 270;
+
+    /** Preferred height of the scroll area in pixels. */
     private static final double SCROLL_HEIGHT = 340;
 
-    /** Inner container rebuilt on every {@link #update(List)} call. */
-    private final VBox cardsBox = new VBox(8);
+    /** Spacing between receipt cards. */
+    private static final int CARD_SPACING = 8;
 
+    /** Padding inside the cards container. */
+    private static final double BOX_PADDING = 4;
+
+    /** Inner container rebuilt on every {@link #update(List)} call. */
+    private final VBox cardsBox = new VBox(CARD_SPACING);
+
+    /** Called with the receipt data when a transaction card is clicked. */
+    private Consumer<ReceiptData> onReceiptClick;
+
+    /**
+     * Constructs the transactions panel with a title and scrollable card area.
+     */
     public TransactionsPanelComponent() {
-        setSpacing(8);
+        setSpacing(CARD_SPACING);
         setPrefWidth(PANEL_WIDTH);
 
         Label title = new Label("Transactions");
         title.getStyleClass().add("section-title");
 
-        cardsBox.setPadding(new Insets(4));
+        cardsBox.setPadding(new Insets(BOX_PADDING));
 
         ScrollPane scroll = new ScrollPane(cardsBox);
         scroll.setFitToWidth(true);
@@ -44,12 +60,21 @@ public class TransactionsPanelComponent extends VBox {
     }
 
     /**
+     * Sets the callback invoked when a transaction card is clicked.
+     *
+     * @param handler called with the clicked receipt's data
+     */
+    public void setOnReceiptClick(final Consumer<ReceiptData> handler) {
+        this.onReceiptClick = handler;
+    }
+
+    /**
      * Replaces all receipt cards with those built from {@code receipts}.
      * The list is shown newest-first (last element rendered at the top).
      *
      * @param receipts all transactions to display; may be empty
      */
-    public void update(List<ReceiptData> receipts) {
+    public void update(final List<ReceiptData> receipts) {
         cardsBox.getChildren().clear();
 
         if (receipts.isEmpty()) {
@@ -59,10 +84,13 @@ public class TransactionsPanelComponent extends VBox {
             return;
         }
 
-        // Newest first
         List<ReceiptData> reversed = receipts.reversed();
         for (ReceiptData r : reversed) {
-            cardsBox.getChildren().add(new ReceiptCardComponent(r));
+            ReceiptCardComponent card = new ReceiptCardComponent(r);
+            if (onReceiptClick != null) {
+                card.setOnMouseClicked(e -> onReceiptClick.accept(r));
+            }
+            cardsBox.getChildren().add(card);
         }
     }
 }

@@ -124,29 +124,37 @@ public class PriceChartComponent extends Canvas {
         gc.setFill(Color.WHITE);
         gc.fillRect(0, 0, w, h);
 
-        if (prices == null || prices.size() < 2) {
+        if (prices == null || prices.isEmpty()) {
             gc.restore();
             return;
         }
 
-        double maxVal = Collections.max(prices).doubleValue();
-        double minVal = Collections.min(prices).doubleValue();
-        if (Double.compare(maxVal, minVal) == 0) {
-            gc.restore();
-            return;
+        List<BigDecimal> drawPrices = prices.size() < 2
+            ? List.of(prices.get(0), prices.get(0))
+            : prices;
+
+        double maxVal = Collections.max(drawPrices).doubleValue();
+        double minVal = Collections.min(drawPrices).doubleValue();
+        boolean hasRealExtremes = prices.size() >= 2
+            && Double.compare(maxVal, minVal) != 0;
+        if (!hasRealExtremes) {
+            maxVal += 1;
+            minVal -= 1;
         }
 
         double plotX = LEFT_PAD;
         double plotY = TOP_PAD;
         double plotW = w - LEFT_PAD - RIGHT_PAD;
         double plotH = h - TOP_PAD - BOT_PAD;
-        double xStep = plotW / (prices.size() - 1);
+        double xStep = plotW / (drawPrices.size() - 1);
 
-        drawYAxis(gc, plotX, plotY, plotH, maxVal, minVal);
-        drawXAxis(gc, plotX, plotY, plotW, plotH, xStep);
+        drawYAxis(gc, plotX, plotY, plotH, maxVal, minVal, hasRealExtremes);
+        drawXAxis(gc, plotX, plotY, plotH, xStep, prices.size());
 
-        drawLine(gc, plotX, plotY, plotH, xStep, maxVal, minVal);
-        drawExtremes(gc, plotX, plotY, plotH, xStep, maxVal, minVal);
+        drawLine(gc, plotH, xStep, maxVal, minVal, drawPrices);
+        if (hasRealExtremes) {
+            drawExtremes(gc, plotH, xStep, maxVal, minVal, drawPrices);
+        }
 
         gc.restore();
     }
@@ -157,7 +165,8 @@ public class PriceChartComponent extends Canvas {
             final double plotY,
             final double plotH,
             final double maxVal,
-            final double minVal) {
+            final double minVal,
+            final boolean showExtremeColors) {
 
         gc.setFont(Font.font(FONT_SIZE));
         gc.setTextAlign(TextAlignment.RIGHT);
@@ -167,9 +176,9 @@ public class PriceChartComponent extends Canvas {
             double price    = maxVal - fraction * (maxVal - minVal);
             double y        = plotY + plotH * fraction;
 
-            if (t == 0) {
+            if (showExtremeColors && t == 0) {
                 gc.setFill(COLOR_MAX);
-            } else if (t == Y_TICKS) {
+            } else if (showExtremeColors && t == Y_TICKS) {
                 gc.setFill(COLOR_MIN);
             } else {
                 gc.setFill(Color.DARKGRAY);
@@ -189,11 +198,9 @@ public class PriceChartComponent extends Canvas {
             final GraphicsContext gc,
             final double plotX,
             final double plotY,
-            final double plotW,
             final double plotH,
-            final double xStep) {
-
-        int n    = prices.size();
+            final double xStep,
+            final int n) {
         int step = Math.max(1, (int) Math.ceil((double) (n - 1) / X_LABELS));
 
         gc.setFont(Font.font(FONT_SIZE));
@@ -212,7 +219,6 @@ public class PriceChartComponent extends Canvas {
         int last = n - 1;
         if (last % step != 0) {
             double x = plotX + xStep * last;
-            gc.setFill(Color.DARKGRAY);
             gc.fillText(
                 String.valueOf(n),
                 x,
@@ -225,21 +231,20 @@ public class PriceChartComponent extends Canvas {
 
     private void drawLine(
             final GraphicsContext gc,
-            final double plotX,
-            final double plotY,
             final double plotH,
             final double xStep,
             final double maxVal,
-            final double minVal) {
+            final double minVal,
+            final List<BigDecimal> drawPrices) {
 
         gc.setStroke(Color.BLACK);
         gc.setLineWidth(2);
         gc.beginPath();
 
-        for (int i = 0; i < prices.size(); i++) {
-            double v = prices.get(i).doubleValue();
-            double x = plotX + xStep * i;
-            double y = plotY
+        for (int i = 0; i < drawPrices.size(); i++) {
+            double v = drawPrices.get(i).doubleValue();
+            double x = LEFT_PAD + xStep * i;
+            double y = TOP_PAD
                 + plotH * (1 - (v - minVal) / (maxVal - minVal));
 
             if (i == 0) {
@@ -254,17 +259,16 @@ public class PriceChartComponent extends Canvas {
 
     private void drawExtremes(
             final GraphicsContext gc,
-            final double plotX,
-            final double plotY,
             final double plotH,
             final double xStep,
             final double maxVal,
-            final double minVal) {
+            final double minVal,
+            final List<BigDecimal> drawPrices) {
 
         int hiIdx = 0;
         int loIdx = 0;
-        for (int i = 0; i < prices.size(); i++) {
-            double v = prices.get(i).doubleValue();
+        for (int i = 0; i < drawPrices.size(); i++) {
+            double v = drawPrices.get(i).doubleValue();
             if (Double.compare(v, maxVal) == 0) {
                 hiIdx = i;
             }
@@ -273,10 +277,10 @@ public class PriceChartComponent extends Canvas {
             }
         }
 
-        double xHi = plotX + xStep * hiIdx;
-        double yHi = plotY;
-        double xLo = plotX + xStep * loIdx;
-        double yLo = plotY + plotH;
+        double xHi = LEFT_PAD + xStep * hiIdx;
+        double yHi = TOP_PAD;
+        double xLo = LEFT_PAD + xStep * loIdx;
+        double yLo = TOP_PAD + plotH;
 
         gc.setFill(COLOR_MAX);
         gc.fillOval(xHi - DOT_R, yHi - DOT_R, 2 * DOT_R, 2 * DOT_R);

@@ -140,7 +140,7 @@ public class PortfolioFormatter {
                 s.getStock().getCompany(),
                 t.getWeek(),
                 s.getQuantity().intValue(),
-                s.getStock().getSalesPrice().doubleValue(),
+                s.getPurchasePrice().doubleValue(),
                 t.getCalculator().calculateGross().doubleValue(),
                 t.getCalculator().calculateCommission().doubleValue(),
                 t.getCalculator().calculateTax().doubleValue(),

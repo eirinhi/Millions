@@ -10,6 +10,7 @@ import no.ntnu.idatt2003.model.logic.Exchange;
 import no.ntnu.idatt2003.model.logic.PurchaseCalculator;
 import no.ntnu.idatt2003.model.logic.SaleCalculator;
 import no.ntnu.idatt2003.model.logic.TransactionCalculator;
+import javafx.application.Platform;
 import no.ntnu.idatt2003.model.observer.Observer;
 import no.ntnu.idatt2003.view.TradeView;
 
@@ -186,7 +187,7 @@ public class TradeViewController implements Observer {
 
             onTradeCompleted.run();
             updateView();
-            view.showReceipt(transaction);
+            Platform.runLater(() -> view.showReceipt(transaction));
 
         } catch (IllegalStateException | IllegalArgumentException e) {
             view.showError(e.getMessage());

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -137,12 +138,15 @@ public class TradeView extends GridPane {
         backButton.getStyleClass().add("back-btn");
         backButton.setOnAction(e -> controller.cancelTrade());
 
+        HBox modeButtons = new HBox(BUTTON_SPACING, buyButton, sellButton);
+        modeButtons.setAlignment(Pos.CENTER_RIGHT);
+
         chartSection.getChildren().addAll(
                 backButton,
                 symbol,
                 title,
                 priceLabel,
-                new HBox(BUTTON_SPACING, buyButton, sellButton),
+                modeButtons,
                 chart
         );
 
@@ -234,6 +238,15 @@ public class TradeView extends GridPane {
                 buttonBox
         );
 
+        setupGridConstraints();
+        add(chartSection, 0, 0);
+        add(orderPanel, 1, 0);
+    }
+
+    /**
+     * Configures the two-column, one-row grid constraints for this view.
+     */
+    private void setupGridConstraints() {
         ColumnConstraints col0 = new ColumnConstraints();
         col0.setHgrow(Priority.ALWAYS);
         ColumnConstraints col1 = new ColumnConstraints();
@@ -245,9 +258,6 @@ public class TradeView extends GridPane {
         RowConstraints row0 = new RowConstraints();
         row0.setVgrow(Priority.ALWAYS);
         getRowConstraints().add(row0);
-
-        add(chartSection, 0, 0);
-        add(orderPanel, 1, 0);
     }
 
     /**

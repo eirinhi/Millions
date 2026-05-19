@@ -15,6 +15,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import no.ntnu.idatt2003.controller.PortfolioFormatter.ReceiptData;
 import no.ntnu.idatt2003.model.entity.Purchase;
 import no.ntnu.idatt2003.model.entity.Transaction;
 
@@ -62,9 +63,41 @@ public class TransactionReceiptDialog extends Dialog<ButtonType> {
      * @param transaction the completed transaction to display
      */
     public TransactionReceiptDialog(final Transaction transaction) {
+        init(new ReceiptData(
+            transaction.getClass().getSimpleName(),
+            transaction.getShare().getStock().getSymbol(),
+            transaction.getShare().getStock().getCompany(),
+            transaction.getWeek(),
+            transaction.getShare().getQuantity().intValue(),
+            transaction.getShare().getPurchasePrice().doubleValue(),
+            transaction.getCalculator().calculateGross().doubleValue(),
+            transaction.getCalculator().calculateCommission().doubleValue(),
+            transaction.getCalculator().calculateTax().doubleValue(),
+            transaction.getCalculator().calculateTotal().doubleValue()
+        ));
         boolean isBuy = transaction instanceof Purchase;
-
         setTitle(isBuy ? "Purchase Receipt" : "Sale Receipt");
+    }
+
+    /**
+     * Creates a receipt dialog from a portfolio receipt DTO.
+     *
+     * @param receipt the receipt data to display
+     */
+    public TransactionReceiptDialog(final ReceiptData receipt) {
+        init(receipt);
+        boolean isBuy = receipt.type().equalsIgnoreCase("Purchase");
+        setTitle(isBuy ? "Purchase Receipt" : "Sale Receipt");
+    }
+
+    /**
+     * Builds the dialog content from a receipt DTO.
+     *
+     * @param r the receipt data to display
+     */
+    private void init(final ReceiptData r) {
+        boolean isBuy = r.type().equalsIgnoreCase("Purchase");
+
         setHeaderText(null);
         getDialogPane().setGraphic(null);
         getDialogPane().getStylesheets().add(
@@ -73,19 +106,8 @@ public class TransactionReceiptDialog extends Dialog<ButtonType> {
         );
         getDialogPane().getButtonTypes().add(ButtonType.OK);
 
-        String company = transaction.getShare().getStock().getCompany();
-        String symbol = transaction.getShare().getStock().getSymbol();
-        int week = transaction.getWeek();
-        BigDecimal quantity = transaction.getShare().getQuantity();
-        BigDecimal price = transaction.getShare().getPurchasePrice();
-        BigDecimal gross = transaction.getCalculator().calculateGross();
-        BigDecimal commission =
-        transaction.getCalculator().calculateCommission();
-        BigDecimal tax = transaction.getCalculator().calculateTax();
-        BigDecimal total = transaction.getCalculator().calculateTotal();
-
-        Label symbolLabel  = new Label(symbol);
-        Label companyLabel = new Label(company);
+        Label symbolLabel  = new Label(r.symbol());
+        Label companyLabel = new Label(r.company());
         symbolLabel.getStyleClass().add("receipt-header-symbol");
         companyLabel.getStyleClass().add("receipt-header-company");
 
@@ -112,9 +134,9 @@ public class TransactionReceiptDialog extends Dialog<ButtonType> {
             new Insets(DETAIL_TOP_PAD, 0, DETAIL_BOT_PAD, 0)
         );
 
-        addDetailRow(detailGrid, 0, "Week", String.valueOf(week));
-        addDetailRow(detailGrid, 1, "Quantity", quantity + " shares");
-        addDetailRow(detailGrid, 2, "Purchase Price", price + " NOK");
+        addDetailRow(detailGrid, 0, "Week", String.valueOf(r.week()));
+        addDetailRow(detailGrid, 1, "Quantity", r.quantity() + " shares");
+        addDetailRow(detailGrid, 2, "Purchase Price", r.price() + " NOK");
 
         GridPane financialsGrid = new GridPane();
         financialsGrid.setVgap(GRID_VGAP);
@@ -126,14 +148,25 @@ public class TransactionReceiptDialog extends Dialog<ButtonType> {
         valueCol.setMinWidth(VALUE_COL_MIN_WIDTH);
         financialsGrid.getColumnConstraints().addAll(labelCol, valueCol);
 
-        addFinancialRow(financialsGrid, 0, "Gross", gross + " NOK");
-        addFinancialRow(financialsGrid, 1, "Commission", commission + " NOK");
-        addFinancialRow(financialsGrid, 2, "Taxes", tax + " NOK");
+        addFinancialRow(
+            financialsGrid, 0, "Gross",
+            BigDecimal.valueOf(r.gross()) + " NOK"
+        );
+        addFinancialRow(
+            financialsGrid, 1, "Commission",
+            BigDecimal.valueOf(r.commission()) + " NOK"
+        );
+        addFinancialRow(
+            financialsGrid, 2, "Taxes",
+            BigDecimal.valueOf(r.tax()) + " NOK"
+        );
 
         Label totalTitle = new Label("Total");
         totalTitle.getStyleClass().add("receipt-total-title");
-        
-        Label totalValue = new Label(total + " NOK");
+
+        Label totalValue = new Label(
+            BigDecimal.valueOf(r.total()) + " NOK"
+        );
         totalValue.getStyleClass().add("receipt-total-value");
         Region totalSpacer = new Region();
         HBox.setHgrow(totalSpacer, Priority.ALWAYS);
@@ -163,8 +196,8 @@ public class TransactionReceiptDialog extends Dialog<ButtonType> {
     /**
      * Adds a labelled detail row to the given grid.
      *
-     * @param grid the grid to add the row to
-     * @param row the row index
+     * @param grid  the grid to add the row to
+     * @param row   the row index
      * @param title the label text
      * @param value the value text
      */
@@ -186,8 +219,8 @@ public class TransactionReceiptDialog extends Dialog<ButtonType> {
     /**
      * Adds a financial row with right-aligned value to the given grid.
      *
-     * @param grid the grid to add the row to
-     * @param row the row index
+     * @param grid  the grid to add the row to
+     * @param row   the row index
      * @param title the label text
      * @param value the value text
      */
