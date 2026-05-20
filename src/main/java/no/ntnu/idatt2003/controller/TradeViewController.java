@@ -12,6 +12,7 @@ import no.ntnu.idatt2003.model.logic.SaleCalculator;
 import no.ntnu.idatt2003.model.logic.TransactionCalculator;
 import javafx.application.Platform;
 import no.ntnu.idatt2003.model.observer.Observer;
+import no.ntnu.idatt2003.view.SoundPlayer;
 import no.ntnu.idatt2003.view.TradeView;
 
 /**
@@ -185,6 +186,7 @@ public class TradeViewController implements Observer {
                 transaction = exchange.sell(shareToSell, player);
             }
 
+            SoundPlayer.playKaching();
             onTradeCompleted.run();
             updateView();
             Platform.runLater(() -> view.showReceipt(transaction));

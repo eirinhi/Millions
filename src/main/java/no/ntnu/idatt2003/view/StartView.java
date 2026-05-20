@@ -13,6 +13,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
@@ -151,6 +152,14 @@ public class StartView {
             (obs, oldVal, newVal) -> loadButton.setDisable(newVal == null)
         );
 
+        loadTable.setRowFactory(tv -> {
+            TableRow<GameSave> row = new TableRow<>();
+            row.setOnMouseClicked(e -> {
+                if (!row.isEmpty()) SoundPlayer.playClick();
+            });
+            return row;
+        });
+
         VBox loadSection = new VBox(6, loadHeader, loadTable);
 
 
@@ -192,7 +201,10 @@ public class StartView {
      * @param action action to run when start is clicked
      */
     public void setStartAction(Runnable action) {
-        startButton.setOnAction(e -> action.run());
+        startButton.setOnAction(e -> {
+            SoundPlayer.playClick();
+            action.run();
+        });
     }
 
     /**
@@ -201,7 +213,10 @@ public class StartView {
      * @param action action to run when selecting stock file
      */
     public void setSelectFileAction(Runnable action) {
-        fileButton.setOnAction(e -> action.run());
+        fileButton.setOnAction(e -> {
+            SoundPlayer.playClick();
+            action.run();
+        });
     }
 
     /**
@@ -263,7 +278,10 @@ public class StartView {
      * @param action action to run when load is clicked
      */
     public void setLoadAction(Runnable action) {
-        loadButton.setOnAction(e -> action.run());
+        loadButton.setOnAction(e -> {
+            SoundPlayer.playClick();
+            action.run();
+        });
     }
 
     /**

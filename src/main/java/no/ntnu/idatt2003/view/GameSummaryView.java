@@ -189,7 +189,10 @@ public class GameSummaryView {
      * @param action action to run when the button is clicked
      */
     public void setMainMenuAction(Runnable action) {
-        mainMenuButton.setOnAction(e -> action.run());
+        mainMenuButton.setOnAction(e -> {
+            SoundPlayer.playClick();
+            action.run();
+        });
     }
 
     /**

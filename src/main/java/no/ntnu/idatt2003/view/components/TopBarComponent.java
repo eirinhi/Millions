@@ -1,6 +1,8 @@
 package no.ntnu.idatt2003.view.components;
 
 import javafx.geometry.Pos;
+
+import no.ntnu.idatt2003.view.SoundPlayer;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -52,7 +54,10 @@ public class TopBarComponent extends HBox {
      * @param action the action to perform on click
      */
     public void setAdvanceAction(final Runnable action) {
-        advanceBtn.setOnAction(e -> action.run());
+        advanceBtn.setOnAction(e -> {
+            SoundPlayer.playClick();
+            action.run();
+        });
     }
 
     /**

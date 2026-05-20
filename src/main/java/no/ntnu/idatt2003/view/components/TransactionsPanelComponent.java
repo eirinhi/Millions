@@ -8,6 +8,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 import no.ntnu.idatt2003.controller.PortfolioFormatter.ReceiptData;
+import no.ntnu.idatt2003.view.SoundPlayer;
 
 /**
  * A scrollable panel that displays one {@link ReceiptCardComponent} per
@@ -88,7 +89,10 @@ public class TransactionsPanelComponent extends VBox {
         for (ReceiptData r : reversed) {
             ReceiptCardComponent card = new ReceiptCardComponent(r);
             if (onReceiptClick != null) {
-                card.setOnMouseClicked(e -> onReceiptClick.accept(r));
+                card.setOnMouseClicked(e -> {
+                    SoundPlayer.playClick();
+                    onReceiptClick.accept(r);
+                });
             }
             cardsBox.getChildren().add(card);
         }
