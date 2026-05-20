@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import javafx.scene.Cursor;
+
+import no.ntnu.idatt2003.view.SoundPlayer;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TableRow;
@@ -71,6 +73,7 @@ public class StockTableComponent extends VBox {
 
             row.setOnMouseClicked(event -> {
                 if (!row.isEmpty()) {
+                    SoundPlayer.playClick();
                     controller.onStockSelected(row.getItem());
                 }
             });

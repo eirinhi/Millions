@@ -32,7 +32,6 @@ public class MainViewController {
     private final ExchangeView exchangeView;
 
     private final File saveFile;
-    private final String existingSaveName;
 
     /**
      * Creates the controller for a new game.
@@ -57,7 +56,6 @@ public class MainViewController {
         this.exchange = exchange;
         this.player = player;
         this.saveFile = saveFile;
-        this.existingSaveName = existingSaveName;
 
         this.mainView = new MainView(
             player.getName(),
@@ -195,17 +193,15 @@ public class MainViewController {
 
     /**
      * Saves the current game state to a file and returns to the start screen.
-     * If the game was loaded from a save, overwrites that file using the existing name.
-     * If it is a new game, an auto-generated name is used.
+     * The save name is always generated from the current week.
+     * If the game was loaded from a save file, that file is deleted first.
      */
     private void saveGame() {
+        String name = player.getName() + " – uke " + exchange.getWeek();
         if (saveFile != null) {
             saveFile.delete();
-            performSave(existingSaveName);
-        } else {
-            String name = player.getName() + " – uke " + exchange.getWeek();
-            performSave(name);
         }
+        performSave(name);
     }
 
     /**

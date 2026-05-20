@@ -6,6 +6,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import no.ntnu.idatt2003.controller.ExchangeViewController;
+import no.ntnu.idatt2003.view.SoundPlayer;
 
 /**
  * Component for searching and sorting stocks in the exchange view.
@@ -35,15 +36,24 @@ public class SearchBarComponent extends VBox {
         // Create sorting buttons
         Button alphabeticalBtn = new Button("Alphabetical");
         alphabeticalBtn.getStyleClass().add("sort-btn");
-        alphabeticalBtn.setOnAction(e -> controller.onSort("name"));
+        alphabeticalBtn.setOnAction(e -> {
+            SoundPlayer.playClick();
+            controller.onSort("name");
+        });
 
         Button ascendingBtn = new Button("Ascending Price");
         ascendingBtn.getStyleClass().add("sort-btn");
-        ascendingBtn.setOnAction(e -> controller.onSort("priceAsc"));
+        ascendingBtn.setOnAction(e -> {
+            SoundPlayer.playClick();
+            controller.onSort("priceAsc");
+        });
 
         Button descendingBtn = new Button("Descending Price");
         descendingBtn.getStyleClass().add("sort-btn");
-        descendingBtn.setOnAction(e -> controller.onSort("priceDesc"));
+        descendingBtn.setOnAction(e -> {
+            SoundPlayer.playClick();
+            controller.onSort("priceDesc");
+        });
 
         // Make buttons expand to fill available width
         alphabeticalBtn.setMaxWidth(Double.MAX_VALUE);

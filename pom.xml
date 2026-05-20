@@ -30,6 +30,13 @@
         <version>25.0.1</version>
     </dependency>
 
+    <!-- JavaFX media (AudioClip for sound effects) -->
+    <dependency>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-media</artifactId>
+        <version>25.0.1</version>
+    </dependency>
+
     <!-- Jackson Databind -->
     <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
@@ -64,6 +71,7 @@
                     <version>25.0.1</version>
                     <modules>
                         <module>javafx.controls</module>
+                        <module>javafx.media</module>
                     </modules>
                 </configuration>
             </plugin>

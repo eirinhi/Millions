@@ -2,6 +2,8 @@ package no.ntnu.idatt2003.view.components;
 
 import java.math.BigDecimal;
 
+import no.ntnu.idatt2003.view.SoundPlayer;
+
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -84,7 +86,10 @@ public class SideBarComponent extends VBox {
      * @param action the action to perform on click
      */
     public void setPortfolioAction(final Runnable action) {
-        portfolioBtn.setOnAction(e -> action.run());
+        portfolioBtn.setOnAction(e -> {
+            SoundPlayer.playClick();
+            action.run();
+        });
     }
 
     /**
@@ -92,7 +97,10 @@ public class SideBarComponent extends VBox {
      * @param action the action to perform on click
      */
     public void setExchangeAction(final Runnable action) {
-        exchangeBtn.setOnAction(e -> action.run());
+        exchangeBtn.setOnAction(e -> {
+            SoundPlayer.playClick();
+            action.run();
+        });
     }
 
     /**
@@ -100,7 +108,10 @@ public class SideBarComponent extends VBox {
      * @param action the action to perform on click
      */
     public void setSaveAction(final Runnable action) {
-        saveButton.setOnAction(e -> action.run());
+        saveButton.setOnAction(e -> {
+            SoundPlayer.playClick();
+            action.run();
+        });
     }
 
     /**
@@ -108,7 +119,10 @@ public class SideBarComponent extends VBox {
      * @param action the action to perform on click
      */
     public void setEndGameAction(final Runnable action) {
-        endGameButton.setOnAction(e -> action.run());
+        endGameButton.setOnAction(e -> {
+            SoundPlayer.playEndGame();
+            action.run();
+        });
     }
 
     /**

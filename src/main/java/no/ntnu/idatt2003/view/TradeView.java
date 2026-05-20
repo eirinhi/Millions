@@ -126,8 +126,14 @@ public class TradeView extends GridPane {
         sellButton.getStyleClass().add("primary-btn");
         confirmButton.getStyleClass().add("primary-btn");
 
-        buyButton.setOnAction(e -> controller.setBuyMode());
-        sellButton.setOnAction(e -> controller.setSellMode());
+        buyButton.setOnAction(e -> {
+            SoundPlayer.playClick();
+            controller.setBuyMode();
+        });
+        sellButton.setOnAction(e -> {
+            SoundPlayer.playClick();
+            controller.setSellMode();
+        });
 
         chart = new PriceChartComponent(stock.getHistoricalPrices());
 
@@ -136,7 +142,10 @@ public class TradeView extends GridPane {
 
         Button backButton = new Button("←");
         backButton.getStyleClass().add("back-btn");
-        backButton.setOnAction(e -> controller.cancelTrade());
+        backButton.setOnAction(e -> {
+            SoundPlayer.playClick();
+            controller.cancelTrade();
+        });
 
         HBox modeButtons = new HBox(BUTTON_SPACING, buyButton, sellButton);
         modeButtons.setAlignment(Pos.CENTER_RIGHT);
