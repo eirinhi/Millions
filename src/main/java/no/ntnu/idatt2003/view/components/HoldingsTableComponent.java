@@ -1,14 +1,17 @@
 package no.ntnu.idatt2003.view.components;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import no.ntnu.idatt2003.controller.PortfolioFormatter.HoldingRow;
+import no.ntnu.idatt2003.view.SoundPlayer;
 
 /**
  * Constructs the holding table component, including title, header row,
@@ -19,11 +22,14 @@ import no.ntnu.idatt2003.controller.PortfolioFormatter.HoldingRow;
  */
 public class HoldingsTableComponent extends VBox {
 
-    private static final int[] COL_WIDTHS = {60, 140, 50, 120, 70};
+    private static final double[] COL_WIDTHS = {14, 32, 11, 27, 16};
 
     private final VBox body = new VBox(2);
 
-    public HoldingsTableComponent() {
+    private final Consumer<String> onStockSelected;
+
+    public HoldingsTableComponent(final Consumer<String> onStockSelected) {
+        this.onStockSelected = onStockSelected;
         setSpacing(0);
 
         Label title = new Label("Holdings");
@@ -109,8 +115,17 @@ public class HoldingsTableComponent extends VBox {
         grid.add(retLabel, 4, 0);
 
         HBox wrapper = new HBox(grid);
-        wrapper.setStyle("-fx-border-color:#eee; -fx-border-width:0 0 1 0;");
-        wrapper.setPadding(new Insets(4, 0, 4, 0));
+        HBox.setHgrow(grid, Priority.ALWAYS);
+        wrapper.setOnMouseEntered(e -> wrapper.setStyle(
+              "-fx-background-color: #fff5fa;"
+            + " -fx-background-radius: 8px;"
+            + " -fx-cursor: hand;"
+        ));
+        wrapper.setOnMouseExited(e -> wrapper.setStyle(""));
+        wrapper.setOnMouseClicked(e -> {
+            SoundPlayer.playClick();
+            onStockSelected.accept(r.symbol());
+        });
         return wrapper;
     }
 
@@ -125,8 +140,10 @@ public class HoldingsTableComponent extends VBox {
     private GridPane newGrid() {
         GridPane g = new GridPane();
         g.setHgap(12);
-        for (int w : COL_WIDTHS) {
+        g.setMaxWidth(Double.MAX_VALUE);
+        for (double w : COL_WIDTHS) {
             ColumnConstraints cc = new ColumnConstraints(w);
+            cc.setPercentWidth(w);
             g.getColumnConstraints().add(cc);
         }
         return g;

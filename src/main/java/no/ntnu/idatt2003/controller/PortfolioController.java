@@ -2,8 +2,10 @@ package no.ntnu.idatt2003.controller;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.function.Consumer;
 
 import no.ntnu.idatt2003.model.entity.Player;
+import no.ntnu.idatt2003.model.entity.Stock;
 import no.ntnu.idatt2003.model.logic.Exchange;
 import no.ntnu.idatt2003.model.observer.Observer;
 import no.ntnu.idatt2003.view.MainView;
@@ -35,6 +37,7 @@ public class PortfolioController implements Observer {
     private final MainView mainView;
     private final Player   player;
     private final Exchange exchange;
+    private final Consumer<Stock> onTradeRequested;
 
     private PortfolioView view;
     private final PortfolioFormatter formatter = new PortfolioFormatter();
@@ -47,10 +50,15 @@ public class PortfolioController implements Observer {
      * @param player   the currently active player whose portfolio is displayed
      * @param exchange the stock exchange providing market updates
      */
-    public PortfolioController(MainView mainView, Player player, Exchange exchange) {
+    public PortfolioController(
+        final MainView mainView,
+        final Player player,
+        final Exchange exchange,
+        final Consumer<Stock> onTradeRequested) {
         this.mainView = mainView;
         this.player   = player;
         this.exchange = exchange;
+        this.onTradeRequested = onTradeRequested;
         this.exchange.attach(this);
     }
 
@@ -75,7 +83,12 @@ public class PortfolioController implements Observer {
         }
 
         if (view == null) {
-            view = new PortfolioView();
+            view = new PortfolioView(symbol -> {
+                Stock stock = exchange.getStock(symbol);
+                if (stock != null) {
+                    onTradeRequested.accept(stock);
+                }
+            });
             List<Double> history = player.getNetWorthHistory().stream()
                 .map(BigDecimal::doubleValue)
                 .toList();

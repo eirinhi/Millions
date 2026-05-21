@@ -15,6 +15,7 @@
     -fx-border-radius: 5px;
     -fx-background-radius: 8px;
     -fx-font-size: 16px;
+    -fx-cursor: hand;
 }
 
 .button:hover {

@@ -3,6 +3,7 @@ package no.ntnu.idatt2003.view;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -93,12 +94,12 @@ public class PortfolioView extends VBox {
     /**
      * Constructs the portfolio view and initializes all UI components.
      */
-    public PortfolioView() {
+    public PortfolioView(final Consumer<String> onStockSelected) {
         setSpacing(VIEW_SPACING);
         setPadding(new Insets(VIEW_PADDING));
         getStyleClass().add("portfolio-view");
 
-        holdingsTable     = new HoldingsTableComponent();
+        holdingsTable     = new HoldingsTableComponent(onStockSelected);
         transactionsPanel = new TransactionsPanelComponent();
         transactionsPanel.setOnReceiptClick(r -> {
             TransactionReceiptDialog dialog = new TransactionReceiptDialog(r);

@@ -239,9 +239,10 @@ public class TradeView extends GridPane {
                     + item.getPurchasePrice() + " /stock");
             }
         });
-        shareCombo.valueProperty().addListener(
-            (obs, old, newVal) -> controller.updateOrderPreview()
-        );
+        shareCombo.valueProperty().addListener((obs, old, newVal) -> {
+            if (newVal != null) SoundPlayer.playClick();
+            controller.updateOrderPreview();
+        });
 
         Label sellListLabel = new Label("Select a share to sell");
         sellListLabel.getStyleClass().add("trade-small-label");
