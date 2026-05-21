@@ -108,6 +108,8 @@ public class MainViewController {
      * and refreshes the view.
      */
     public void advanceWeek() {
+        portfolioController.captureWeekStart();
+        player.recordNetWorth();
         exchange.advance();
         portfolioController.recordWeek(); 
         updateView();

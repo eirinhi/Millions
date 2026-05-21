@@ -1,6 +1,7 @@
 package no.ntnu.idatt2003.controller;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -41,6 +42,7 @@ public class PortfolioController implements Observer {
 
     private PortfolioView view;
     private final PortfolioFormatter formatter = new PortfolioFormatter();
+    private BigDecimal weekStartNetWorth;
 
     /**
      * Creates a new PortfolioController and registers it as an observer
@@ -111,11 +113,19 @@ public class PortfolioController implements Observer {
     public void refresh() {
         if (view == null) return;
 
-        double performance = formatter.performancePercent(player);
+        double performance = 0.0;
+        if (weekStartNetWorth != null
+                && weekStartNetWorth.compareTo(BigDecimal.ZERO) != 0) {
+            performance = player.getNetWorth()
+                .subtract(weekStartNetWorth)
+                .multiply(BigDecimal.valueOf(100))
+                .divide(weekStartNetWorth, 4, RoundingMode.HALF_UP)
+                .doubleValue();
+        }
 
         view.updateStats(
             String.format("%+.2f%%", performance),
-            String.format("%.2f NOK", formatter.equity(player)),
+            String.format("%.2f NOK", player.getNetWorth()),
             String.format("%.2f NOK", player.getMoney()),
             performance >= 0
         );
@@ -134,11 +144,7 @@ public class PortfolioController implements Observer {
     public void recordWeek() {
         if (view == null) return;
 
-        BigDecimal totalValue = player.getMoney()
-            .add(formatter.equity(player));
-
-        player.recordNetWorth();
-        view.addChartPoint(totalValue.doubleValue());
+        view.addChartPoint(player.getNetWorth().doubleValue());
     }
 
     /**
@@ -147,6 +153,10 @@ public class PortfolioController implements Observer {
      * <p>Should be called when the controller is no longer needed
      * to prevent memory leaks.
      */
+    public void captureWeekStart() {
+        weekStartNetWorth = player.getNetWorth();
+    }
+
     public void dispose() {
         exchange.detach(this);
     }

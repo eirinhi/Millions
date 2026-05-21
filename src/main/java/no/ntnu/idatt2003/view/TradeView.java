@@ -241,6 +241,7 @@ public class TradeView extends GridPane {
         });
         shareCombo.valueProperty().addListener((obs, old, newVal) -> {
             if (newVal != null) SoundPlayer.playClick();
+            confirmButton.setDisable(newVal == null);
             controller.updateOrderPreview();
         });
 
@@ -344,6 +345,7 @@ public class TradeView extends GridPane {
         modeLabel.getStyleClass().add(modeClass);
         modeLabel.setText(isBuyMode ? "BUY" : "SELL");
         confirmButton.setText(isBuyMode ? "BUY" : "SELL");
+        confirmButton.setDisable(!isBuyMode);
 
         buySection.setVisible(isBuyMode);
         buySection.setManaged(isBuyMode);
@@ -363,6 +365,8 @@ public class TradeView extends GridPane {
         final Runnable onSelectionChanged) {
         shareCombo.getItems().setAll(shares);
         shareCombo.setValue(null);
+        shareCombo.setDisable(shares.isEmpty());
+        confirmButton.setDisable(true);
     }
 
     /**
