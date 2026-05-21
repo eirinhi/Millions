@@ -8,7 +8,9 @@ import javafx.geometry.Pos;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.layout.ColumnConstraints;
@@ -19,6 +21,7 @@ import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 import no.ntnu.idatt2003.controller.TradeViewController;
 import no.ntnu.idatt2003.model.entity.Player;
+import no.ntnu.idatt2003.model.entity.Share;
 import no.ntnu.idatt2003.model.entity.Stock;
 import no.ntnu.idatt2003.model.entity.Transaction;
 import no.ntnu.idatt2003.view.components.PriceChartComponent;
@@ -90,6 +93,11 @@ public class TradeView extends GridPane {
 
     /** The order panel containing trade controls. */
     private final VBox orderPanel = new VBox(10);
+
+    private final VBox buySection = new VBox(4);
+    private final VBox sellSection = new VBox(8);
+    private final ComboBox<Share> shareCombo = new ComboBox<>();
+    private boolean buyMode = true;
 
     /**
      * Creates a new trade view for the selected stock.
@@ -175,9 +183,13 @@ public class TradeView extends GridPane {
         );
 
         confirmButton.setOnAction(e -> {
-            int val = quantitySpinner.getValue();
-            BigDecimal quantity = BigDecimal.valueOf(val);
-            controller.executeTrade(quantity);
+            if (buyMode) {
+                int val = quantitySpinner.getValue();
+                BigDecimal quantity = BigDecimal.valueOf(val);
+                controller.executeTrade(quantity);
+            } else {
+                controller.executeSell();
+            }
         });
 
         orderPanel.setPadding(new Insets(GAP));
@@ -194,12 +206,48 @@ public class TradeView extends GridPane {
         BigDecimal ownedQuantity =
             player.getPortfolio().getQuantityOwned(stock);
         ownedQuantityLabel.setText(
-            "My quantity: " + ownedQuantity + " shares"
+            "My quantity: " + ownedQuantity + " stocks"
         );
         ownedQuantityLabel.getStyleClass().add("trade-small-label");
 
         Label quantityTitle = new Label("Quantity");
         quantityTitle.getStyleClass().add("trade-small-label");
+        buySection.getChildren().addAll(quantityTitle, quantitySpinner);
+
+        shareCombo.setMaxWidth(Double.MAX_VALUE);
+        shareCombo.setPromptText("Select a share ...");
+        shareCombo.getStyleClass().add("share-combo");
+        shareCombo.setCellFactory(lv ->new ListCell<>() {
+            @Override
+            protected void updateItem(final Share item, final boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null
+                    : item.getQuantity()
+                    + (item.getQuantity().intValue() == 1 ? " stock" : " stocks")
+                    + " - "
+                    + item.getPurchasePrice()+ " /stock");
+            }
+        });
+        shareCombo.setButtonCell(new ListCell<>() {
+            @Override
+            protected void updateItem(final Share item, final boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? "Select a share ..."
+                    : item.getQuantity()
+                    + (item.getQuantity().intValue() == 1 ? " stock" : " stocks")
+                    + " - "
+                    + item.getPurchasePrice() + " /stock");
+            }
+        });
+        shareCombo.valueProperty().addListener(
+            (obs, old, newVal) -> controller.updateOrderPreview()
+        );
+
+        Label sellListLabel = new Label("Select a share to sell");
+        sellListLabel.getStyleClass().add("trade-small-label");
+        sellSection.getChildren().addAll(sellListLabel, shareCombo);
+        sellSection.setVisible(false);
+        sellSection.setManaged(false);
 
         Label grossTitle = new Label("Gross");
         grossTitle.getStyleClass().add("trade-small-label");
@@ -229,8 +277,8 @@ public class TradeView extends GridPane {
                 moneyValueLabel,
                 ownedQuantityLabel,
 
-                quantityTitle,
-                quantitySpinner,
+                buySection,
+                sellSection,
 
                 grossTitle,
                 grossLabel,
@@ -278,18 +326,42 @@ public class TradeView extends GridPane {
         return BigDecimal.valueOf(quantitySpinner.getValue());
     }
 
+    public Share getSelectedShare() {
+        return shareCombo.getValue();
+    }
+
     /**
      * Updates the order panel to reflect buy or sell mode.
      *
-     * @param buyMode true for buy mode, false for sell mode
+     * @param isBuyMode true for buy mode, false for sell mode
      */
-    public void updateOrderPanelMode(final boolean buyMode) {
+    public void updateOrderPanelMode(final boolean isBuyMode) {
+        this.buyMode = isBuyMode;
         modeLabel.getStyleClass()
             .removeAll("trade-mode-buy", "trade-mode-sell");
-        String modeClass = buyMode ? "trade-mode-buy" : "trade-mode-sell";
+        String modeClass = isBuyMode ? "trade-mode-buy" : "trade-mode-sell";
         modeLabel.getStyleClass().add(modeClass);
-        modeLabel.setText(buyMode ? "BUY" : "SELL");
-        confirmButton.setText(buyMode ? "BUY" : "SELL");
+        modeLabel.setText(isBuyMode ? "BUY" : "SELL");
+        confirmButton.setText(isBuyMode ? "BUY" : "SELL");
+
+        buySection.setVisible(isBuyMode);
+        buySection.setManaged(isBuyMode);
+        sellSection.setVisible(!isBuyMode);
+        sellSection.setManaged(!isBuyMode);
+        shareCombo.setValue(null);
+    }
+
+    /**
+     * Populates the combobox with shares available for selling.
+     *
+     * @param shares the list of shares available
+     * @param onSelectionChanged callback to run when the selected share changes
+     */
+    public void showSharesForSale(
+        final List<Share> shares,
+        final Runnable onSelectionChanged) {
+        shareCombo.getItems().setAll(shares);
+        shareCombo.setValue(null);
     }
 
     /**
@@ -361,7 +433,7 @@ public class TradeView extends GridPane {
      */
     public void updateOwnedQuantity(final BigDecimal quantity) {
         ownedQuantityLabel.setText(
-                "My quantity: " + quantity + " shares"
+                "My quantity: " + quantity + " stocks"
         );
     }
 

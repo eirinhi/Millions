@@ -494,3 +494,24 @@
     -fx-font-weight: bold;
     -fx-text-fill: #222;
 }
+
+.share-combo {
+    -fx-background-color: white;
+    -fx-border-color: #e8a0c4;
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: white;
+    -fx-border-color: #e8a0c4;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+}
+
+.combo-box-popup .list-cell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: #222;
+}
