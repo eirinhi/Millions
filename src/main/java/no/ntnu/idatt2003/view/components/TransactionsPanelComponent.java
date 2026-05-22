@@ -4,8 +4,12 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import javafx.geometry.Insets;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import no.ntnu.idatt2003.controller.PortfolioFormatter.ReceiptData;
 import no.ntnu.idatt2003.view.SoundPlayer;
@@ -36,6 +40,12 @@ public class TransactionsPanelComponent extends VBox {
     /** Called with the receipt data when a transaction card is clicked. */
     private Consumer<ReceiptData> onReceiptClick;
 
+    /** Called with the search text when the user types in the search field. */
+    private Consumer<String> onSearch;
+
+    /** Called with the filter value when the user clicks a filter button. */
+    private Consumer<String> onFilter;
+
     /**
      * Constructs the transactions panel with a title and scrollable card area.
      */
@@ -45,6 +55,55 @@ public class TransactionsPanelComponent extends VBox {
 
         Label title = new Label("Transactions");
         title.getStyleClass().add("section-title");
+
+        TextField searchField = new TextField();
+        searchField.setPromptText("Search...");
+        searchField.getStyleClass().add("search-field");
+        searchField.textProperty().addListener((obs, old, val) -> {
+            if (onSearch != null) onSearch.accept(val.toLowerCase());
+        });
+
+        Button allTransactionsBtn = new Button("All");
+        allTransactionsBtn.getStyleClass().addAll("sort-btn", "sort-btn-active");
+        allTransactionsBtn.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(allTransactionsBtn, Priority.ALWAYS);
+
+        Button purchacesBtn = new Button("Purchases");
+        purchacesBtn.getStyleClass().add("sort-btn");
+        purchacesBtn.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(purchacesBtn, Priority.ALWAYS);
+
+        Button salesBtn = new Button("Sales");
+        salesBtn.getStyleClass().add("sort-btn");
+        salesBtn.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(salesBtn, Priority.ALWAYS);
+
+        allTransactionsBtn.setOnAction(e -> {
+            SoundPlayer.playClick();
+            allTransactionsBtn.getStyleClass().add("sort-btn-active");
+            purchacesBtn.getStyleClass().remove("sort-btn-active");
+            salesBtn.getStyleClass().remove("sort-btn-active");
+            if (onFilter != null) onFilter.accept("all");
+        });
+
+        purchacesBtn.setOnAction(e -> {
+            SoundPlayer.playClick();
+            purchacesBtn.getStyleClass().add("sort-btn-active");
+            allTransactionsBtn.getStyleClass().remove("sort-btn-active");
+            salesBtn.getStyleClass().remove("sort-btn-active");
+            if (onFilter != null) onFilter.accept("Purchase");
+        });
+
+        salesBtn.setOnAction(e -> {
+            SoundPlayer.playClick();
+            salesBtn.getStyleClass().add("sort-btn-active");
+            allTransactionsBtn.getStyleClass().remove("sort-btn-active");
+            purchacesBtn.getStyleClass().remove("sort-btn-active");
+            if (onFilter != null) onFilter.accept("Sale");
+        });
+
+        HBox filterButtons = new HBox(CARD_SPACING, allTransactionsBtn, purchacesBtn, salesBtn);
+
 
         cardsBox.setPadding(new Insets(BOX_PADDING));
 
@@ -57,7 +116,7 @@ public class TransactionsPanelComponent extends VBox {
             + "-fx-background-color:transparent;"
         );
 
-        getChildren().addAll(title, scroll);
+        getChildren().addAll(title, searchField, filterButtons, scroll);
     }
 
     /**
@@ -70,23 +129,39 @@ public class TransactionsPanelComponent extends VBox {
     }
 
     /**
-     * Replaces all receipt cards with those built from {@code receipts}.
-     * The list is shown newest-first (last element rendered at the top).
+     * Sets the callback invoked when the user types in the search field.
      *
-     * @param receipts all transactions to display; may be empty
+     * @param handler called with the lowercase search text
+     */
+    public void setOnSearch(final Consumer<String> handler) {
+        this.onSearch = handler;
+    }
+
+    /**
+     * Sets the callback invoked when the user clicks a filter button.
+     *
+     * @param handler called with "all", "Purchase", or "Sale"
+     */
+    public void setOnFilter(final Consumer<String> handler) {
+        this.onFilter = handler;
+    }
+
+    /**
+     * Replaces all receipt cards with those built from {@code receipts}.
+     *
+     * @param receipts transactions to display; may be empty
      */
     public void update(final List<ReceiptData> receipts) {
         cardsBox.getChildren().clear();
 
         if (receipts.isEmpty()) {
-            Label empty = new Label("No transactions yet.");
-            empty.setStyle("-fx-text-fill:#888; -fx-font-size:12px;");
+            Label empty = new Label("No transactions found");
+            empty.setStyle("-fx-text-fill: #222;");
             cardsBox.getChildren().add(empty);
             return;
         }
 
-        List<ReceiptData> reversed = receipts.reversed();
-        for (ReceiptData r : reversed) {
+        for (ReceiptData r : receipts) {
             ReceiptCardComponent card = new ReceiptCardComponent(r);
             if (onReceiptClick != null) {
                 card.setOnMouseClicked(e -> {
