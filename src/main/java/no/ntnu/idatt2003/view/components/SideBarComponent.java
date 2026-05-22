@@ -33,6 +33,9 @@ public class SideBarComponent extends VBox {
     /** The button for navigating to the exchange view. */
     private Button exchangeBtn;
 
+    /** The button for navigating to the watchlist view. */
+    private Button watchlistBtn;
+
     /** The button for saving the game. */
     private Button saveButton;
 
@@ -63,6 +66,9 @@ public class SideBarComponent extends VBox {
         exchangeBtn = new Button("Exchange");
         exchangeBtn.getStyleClass().add("primary-btn");
 
+        watchlistBtn = new Button("Watchlist");
+        watchlistBtn.getStyleClass().add("primary-btn");
+
         statusComponent = new StatusComponent();
 
         Region spacer = new Region();
@@ -77,7 +83,7 @@ public class SideBarComponent extends VBox {
         endGameButton.setMaxWidth(Double.MAX_VALUE);
 
         this.getChildren().addAll(
-            moneyTitle, moneyLabel, portfolioBtn, exchangeBtn,
+            moneyTitle, moneyLabel, portfolioBtn, exchangeBtn, watchlistBtn,
             statusComponent, spacer, saveButton, endGameButton);
     }
 
@@ -98,6 +104,17 @@ public class SideBarComponent extends VBox {
      */
     public void setExchangeAction(final Runnable action) {
         exchangeBtn.setOnAction(e -> {
+            SoundPlayer.playClick();
+            action.run();
+        });
+    }
+
+    /**
+     * Sets the action to perform when the "Watchlist" button is clicked.
+     * @param action the action to perform on click
+     */
+    public void setWatchlistAction(final Runnable action) {
+        watchlistBtn.setOnAction(e -> {
             SoundPlayer.playClick();
             action.run();
         });

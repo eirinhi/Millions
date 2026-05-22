@@ -3,6 +3,7 @@ package no.ntnu.idatt2003.controller;
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import no.ntnu.idatt2003.model.entity.Player;
@@ -13,6 +14,7 @@ import no.ntnu.idatt2003.model.logic.Exchange;
 import no.ntnu.idatt2003.view.ExchangeView;
 import no.ntnu.idatt2003.view.GameSummaryView;
 import no.ntnu.idatt2003.view.MainView;
+import no.ntnu.idatt2003.view.WatchlistView;
  
 /**
  * Controller for the main application view.
@@ -81,6 +83,7 @@ public class MainViewController {
         mainView.setAdvanceAction(this::advanceWeek);
         mainView.setPortfolioAction(portfolioController::showPortfolioView);
         mainView.setExchangeAction(() -> mainView.setView(exchangeView));
+        mainView.setWatchlistAction(this::showWatchlistView);
         mainView.setSaveAction(this::saveGame);
         mainView.setEndGameAction(this::showGameSummaryView);
 
@@ -164,6 +167,10 @@ public class MainViewController {
             goal1Met, 
             goal2Text, 
             goal2Met);
+
+        if (mainView.getCenter() instanceof WatchlistView watchlistView) {
+            watchlistView.update(getWatchedStocks());
+        }
     }
 
    /**
@@ -239,6 +246,24 @@ public class MainViewController {
      */
     private void showExchangeView() {
         mainView.setView(exchangeView);
+    }
+
+    /**
+     * Shows the player's watchlist.
+     */
+    private void showWatchlistView() {
+        WatchlistView watchlistView = new WatchlistView(
+            getWatchedStocks(),
+            stock -> openTradeView(stock, this::showWatchlistView)
+        );
+        mainView.setView(watchlistView);
+    }
+
+    private List<Stock> getWatchedStocks() {
+        return player.getWatchlistSymbols().stream()
+            .map(exchange::getStock)
+            .filter(stock -> stock != null)
+            .toList();
     }
 
     /**
