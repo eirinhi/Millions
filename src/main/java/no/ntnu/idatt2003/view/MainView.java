@@ -65,6 +65,15 @@ public class MainView extends BorderPane {
     }
 
     /**
+     * Sets the action triggered when the "Watchlist" button is clicked.
+     *
+     * @param action callback to run on click
+     */
+    public void setWatchlistAction(Runnable action) {
+        sideBar.setWatchlistAction(action);
+    }
+
+    /**
      * Sets the action triggered when the "SAVE & EXIT" button is clicked.
      *
      * @param action callback to run on click

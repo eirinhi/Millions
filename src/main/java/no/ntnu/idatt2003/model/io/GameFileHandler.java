@@ -94,6 +94,7 @@ public class GameFileHandler {
             player.getStartingMoney(),
             exchange.getWeek(),
             player.getNetWorthHistory(),
+            player.getWatchlistSymbols(),
             stocks,
             portfolio,
             transactions
@@ -205,6 +206,12 @@ public class GameFileHandler {
         // Restores net worth history
         if (save.getNetWorthHistory() != null) {
             save.getNetWorthHistory().forEach(player::addNetWorthRecord);
+        }
+
+        if (save.getWatchlistSymbols() != null) {
+            save.getWatchlistSymbols().stream()
+                .filter(exchange::hasStock)
+                .forEach(player::addToWatchlist);
         }
 
         return new GameLoadResult(player, exchange);

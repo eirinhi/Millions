@@ -104,6 +104,16 @@ class GameFileHandlerTest {
     }
 
     @Test
+    void testSaveAndLoad_restoresWatchlist() throws GameSaveException {
+        player.addToWatchlist("AAPL");
+        File saved = saveAndGetFile("test");
+
+        GameLoadResult result = GameFileHandler.loadGame(saved);
+
+        assertEquals(List.of("AAPL"), result.getPlayer().getWatchlistSymbols());
+    }
+
+    @Test
     void testLoadGame_invalidFile_throwsException() {
         File invalidFile = new File("nonexistent.sav");
         assertThrows(GameSaveException.class, () -> GameFileHandler.loadGame(invalidFile));
@@ -119,6 +129,7 @@ class GameFileHandlerTest {
         assertEquals("TestPlayer", save.getPlayerName());
         assertEquals(new BigDecimal("10000"), save.getBalance());
         assertEquals(1, save.getWeek());
+        assertTrue(save.getWatchlistSymbols().isEmpty());
     }
 
     @Test

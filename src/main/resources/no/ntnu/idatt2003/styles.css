@@ -414,6 +414,36 @@
     -fx-text-fill: #c62828;
 }
 
+.watchlist-view {
+    -fx-background-color: #eeeeee;
+}
+
+.watchlist-title {
+    -fx-font-size: 34px;
+    -fx-font-weight: bold;
+}
+
+.watchlist-btn {
+    -fx-background-color: white;
+    -fx-border-color: #e8a0c4;
+    -fx-text-fill: #222;
+    -fx-font-size: 14px;
+    -fx-padding: 6 12;
+    -fx-pref-width: 170;
+}
+
+.watchlist-btn-active {
+    -fx-background-color: #fff4cf;
+    -fx-border-color: #e8b84f;
+    -fx-text-fill: #7a5400;
+}
+
+.watchlist-btn-inactive {
+    -fx-background-color: white;
+    -fx-border-color: #e8a0c4;
+    -fx-text-fill: #755c6a;
+}
+
 .back-btn {
     -fx-font-size: 20px;
     -fx-background-color: transparent;

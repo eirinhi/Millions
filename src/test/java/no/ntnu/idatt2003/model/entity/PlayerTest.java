@@ -228,6 +228,38 @@ void testEmptyName() {
   }
 
   @Test
+  void testWatchlistAddRemoveAndOrder() {
+    player.addToWatchlist("AAPL");
+    player.addToWatchlist("MSFT");
+    player.addToWatchlist("AAPL");
+
+    assertTrue(player.isInWatchlist("AAPL"));
+    assertEquals(List.of("AAPL", "MSFT"), player.getWatchlistSymbols());
+
+    player.removeFromWatchlist("AAPL");
+
+    assertFalse(player.isInWatchlist("AAPL"));
+    assertEquals(List.of("MSFT"), player.getWatchlistSymbols());
+  }
+
+  @Test
+  void testToggleWatchlist() {
+    assertTrue(player.toggleWatchlist("NVDA"));
+    assertTrue(player.isInWatchlist("NVDA"));
+
+    assertFalse(player.toggleWatchlist("NVDA"));
+    assertFalse(player.isInWatchlist("NVDA"));
+  }
+
+  @Test
+  void testWatchlistRejectsBlankSymbol() {
+    Exception e = assertThrows(IllegalArgumentException.class, () ->
+        player.addToWatchlist(" "));
+
+    assertEquals("Stock symbol cannot be null or empty", e.getMessage());
+  }
+
+  @Test
   void testGetStatusSpeculator() {
     assertEquals("Novice", player.getStatus());
 

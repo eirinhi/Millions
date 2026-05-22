@@ -3,7 +3,9 @@ package no.ntnu.idatt2003.model.entity;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Represents a player in the stock game.
@@ -39,6 +41,9 @@ public class Player {
 
   /** The history of the player's net worth over time. */
   private final List<BigDecimal> netWorthHistory = new ArrayList<>();
+
+  /** Stock symbols the player has added to their watchlist. */
+  private final Set<String> watchlistSymbols = new LinkedHashSet<>();
 
   /**
    * Creates a new player with the specified name and starting money.
@@ -277,6 +282,68 @@ public class Player {
   public void addNetWorthRecord(final BigDecimal value) {
     if (value != null) {
       netWorthHistory.add(value);
+    }
+  }
+
+  /**
+   * Adds a stock symbol to the player's watchlist.
+   *
+   * @param symbol the stock symbol to add
+   */
+  public void addToWatchlist(final String symbol) {
+    validateWatchlistSymbol(symbol);
+    watchlistSymbols.add(symbol);
+  }
+
+  /**
+   * Removes a stock symbol from the player's watchlist.
+   *
+   * @param symbol the stock symbol to remove
+   */
+  public void removeFromWatchlist(final String symbol) {
+    validateWatchlistSymbol(symbol);
+    watchlistSymbols.remove(symbol);
+  }
+
+  /**
+   * Toggles whether the given stock symbol is in the player's watchlist.
+   *
+   * @param symbol the stock symbol to toggle
+   * @return true if the symbol is now watched, false if it was removed
+   */
+  public boolean toggleWatchlist(final String symbol) {
+    validateWatchlistSymbol(symbol);
+    if (watchlistSymbols.contains(symbol)) {
+      watchlistSymbols.remove(symbol);
+      return false;
+    }
+    watchlistSymbols.add(symbol);
+    return true;
+  }
+
+  /**
+   * Checks whether the given stock symbol is in the player's watchlist.
+   *
+   * @param symbol the stock symbol to check
+   * @return true if the symbol is watched
+   */
+  public boolean isInWatchlist(final String symbol) {
+    validateWatchlistSymbol(symbol);
+    return watchlistSymbols.contains(symbol);
+  }
+
+  /**
+   * Returns the watched stock symbols in the order they were added.
+   *
+   * @return an immutable list of watched stock symbols
+   */
+  public List<String> getWatchlistSymbols() {
+    return List.copyOf(watchlistSymbols);
+  }
+
+  private void validateWatchlistSymbol(final String symbol) {
+    if (symbol == null || symbol.isBlank()) {
+      throw new IllegalArgumentException("Stock symbol cannot be null or empty");
     }
   }
 }
