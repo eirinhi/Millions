@@ -21,7 +21,7 @@ import no.ntnu.idatt2003.model.entity.Transaction;
  *
  * <p>Key responsibilities include:
  * <ul>
- *     <li>Calculating total portfolio equity based on current market prices</li>
+ *     <li>Calculating total stock value based on current market prices</li>
  *     <li>Computing portfolio performance relative to starting capital</li>
  *     <li>Transforming share holdings into UI-friendly DTOs</li>
  *     <li>Transforming transaction history into receipt representations</li>
@@ -35,25 +35,6 @@ public class PortfolioFormatter {
      */
     public PortfolioFormatter() {}
 
-    /**
-     * Calculates the total market value of all shares in a player's portfolio.
-     *
-     * <p>Equity is computed as the sum of current stock price × quantity
-     * for each held share.
-     *
-     * @param player the player whose portfolio is evaluated
-     * @return total equity value, or {@code BigDecimal.ZERO} if calculation fails
-     */
-    public BigDecimal equity(Player player) {
-        try {
-            return player.getPortfolio().getShares().stream()
-                    .map(s -> safe(s.getStock().getSalesPrice())
-                            .multiply(s.getQuantity()))
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-        } catch (Exception e) {
-            return BigDecimal.ZERO;
-        }
-    }
 
     /**
      * Calculates the percentage return of the player's portfolio compared to
@@ -67,7 +48,7 @@ public class PortfolioFormatter {
      */
     public double performancePercent(Player player) {
         BigDecimal starting = safe(player.getStartingMoney());
-        BigDecimal current = safe(player.getMoney()).add(equity(player));
+        BigDecimal current = safe(player.getNetWorth());
 
         if (starting.compareTo(BigDecimal.ZERO) == 0) return 0.0;
 

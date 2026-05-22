@@ -104,43 +104,6 @@ public class Portfolio {
     }
 
     /**
-     * Sells a specified quantity of shares from the player's owned shares.
-     *
-     * @param stock the stock to sell
-     * @param quantity the quantity to sell
-     * @throws IllegalStateException if the player does not own the stock
-     * @throws IllegalArgumentException if the quantity is negative
-     * @throws IllegalStateException if the quantity exceeds owned quantity
-     */
-    public void sellPartialShare(final Stock stock, final BigDecimal quantity) {
-        Share ownedShare = getOwnedShare(stock);
-
-        if (ownedShare == null) {
-            throw new IllegalStateException("You do not own this stock.");
-        }
-
-        if (quantity.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Quantity must be greater than zero.");
-        }
-
-        if (quantity.compareTo(ownedShare.getQuantity()) > 0) {
-            throw new IllegalStateException("You cannot sell more shares than you own.");
-        }
-
-        shares.remove(ownedShare);
-
-        BigDecimal remainingQuantity = ownedShare.getQuantity().subtract(quantity);
-
-        if (remainingQuantity.compareTo(BigDecimal.ZERO) > 0) {
-            shares.add(new Share(
-                    stock,
-                    remainingQuantity,
-                    ownedShare.getPurchasePrice()
-            ));
-        }
-    }
-
-    /**
      * Checks if the portfolio contains the given share.
      *
      * @param share the share to check for

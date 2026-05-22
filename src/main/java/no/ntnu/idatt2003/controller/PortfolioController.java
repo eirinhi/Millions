@@ -1,9 +1,12 @@
 package no.ntnu.idatt2003.controller;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
+import java.util.function.Consumer;
 
 import no.ntnu.idatt2003.model.entity.Player;
+import no.ntnu.idatt2003.model.entity.Stock;
 import no.ntnu.idatt2003.model.logic.Exchange;
 import no.ntnu.idatt2003.model.observer.Observer;
 import no.ntnu.idatt2003.view.MainView;
@@ -35,9 +38,11 @@ public class PortfolioController implements Observer {
     private final MainView mainView;
     private final Player   player;
     private final Exchange exchange;
+    private final Consumer<Stock> onTradeRequested;
 
     private PortfolioView view;
     private final PortfolioFormatter formatter = new PortfolioFormatter();
+    private BigDecimal weekStartNetWorth;
 
     /**
      * Creates a new PortfolioController and registers it as an observer
@@ -47,10 +52,15 @@ public class PortfolioController implements Observer {
      * @param player   the currently active player whose portfolio is displayed
      * @param exchange the stock exchange providing market updates
      */
-    public PortfolioController(MainView mainView, Player player, Exchange exchange) {
+    public PortfolioController(
+        final MainView mainView,
+        final Player player,
+        final Exchange exchange,
+        final Consumer<Stock> onTradeRequested) {
         this.mainView = mainView;
         this.player   = player;
         this.exchange = exchange;
+        this.onTradeRequested = onTradeRequested;
         this.exchange.attach(this);
     }
 
@@ -75,7 +85,12 @@ public class PortfolioController implements Observer {
         }
 
         if (view == null) {
-            view = new PortfolioView();
+            view = new PortfolioView(symbol -> {
+                Stock stock = exchange.getStock(symbol);
+                if (stock != null) {
+                    onTradeRequested.accept(stock);
+                }
+            });
             List<Double> history = player.getNetWorthHistory().stream()
                 .map(BigDecimal::doubleValue)
                 .toList();
@@ -98,11 +113,19 @@ public class PortfolioController implements Observer {
     public void refresh() {
         if (view == null) return;
 
-        double performance = formatter.performancePercent(player);
+        double performance = 0.0;
+        if (weekStartNetWorth != null
+                && weekStartNetWorth.compareTo(BigDecimal.ZERO) != 0) {
+            performance = player.getNetWorth()
+                .subtract(weekStartNetWorth)
+                .multiply(BigDecimal.valueOf(100))
+                .divide(weekStartNetWorth, 4, RoundingMode.HALF_UP)
+                .doubleValue();
+        }
 
         view.updateStats(
             String.format("%+.2f%%", performance),
-            String.format("%.2f NOK", formatter.equity(player)),
+            String.format("%.2f NOK", player.getNetWorth()),
             String.format("%.2f NOK", player.getMoney()),
             performance >= 0
         );
@@ -121,11 +144,7 @@ public class PortfolioController implements Observer {
     public void recordWeek() {
         if (view == null) return;
 
-        BigDecimal totalValue = player.getMoney()
-            .add(formatter.equity(player));
-
-        player.recordNetWorth();
-        view.addChartPoint(totalValue.doubleValue());
+        view.addChartPoint(player.getNetWorth().doubleValue());
     }
 
     /**
@@ -134,6 +153,10 @@ public class PortfolioController implements Observer {
      * <p>Should be called when the controller is no longer needed
      * to prevent memory leaks.
      */
+    public void captureWeekStart() {
+        weekStartNetWorth = player.getNetWorth();
+    }
+
     public void dispose() {
         exchange.detach(this);
     }

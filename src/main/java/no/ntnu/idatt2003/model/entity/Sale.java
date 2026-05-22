@@ -36,15 +36,13 @@ public class Sale extends Transaction {
             throw new IllegalArgumentException("Player cannot be null");
         }
 
+        if (!player.getPortfolio().removeShare(getShare())) {
+            throw new IllegalStateException("You do not own this stock.");
+        }
+
         committed = true;
 
         player.addMoney(getCalculator().calculateTotal());
-
-        player.getPortfolio().sellPartialShare(
-                getShare().getStock(),
-                getShare().getQuantity()
-        );
-
         player.getTransactionArchive().add(this);
     }
 }

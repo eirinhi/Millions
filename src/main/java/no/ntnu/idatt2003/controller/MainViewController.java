@@ -6,6 +6,7 @@ import java.math.RoundingMode;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import no.ntnu.idatt2003.model.entity.Player;
+import no.ntnu.idatt2003.model.entity.Stock;
 import no.ntnu.idatt2003.model.io.GameFileHandler;
 import no.ntnu.idatt2003.model.io.GameSaveException;
 import no.ntnu.idatt2003.model.logic.Exchange;
@@ -63,22 +64,16 @@ public class MainViewController {
             exchange.getWeek()
         );
 
-        this.portfolioController = new PortfolioController(mainView, player, exchange);
+        this.portfolioController = new PortfolioController(
+            mainView,
+            player,
+            exchange,
+            stock -> openTradeView(stock, this::showPortfolioView)
+        );
 
         this.exchangeViewController = new ExchangeViewController(
             exchange,
-            stock -> {
-                TradeViewController tradeController =
-                    new TradeViewController(
-                        exchange,
-                        player,
-                        stock,
-                        this::updateView,
-                        this::showExchangeView
-                    );
-
-                mainView.setView(tradeController.getView());
-            }
+            stock -> openTradeView(stock, this::showExchangeView)
         );
 
         this.exchangeView = new ExchangeView(exchangeViewController);
@@ -113,6 +108,8 @@ public class MainViewController {
      * and refreshes the view.
      */
     public void advanceWeek() {
+        portfolioController.captureWeekStart();
+        player.recordNetWorth();
         exchange.advance();
         portfolioController.recordWeek(); 
         updateView();
@@ -242,5 +239,22 @@ public class MainViewController {
      */
     private void showExchangeView() {
         mainView.setView(exchangeView);
+    }
+
+    /**
+     * Opens the trade view for the given stock, with a callback to return to the previous view.
+     *
+     * @param stock the stock to trade
+     * @param onCancel callback to run if the user presses the back button
+     */
+    private void openTradeView(final Stock stock, final Runnable onCancel) {
+        TradeViewController tradeViewController = new TradeViewController(
+            exchange,
+            player,
+            stock,
+            this::updateView,
+            onCancel
+        );
+        mainView.setView(tradeViewController.getView());
     }
 }
