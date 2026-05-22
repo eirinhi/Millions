@@ -17,6 +17,7 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 import no.ntnu.idatt2003.controller.TradeViewController;
@@ -91,6 +92,9 @@ public class TradeView extends GridPane {
     /** The confirm trade button. */
     private final Button confirmButton = new Button("BUY");
 
+    /** Button for toggling the stock in the watchlist. */
+    private final Button watchlistButton = new Button();
+
     /** The order panel containing trade controls. */
     private final VBox orderPanel = new VBox(10);
 
@@ -155,11 +159,23 @@ public class TradeView extends GridPane {
             controller.cancelTrade();
         });
 
+        watchlistButton.getStyleClass().add("watchlist-btn");
+        watchlistButton.setOnAction(e -> {
+            SoundPlayer.playClick();
+            controller.toggleWatchlist();
+        });
+        updateWatchlistButton(player.isInWatchlist(stock.getSymbol()));
+
+        Region headerSpacer = new Region();
+        HBox.setHgrow(headerSpacer, Priority.ALWAYS);
+        HBox headerActions = new HBox(backButton, headerSpacer, watchlistButton);
+        headerActions.setAlignment(Pos.CENTER_LEFT);
+
         HBox modeButtons = new HBox(BUTTON_SPACING, buyButton, sellButton);
         modeButtons.setAlignment(Pos.CENTER_RIGHT);
 
         chartSection.getChildren().addAll(
-                backButton,
+                headerActions,
                 symbol,
                 title,
                 priceLabel,
@@ -440,6 +456,20 @@ public class TradeView extends GridPane {
         ownedQuantityLabel.setText(
                 "My quantity: " + quantity + " stocks"
         );
+    }
+
+    /**
+     * Updates the watchlist toggle button text and style.
+     *
+     * @param inWatchlist true if this stock is already watched
+     */
+    public void updateWatchlistButton(final boolean inWatchlist) {
+        watchlistButton.getStyleClass().removeAll(
+            "watchlist-btn-active", "watchlist-btn-inactive");
+        watchlistButton.getStyleClass().add(
+            inWatchlist ? "watchlist-btn-active" : "watchlist-btn-inactive");
+        watchlistButton.setText(
+            inWatchlist ? "★ In watchlist" : "☆ Add to watchlist");
     }
 
     /**

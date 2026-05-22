@@ -129,6 +129,14 @@ public class TradeViewController implements Observer {
     }
 
     /**
+     * Toggles the currently displayed stock in the player's watchlist.
+     */
+    public void toggleWatchlist() {
+        boolean inWatchlist = player.toggleWatchlist(stock.getSymbol());
+        view.updateWatchlistButton(inWatchlist);
+    }
+
+    /**
      * Updates the transaction preview displayed in the trade view.
      */
     public void updateOrderPreview() {
@@ -259,6 +267,7 @@ public class TradeViewController implements Observer {
         view.updateCurrentPrice(stock.getSalesPrice());
         view.updateMoney(player.getMoney());
         view.updatePriceChart(stock.getHistoricalPrices());
+        view.updateWatchlistButton(player.isInWatchlist(stock.getSymbol()));
 
         BigDecimal ownedQuantity =
             player.getPortfolio().getQuantityOwned(stock);
