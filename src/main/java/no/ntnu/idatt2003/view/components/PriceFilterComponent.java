@@ -41,13 +41,13 @@ public class PriceFilterComponent extends HBox {
         Slider minSlider = new Slider(0, MAX_PRICE, 0);
         Slider maxSlider = new Slider(0, MAX_PRICE, MAX_PRICE);
 
-        Label rangeLabel = new Label("0 - 10 000 NOK");
+        Label rangeLabel = new Label("0 - 10 000 $");
 
         // Update range label and notify controller when sliders change
         minSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
             rangeLabel.setText(
                 (int) minSlider.getValue()
-                + " - " + (int) maxSlider.getValue() + " NOK");
+                + " - " + (int) maxSlider.getValue() + " $");
             controller.onPriceFilter(
                 BigDecimal.valueOf(minSlider.getValue()),
                 BigDecimal.valueOf(maxSlider.getValue()));
@@ -56,7 +56,7 @@ public class PriceFilterComponent extends HBox {
         maxSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
             rangeLabel.setText(
                 (int) minSlider.getValue()
-                + " - " + (int) maxSlider.getValue() + " NOK");
+                + " - " + (int) maxSlider.getValue() + " $");
             controller.onPriceFilter(
                 BigDecimal.valueOf(minSlider.getValue()),
                 BigDecimal.valueOf(maxSlider.getValue()));

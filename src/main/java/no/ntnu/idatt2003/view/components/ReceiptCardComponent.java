@@ -77,7 +77,7 @@ public class ReceiptCardComponent extends VBox {
         boolean isPurchase = r.type().equalsIgnoreCase("Purchase");
         String sign = isPurchase ? "-" : "";
         Label amountLabel = new Label(
-            String.format("%s%.2f NOK", sign, r.total())
+            String.format("%s%.2f $", sign, r.total())
         );
         amountLabel.setStyle(
             "-fx-font-weight:bold; -fx-font-size:16px; -fx-text-fill:#222;"

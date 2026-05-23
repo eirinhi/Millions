@@ -56,7 +56,7 @@ public class SideBarComponent extends VBox {
         Label moneyTitle = new Label("$ Money");
         moneyTitle.getStyleClass().add("money-title");
 
-        moneyLabel = new Label(money.toString() + " NOK");
+        moneyLabel = new Label(money.toString() + " $");
         moneyLabel.getStyleClass().add("money-label");
 
         portfolioBtn = new Button("Portfolio");
@@ -145,7 +145,7 @@ public class SideBarComponent extends VBox {
      * @param money the new amount of money to display
      */
     public void updateMoney(final BigDecimal money) {
-        moneyLabel.setText(money.toString() + " NOK");
+        moneyLabel.setText(money.toString() + " $");
     }
 
     /**

@@ -126,7 +126,7 @@ public class TradeView extends GridPane {
         Label symbol = new Label(stock.getSymbol());
         symbol.getStyleClass().add("trade-symbol");
 
-        priceLabel.setText(stock.getSalesPrice() + " NOK");
+        priceLabel.setText(stock.getSalesPrice() + " $");
         priceLabel.getStyleClass().add("trade-price");
 
         modeLabel.getStyleClass().add("trade-mode-buy");
@@ -216,7 +216,7 @@ public class TradeView extends GridPane {
 
         Label moneyTitle = new Label("Balance");
         moneyTitle.getStyleClass().add("trade-small-label");
-        moneyValueLabel.setText(player.getMoney() + " NOK");
+        moneyValueLabel.setText(player.getMoney() + " $");
         moneyValueLabel.getStyleClass().add("trade-value-label");
 
         BigDecimal ownedQuantity =
@@ -391,7 +391,7 @@ public class TradeView extends GridPane {
      * @param price price the current stock price
      */
     public void updateCurrentPrice(final BigDecimal price) {
-        priceLabel.setText(price + " NOK");
+        priceLabel.setText(price + " $");
     }
 
     /**
@@ -421,7 +421,7 @@ public class TradeView extends GridPane {
      * @param money the player's current money balance
      */
     public void updateMoney(final BigDecimal money) {
-        moneyValueLabel.setText(money + " NOK");
+        moneyValueLabel.setText(money + " $");
     }
 
     /**
@@ -441,10 +441,10 @@ public class TradeView extends GridPane {
             final BigDecimal taxes,
             final BigDecimal total) {
 
-        grossLabel.setText(gross + " NOK");
-        commissionLabel.setText(commission + " NOK");
-        taxesLabel.setText(taxes + " NOK");
-        totalLabel.setText(total + " NOK");
+        grossLabel.setText(gross + " $");
+        commissionLabel.setText(commission + " $");
+        taxesLabel.setText(taxes + " $");
+        totalLabel.setText(total + " $");
     }
 
     /**

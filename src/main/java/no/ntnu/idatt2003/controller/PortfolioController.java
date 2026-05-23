@@ -132,8 +132,8 @@ public class PortfolioController implements Observer {
 
         view.updateStats(
             String.format("%+.2f%%", performance),
-            String.format("%.2f NOK", player.getNetWorth()),
-            String.format("%.2f NOK", player.getMoney()),
+            String.format("%.2f $", player.getNetWorth()),
+            String.format("%.2f $", player.getMoney()),
             performance >= 0
         );
 

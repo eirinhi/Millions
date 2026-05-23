@@ -115,11 +115,11 @@ public class GameSummaryView {
         summary.setPrefWidth(SUMMARY_PREF_WIDTH);
         HBox.setHgrow(summary, Priority.ALWAYS);
         VBox startingMoney = summaryRow(
-            "Starting Money", startMoney + " NOK", null);
+            "Starting Money", startMoney + " $", null);
         VBox endingCapital = summaryRow(
-            "Ending Capital", endMoney + " NOK", null);
+            "Ending Capital", endMoney + " $", null);
         VBox totalGainLoss = summaryRow(
-            "Total Gain/Loss", gain + " NOK", gainPositive);
+            "Total Gain/Loss", gain + " $", gainPositive);
         VBox totalReturn = summaryRow(
             "Total Return", returnPct + "%", returnPositive);
 
