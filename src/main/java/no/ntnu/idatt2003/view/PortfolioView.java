@@ -97,7 +97,6 @@ public class PortfolioView extends VBox {
     public PortfolioView(final Consumer<String> onStockSelected) {
         setSpacing(VIEW_SPACING);
         setPadding(new Insets(VIEW_PADDING));
-        getStyleClass().add("portfolio-view");
 
         holdingsTable     = new HoldingsTableComponent(onStockSelected);
         transactionsPanel = new TransactionsPanelComponent();
@@ -200,7 +199,6 @@ public class PortfolioView extends VBox {
         HBox bar = new HBox(BAR_SPACING);
         bar.setAlignment(Pos.CENTER_LEFT);
         bar.setPadding(new Insets(BAR_PAD_V, BAR_PAD_H, BAR_PAD_V, BAR_PAD_H));
-        bar.getStyleClass().add("summary-bar");
         bar.getChildren().addAll(
             statBox("Performance this week", performanceValue),
             statBox("Equity",                equityValue),
@@ -219,8 +217,6 @@ public class PortfolioView extends VBox {
      */
     private VBox statBox(final String title, final Label value) {
         Label t = new Label(title);
-        t.getStyleClass().add("stat-title");
-        value.getStyleClass().add("stat-value");
         return new VBox(STAT_SPACING, t, value);
     }
 

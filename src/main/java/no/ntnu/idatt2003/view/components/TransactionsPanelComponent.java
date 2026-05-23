@@ -58,13 +58,12 @@ public class TransactionsPanelComponent extends VBox {
 
         TextField searchField = new TextField();
         searchField.setPromptText("Search...");
-        searchField.getStyleClass().add("search-field");
         searchField.textProperty().addListener((obs, old, val) -> {
             if (onSearch != null) onSearch.accept(val.toLowerCase());
         });
 
         Button allTransactionsBtn = new Button("All");
-        allTransactionsBtn.getStyleClass().addAll("sort-btn", "sort-btn-active");
+        allTransactionsBtn.getStyleClass().add("sort-btn");
         allTransactionsBtn.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(allTransactionsBtn, Priority.ALWAYS);
 
@@ -80,25 +79,16 @@ public class TransactionsPanelComponent extends VBox {
 
         allTransactionsBtn.setOnAction(e -> {
             SoundPlayer.playClick();
-            allTransactionsBtn.getStyleClass().add("sort-btn-active");
-            purchacesBtn.getStyleClass().remove("sort-btn-active");
-            salesBtn.getStyleClass().remove("sort-btn-active");
             if (onFilter != null) onFilter.accept("all");
         });
 
         purchacesBtn.setOnAction(e -> {
             SoundPlayer.playClick();
-            purchacesBtn.getStyleClass().add("sort-btn-active");
-            allTransactionsBtn.getStyleClass().remove("sort-btn-active");
-            salesBtn.getStyleClass().remove("sort-btn-active");
             if (onFilter != null) onFilter.accept("Purchase");
         });
 
         salesBtn.setOnAction(e -> {
             SoundPlayer.playClick();
-            salesBtn.getStyleClass().add("sort-btn-active");
-            allTransactionsBtn.getStyleClass().remove("sort-btn-active");
-            purchacesBtn.getStyleClass().remove("sort-btn-active");
             if (onFilter != null) onFilter.accept("Sale");
         });
 
