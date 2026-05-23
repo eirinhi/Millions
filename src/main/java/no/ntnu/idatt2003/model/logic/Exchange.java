@@ -31,11 +31,8 @@ public class Exchange extends Subject {
     /** The random number generator for price changes. */
     private final Random random;
 
-    /** The maximum percentage change in price for a stock. */
-    private static final double MAX_PRICE_CHANGE_PERCENT = 0.1;
-
-    /** The scale for random price changes. */
-    private static final double RANDOM_SCALE = 2.0;
+    /** The weekly price volatility. */
+    private static final double PRICE_VOLATILITY = 0.03;
 
     /**
      * Creates a new exchange with the given name and list of stocks.
@@ -193,10 +190,7 @@ public class Exchange extends Subject {
         for (Stock stock : stockMap.values()) {
             BigDecimal currentPrice = stock.getSalesPrice();
 
-            double changePercent = (random.nextDouble()
-                                    * RANDOM_SCALE
-                                    * MAX_PRICE_CHANGE_PERCENT)
-                                    - MAX_PRICE_CHANGE_PERCENT;
+            double changePercent = random.nextGaussian() * PRICE_VOLATILITY + 0.001;
 
             BigDecimal newPrice = currentPrice
                     .add(currentPrice.multiply(
