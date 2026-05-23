@@ -1,0 +1,138 @@
+/* Application Layout */
+
+.app-view {
+    -fx-background-color: -col-bg;
+    -fx-padding: 5;
+}
+
+.start-view {
+    -fx-background-color: -col-primary-light;
+}
+
+.header {
+    -fx-background-color: linear-gradient(#ff9ac6, -col-header-end);
+    -fx-border-color: black;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 10;
+    -fx-pref-height: 60;
+    -fx-alignment: center;
+}
+
+.sidebar {
+    -fx-background-color: -col-primary-light;
+    -fx-border-color: black;
+    -fx-border-width: 0 1 0 0;
+    -fx-padding: 10;
+    -fx-pref-width: 220;
+}
+
+/* Sidebar / Top-Bar */
+
+.header-week-label {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.money-title {
+    -fx-font-size: 12px;
+    -fx-text-fill: gray;
+}
+
+.money-label {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.status-title {
+    -fx-font-size: 14px;
+    -fx-text-fill: gray;
+    -fx-font-family: 'Arial';
+}
+
+.rank-label {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.stars-label {
+    -fx-font-size: 18px;
+    -fx-text-fill: -col-header-end;
+}
+
+.separator-line {
+    -fx-background-color: -col-header-end;
+    -fx-pref-height: 2;
+    -fx-pref-width: 180;
+}
+
+.advance-btn {
+    -fx-font-size: 12px;
+}
+
+.section-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -col-text-dark;
+}
+
+/* Table */
+
+.table-header {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -col-text-subtle;
+}
+
+.table-cell {
+    -fx-font-size: 12px;
+    -fx-text-fill: -col-text-subtle;
+}
+
+.label.negative-value {
+    -fx-text-fill: -col-negative;
+}
+
+.label.positive-value {
+    -fx-text-fill: -col-positive;
+}
+
+.table-view {
+    -fx-border-color: -col-primary-muted;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: -col-primary;
+    -fx-background-radius: 8px 8px 0 0;
+}
+
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+}
+
+.table-view .table-row-cell {
+    -fx-background-color: white;
+    -fx-border-color: -col-table-row-border;
+    -fx-border-width: 0 0 1 0;
+}
+
+.table-view .table-row-cell:odd {
+    -fx-background-color: -col-table-row-odd;
+}
+
+.table-view .table-row-cell:selected,
+.table-view .table-row-cell:selected:odd {
+    -fx-background-color: -col-primary-soft;
+}
+
+.table-view .table-row-cell:selected .table-cell {
+    -fx-text-fill: -col-text-dark;
+}

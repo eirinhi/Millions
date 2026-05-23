@@ -1,0 +1,131 @@
+/* Color variables */
+.root {
+    -col-primary:        #f5629d;
+    -col-primary-border: #d1699b;
+    -col-primary-dark:   #d44f88;
+    -col-primary-light:  #fcdeec;
+    -col-primary-soft:   #f9d0e6;
+    -col-primary-muted:  #e8a0c4;
+    -col-header-end:     #f07ab3;
+    -col-bg:             #eeeeee;
+    -col-positive:       #328a37;
+    -col-negative:       #dc2c2c;
+    -col-text-dark:      #222;
+    -col-text-subtle:    #444;
+    -col-text-muted-pink: #755c6a;
+    -col-table-row-border: #f5e6ee;
+    -col-table-row-odd:  #fff5fa;
+    -col-watchlist-bg:   #fff4cf;
+    -col-watchlist-border: #e8b84f;
+    -col-watchlist-text: #7a5400;
+    -col-receipt-buy-bg: #e8f8ee;
+    -col-receipt-sell-bg: #fdecea;
+}
+
+/* Global Controls */
+
+.spinner, .text-field {
+    -fx-background-color: white;
+    -fx-border-color: -col-primary-border;
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 8px;
+    -fx-font-size: 16px;
+}
+
+.button {
+    -fx-background-color: -col-primary;
+    -fx-text-fill: white;
+    -fx-border-color: -col-primary-border;
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 8px;
+    -fx-font-size: 16px;
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-translate-y: -2px;
+}
+
+.button:pressed {
+    -fx-translate-y: 0px;
+    -fx-background-color: -col-primary-dark;
+}
+
+.spinner .increment-arrow-button,
+.spinner .decrement-arrow-button {
+    -fx-background-color: -col-primary-light;
+    -fx-border-color: -col-primary-border;
+}
+
+.spinner .increment-arrow-button:hover,
+.spinner .decrement-arrow-button:hover {
+    -fx-background-color: -col-primary-soft;
+}
+
+.spinner .increment-arrow,
+.spinner .decrement-arrow {
+    -fx-background-color: -col-primary-border;
+}
+
+.slider .track {
+    -fx-background-color: -col-primary-soft;
+    -fx-border-color: -col-primary-muted;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-pref-height: 6px;
+}
+
+.slider .thumb {
+    -fx-background-color: -col-primary;
+    -fx-border-color: -col-primary-border;
+    -fx-border-width: 2px;
+    -fx-border-radius: 20px;
+    -fx-background-radius: 20px;
+    -fx-pref-width: 16px;
+    -fx-pref-height: 16px;
+}
+
+.slider .thumb:hover {
+    -fx-background-color: -col-primary-dark;
+}
+
+.label {
+    -fx-font-size: 16px;
+}
+
+.primary-btn {
+    -fx-padding: 8 16;
+    -fx-pref-width: 180;
+    -fx-pref-height: 44;
+}
+
+.small-btn {
+    -fx-padding: 4 12;
+    -fx-font-size: 13px;
+}
+
+.large-btn {
+    -fx-font-size: 26px;
+    -fx-pref-width: 500;
+}
+
+.error-label {
+    -fx-text-fill: -col-negative;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
+.muted-label {
+    -fx-text-fill: gray;
+}
+
+.hero-label {
+    -fx-font-size: 40px;
+}
+
+.summary-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}

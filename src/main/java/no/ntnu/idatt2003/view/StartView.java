@@ -181,8 +181,12 @@ public class StartView {
 
         // Create the scene and apply the stylesheet
         scene = new Scene(root, 1000, 700);
-        scene.getStylesheets().add(
-            getClass().getResource("/no/ntnu/idatt2003/styles.css").toExternalForm()
+        scene.getStylesheets().addAll(
+            getClass().getResource("/no/ntnu/idatt2003/styles/variables.css").toExternalForm(),
+            getClass().getResource("/no/ntnu/idatt2003/styles/layout.css").toExternalForm(),
+            getClass().getResource("/no/ntnu/idatt2003/styles/exchange.css").toExternalForm(),
+            getClass().getResource("/no/ntnu/idatt2003/styles/trade.css").toExternalForm(),
+            getClass().getResource("/no/ntnu/idatt2003/styles/summary.css").toExternalForm()
         );
     }
 

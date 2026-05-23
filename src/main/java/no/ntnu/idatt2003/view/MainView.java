@@ -28,7 +28,13 @@ public class MainView extends BorderPane {
      * @param initialWeek the week number shown on first render
      */
     public MainView(String playerName, BigDecimal money, int initialWeek) {
-        getStylesheets().add(getClass().getResource("/no/ntnu/idatt2003/styles.css").toExternalForm());
+        getStylesheets().addAll(
+            getClass().getResource("/no/ntnu/idatt2003/styles/variables.css").toExternalForm(),
+            getClass().getResource("/no/ntnu/idatt2003/styles/layout.css").toExternalForm(),
+            getClass().getResource("/no/ntnu/idatt2003/styles/exchange.css").toExternalForm(),
+            getClass().getResource("/no/ntnu/idatt2003/styles/trade.css").toExternalForm(),
+            getClass().getResource("/no/ntnu/idatt2003/styles/summary.css").toExternalForm()
+        );
         getStyleClass().add("app-view");
 
         topBar = new TopBarComponent(playerName, initialWeek);
