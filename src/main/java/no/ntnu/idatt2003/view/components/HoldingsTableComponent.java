@@ -22,7 +22,7 @@ import no.ntnu.idatt2003.view.SoundPlayer;
  */
 public class HoldingsTableComponent extends VBox {
 
-    private static final double[] COL_WIDTHS = {14, 32, 11, 27, 16};
+    private static final double[] COL_WIDTHS = {14, 32, 14, 14, 20, 20};
 
     private final VBox body = new VBox(2);
 
@@ -75,9 +75,10 @@ public class HoldingsTableComponent extends VBox {
         GridPane header = newGrid();
         addCell(header, "Symbol",  0, true);
         addCell(header, "Company", 1, true);
-        addCell(header, "Quantity", 2, true);
-        addCell(header, "Value",   3, true);
-        addCell(header, "Return",  4, true);
+        addCell(header, "Shares",  2, true);
+        addCell(header, "Stocks",  3, true);
+        addCell(header, "Value",   4, true);
+        addCell(header, "Return",  5, true);
 
         header.setStyle("-fx-border-color:#ccc; -fx-border-width:0 0 1 0;");
         header.setPadding(new Insets(0, 0, 4, 0));
@@ -98,8 +99,9 @@ public class HoldingsTableComponent extends VBox {
         GridPane grid = newGrid();
         addCell(grid, r.symbol(),   0, false);
         addCell(grid, r.company(),  1, false);
-        addCell(grid, Integer.toString(r.quantity()), 2, false);
-        addCell(grid, Double.toString(r.value()), 3, false);
+        addCell(grid, Integer.toString(r.shareCount()), 2, false);
+        addCell(grid, Integer.toString(r.quantity()), 3, false);
+        addCell(grid, String.format("%.2f", r.value()), 4, false);
 
         double pct = r.returnPct();
         boolean positive = pct >= 0;
@@ -112,7 +114,7 @@ public class HoldingsTableComponent extends VBox {
             retLabel.getStyleClass().add("negative-value");
         }
 
-        grid.add(retLabel, 4, 0);
+        grid.add(retLabel, 5, 0);
 
         HBox wrapper = new HBox(grid);
         HBox.setHgrow(grid, Priority.ALWAYS);

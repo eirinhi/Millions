@@ -11,6 +11,7 @@ import no.ntnu.idatt2003.model.entity.Stock;
 import no.ntnu.idatt2003.model.io.GameFileHandler;
 import no.ntnu.idatt2003.model.io.GameSaveException;
 import no.ntnu.idatt2003.model.logic.Exchange;
+import no.ntnu.idatt2003.model.observer.Observer;
 import no.ntnu.idatt2003.view.ExchangeView;
 import no.ntnu.idatt2003.view.GameSummaryView;
 import no.ntnu.idatt2003.view.MainView;
@@ -23,7 +24,7 @@ import no.ntnu.idatt2003.view.WatchlistView;
  * {@link MainView}. Handles week progression, navigation actions, and
  * keeping the header and status display in sync with model state.
  */
-public class MainViewController {
+public class MainViewController implements Observer {
  
     private final Exchange exchange;
     private final Player player;
@@ -87,9 +88,18 @@ public class MainViewController {
         mainView.setSaveAction(this::saveGame);
         mainView.setEndGameAction(this::showGameSummaryView);
 
+        exchange.attach(this);
         updateView();
     }
- 
+
+    /**
+     * Called when the Exchange notifies observers of a state change.
+     */
+    @Override
+    public void update() {
+        updateView();
+    }
+
     /**
      * Returns the main layout node to be placed in the scene graph.
      *
@@ -139,16 +149,16 @@ public class MainViewController {
         switch (rank) {
             case "Speculator" -> {
                 stars = "★ ★ ★";
-                goal1Text = "Traded for 20 weeks";
+                goal1Text = "Traded for at least 20 weeks";
                 goal1Met = true;
-                goal2Text = "Doubled net worth (100%)";
+                goal2Text = "Gained 100% net worth";
                 goal2Met = true;
             }
             case "Investor" -> {
                 stars = "★ ★ ☆";
-                goal1Text = "Goal: 20 weeks";
+                goal1Text = "Traded for at least 20 weeks";
                 goal1Met = weeksTraded >= 20;
-                goal2Text = "Goal: 100% gain";
+                goal2Text = "Gained 100% net worth";
                 goal2Met = gainPercent >= 100;
             }
             default -> {

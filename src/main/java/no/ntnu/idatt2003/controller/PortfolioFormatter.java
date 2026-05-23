@@ -3,6 +3,8 @@ package no.ntnu.idatt2003.controller;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import no.ntnu.idatt2003.model.entity.Player;
 import no.ntnu.idatt2003.model.entity.Share;
@@ -68,24 +70,37 @@ public class PortfolioFormatter {
      * @return list of holding DTOs for display in the UI
      */
     public List<HoldingRow> holdingRows(Player player) {
-        return player.getPortfolio().getShares().stream()
-                .map(s -> {
+        Map<String, List<Share>> grouped = player.getPortfolio().getShares().stream()
+                .collect(Collectors.groupingBy(s -> s.getStock().getSymbol()));
 
-                    BigDecimal purchasePrice = safe(s.getPurchasePrice());
-                    BigDecimal currentPrice = safe(s.getStock().getSalesPrice());
+        return grouped.values().stream()
+            .map(shares -> {
+                Share first = shares.get(0);
+                BigDecimal currentPrice = safe(first.getStock().getSalesPrice());
 
-                    int qty = s.getQuantity().intValue();
+                int totalQty = shares.stream()
+                    .mapToInt(s -> s.getQuantity().intValue())
+                    .sum();
 
-                    BigDecimal value = currentPrice.multiply(BigDecimal.valueOf(qty));
+                BigDecimal totalCost = shares.stream()
+                    .map(s -> safe(s.getPurchasePrice())
+                        .multiply(BigDecimal.valueOf(s.getQuantity().intValue())))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-                    double returnPct = returnPercent(purchasePrice, currentPrice);
+                BigDecimal avgPurchasePrice = totalQty > 0
+                    ? totalCost.divide(BigDecimal.valueOf(totalQty), 4, RoundingMode.HALF_UP)
+                    : BigDecimal.ZERO;
+
+                double totalValue = currentPrice
+                    .multiply(BigDecimal.valueOf(totalQty)).doubleValue();
 
                     return new HoldingRow(
-                            s.getStock().getSymbol(),
-                            s.getStock().getCompany(),
-                            qty,
-                            value.doubleValue(),
-                            returnPct
+                        first.getStock().getSymbol(),
+                        first.getStock().getCompany(),
+                        shares.size(),
+                        totalQty,
+                        totalValue,
+                        returnPercent(avgPurchasePrice, currentPrice)
                     );
                 })
                 .toList();
@@ -161,6 +176,7 @@ public class PortfolioFormatter {
     public record HoldingRow(
             String symbol,
             String company,
+            int shareCount,
             int quantity,
             double value,
             double returnPct
