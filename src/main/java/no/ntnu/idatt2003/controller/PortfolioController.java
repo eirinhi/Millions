@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.function.Consumer;
+import no.ntnu.idatt2003.controller.PortfolioFormatter.ReceiptData;
 
 import no.ntnu.idatt2003.model.entity.Player;
 import no.ntnu.idatt2003.model.entity.Stock;
@@ -43,6 +44,10 @@ public class PortfolioController implements Observer {
     private PortfolioView view;
     private final PortfolioFormatter formatter = new PortfolioFormatter();
     private BigDecimal weekStartNetWorth;
+
+    private List<ReceiptData> allReceipts = List.of();
+    private String searchText = "";
+    private String activeFilter = "all";
 
     /**
      * Creates a new PortfolioController and registers it as an observer
@@ -98,6 +103,8 @@ public class PortfolioController implements Observer {
             if (history.isEmpty()) {
                 recordWeek();
             }
+            view.setOnTransactionSearch(this::onSearch);
+            view.setOnTransactionFilter(this::onFilter);
         }
 
         refresh();
@@ -131,7 +138,43 @@ public class PortfolioController implements Observer {
         );
 
         view.setHoldingRows(formatter.holdingRows(player));
-        view.setReceipts(formatter.receipts(player));
+        allReceipts = formatter.receipts(player);
+        view.setReceipts(filteredReceipts());
+    }
+
+    /**
+     * Handles transaction search input and updates the transaction display.
+     *
+     * @param tex the search text entered
+     */
+    public void onSearch(final String text) {
+        searchText = text;
+        if (view != null) view.setReceipts(filteredReceipts());
+    }
+
+    /**
+     * Handles transaction filter changes and updates the transaction display.
+     *
+     * @param filter the selected filter
+     */
+    public void onFilter(final String filter) {
+        activeFilter = filter;
+        if (view != null) view.setReceipts(filteredReceipts());
+    }
+
+    /**
+     * Applies the current search text and filter to the full list of receipts.
+     *
+     * @return filtered list of receipts matching the search and filter
+     */
+    private List<ReceiptData> filteredReceipts() {
+        return allReceipts.stream()
+            .filter(r -> activeFilter.equals("all") || r.type().equals(activeFilter))
+            .filter(r -> searchText.isEmpty()
+                || r.symbol().toLowerCase().contains(searchText)
+                || r.company().toLowerCase().contains(searchText)
+                || String.valueOf(r.week()).contains(searchText))
+            .toList();
     }
 
     /**

@@ -153,6 +153,24 @@ public class PortfolioView extends VBox {
     }
 
     /**
+     * Sets the callback invoked when the user searches transactions.
+     *
+     * @param handler called with the lowercase search text
+     */
+    public void setOnTransactionSearch(final Consumer<String> handler) {
+        transactionsPanel.setOnSearch(handler);
+    }
+
+    /**
+     * Sets the callback invoked when the user clicks a transaction filter button.
+     *
+     * @param handler called with "all", "Purchase", or "Sale"
+     */
+    public void setOnTransactionFilter(final Consumer<String> handler) {
+        transactionsPanel.setOnFilter(handler);
+    }
+
+    /**
      * Adds a new point to the portfolio growth chart.
      *
      * @param netWorth current net worth value
