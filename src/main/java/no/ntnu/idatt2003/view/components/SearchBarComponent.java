@@ -29,7 +29,6 @@ public class SearchBarComponent extends VBox {
         // Create search field
         TextField searchField = new TextField();
         searchField.setPromptText("Search by name or symbol...");
-        searchField.getStyleClass().add("search-field");
         searchField.textProperty().addListener(
             (obs, oldVal, newVal) -> controller.onSearch(newVal));
 

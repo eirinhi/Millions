@@ -75,11 +75,9 @@ public class SideBarComponent extends VBox {
         VBox.setVgrow(spacer, Priority.ALWAYS);
 
         saveButton = new Button("SAVE & EXIT");
-        saveButton.getStyleClass().add("save-btn");
         saveButton.setMaxWidth(Double.MAX_VALUE);
 
         endGameButton = new Button("END GAME");
-        endGameButton.getStyleClass().add("end-game-btn");
         endGameButton.setMaxWidth(Double.MAX_VALUE);
 
         this.getChildren().addAll(

@@ -152,9 +152,7 @@ public class MainView extends BorderPane {
      */
     private Node createEndGameView() {
         VBox box = new VBox(10);
-        box.getStyleClass().add("end-game-view");
         Label title = new Label("Avslutningsside");
-        title.getStyleClass().add("end-game-view-title");
         Label info = new Label("Resultater kommer her. Implementer senere for å vise spillerens statistikk.");
         info.setWrapText(true);
         box.getChildren().addAll(title, info);
