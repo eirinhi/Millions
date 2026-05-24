@@ -69,12 +69,12 @@ public class GameSummaryView {
     /**
      * Creates a new game summary view with the given performance.
      *
-     * @param status the achieved status
-     * @param startMoney the starting money
-     * @param endMoney the ending capital
-     * @param gain the total gain or loss
-     * @param returnPct the total return percentage
-     * @param gainPositive whether the gain is positive or negative
+     * @param status        the achieved status
+     * @param startMoney    the starting money
+     * @param endMoney      the ending capital
+     * @param gain          the total gain or loss
+     * @param returnPct     the total return percentage
+     * @param gainPositive  whether the gain is positive or negative
      * @param returnPositive whether the return is positive or negative
      */
     public GameSummaryView(

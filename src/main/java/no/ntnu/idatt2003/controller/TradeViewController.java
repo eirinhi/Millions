@@ -52,11 +52,11 @@ public class TradeViewController implements Observer {
     /**
      * Creates a new trade view controller for the selected stock.
      *
-     * @param exchange the exchange used to execute trades
-     * @param player the current player performing trades
-     * @param stock the stock currently displayed in the trade view
-     * @param onTradeCompleted callback executed after a successful trade
-     * @param onCancel callback executed when the trade view is cancelled
+     * @param exchange          the exchange used to execute trades
+     * @param player            the current player performing trades
+     * @param stock             the stock currently displayed in the trade view
+     * @param onTradeCompleted  callback executed after a successful trade
+     * @param onCancel          callback executed when the trade view is cancelled
      */
     public TradeViewController(
             final Exchange exchange,
@@ -90,9 +90,6 @@ public class TradeViewController implements Observer {
 
     /**
      * Updates the trade view when the exchange model changes.
-     *
-     * <p>This is called through the Observer pattern when stock prices
-     * are updated by the exchange.</p>
      */
     @Override
     public void update() {

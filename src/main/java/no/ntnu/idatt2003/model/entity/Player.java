@@ -80,10 +80,10 @@ public class Player {
    * This constructor is used for loading a player from a saved game state,
    * allowing all fields to be initialized directly.
    *
-   * @param name the name of the player
-   * @param startingMoney the original starting capital of the player
-   * @param currentMoney the current money balance of the player
-   * @param portfolio the portfolio containing the player's owned shares
+   * @param name               the name of the player
+   * @param startingMoney      the original starting capital of the player
+   * @param currentMoney       the current money balance of the player
+   * @param portfolio          the portfolio containing the player's owned shares
    * @param transactionArchive the archive storing the player's committed transactions
    * @throws IllegalArgumentException if any of the parameters are invalid
    */

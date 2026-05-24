@@ -31,6 +31,7 @@ public class PriceFilterComponent extends HBox {
     /**
      * Creates a new PriceFilterComponent with sliders for min and max price.
      * Calls the controller's onPriceFilter method when sliders are adjusted.
+     * 
      * @param controller the controller for this component
      */
     public PriceFilterComponent(final ExchangeViewController controller) {

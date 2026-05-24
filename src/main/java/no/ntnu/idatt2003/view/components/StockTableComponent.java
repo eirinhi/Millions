@@ -30,6 +30,7 @@ public class StockTableComponent extends VBox {
 
     /**
      * Creates a new StockTableComponent with the given stocks and controller.
+     * 
      * @param stocks the initial list of stocks to display
      * @param controller the controller for this component
      */
@@ -89,6 +90,7 @@ public class StockTableComponent extends VBox {
 
     /**
      * Updates the table with a new list of stocks.
+     * 
      * @param stocks the new list of stocks to display in the table
      */
     public void update(final List<Stock> stocks) {

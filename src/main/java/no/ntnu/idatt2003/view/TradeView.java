@@ -107,8 +107,8 @@ public class TradeView extends GridPane {
      * Creates a new trade view for the selected stock.
      *
      * @param controller the controller handling trade actions
-     * @param stock the stock displayed in the view
-     * @param player the current player performing trades
+     * @param stock      the stock displayed in the view
+     * @param player     the current player performing trades
      */
     public TradeView(
             final TradeViewController controller,
@@ -328,6 +328,7 @@ public class TradeView extends GridPane {
     private void setupGridConstraints() {
         ColumnConstraints col0 = new ColumnConstraints();
         col0.setHgrow(Priority.ALWAYS);
+
         ColumnConstraints col1 = new ColumnConstraints();
         col1.setHgrow(Priority.NEVER);
         col1.setPrefWidth(ORDER_PANEL_WIDTH);
@@ -376,7 +377,7 @@ public class TradeView extends GridPane {
     /**
      * Populates the combobox with shares available for selling.
      *
-     * @param shares the list of shares available
+     * @param shares             the list of shares available
      * @param onSelectionChanged callback to run when the selected share changes
      */
     public void showSharesForSale(
@@ -435,10 +436,10 @@ public class TradeView extends GridPane {
      * <p>Displays gross value, commission, taxes,
      * and total transaction value.</p>
      *
-     * @param gross the gross transaction value
+     * @param gross      the gross transaction value
      * @param commission the commission fee
-     * @param taxes the calculated taxes
-     * @param total the total transaction value
+     * @param taxes      the calculated taxes
+     * @param total      the total transaction value
      */
     public void updateOrderPreview(
             final BigDecimal gross,

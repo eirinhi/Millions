@@ -19,8 +19,8 @@ public class Share {
 
     /**
      * Creates a new share with the given stock, quantity, and purchase price.
-     * @param stock the stock associated with this share
-     * @param quantity the quantity of shares
+     * @param stock         the stock associated with this share
+     * @param quantity      the quantity of shares
      * @param purchasePrice the purchase price of the share
      * @throws IllegalArgumentException if any of the parameters are invalid
      */
@@ -50,6 +50,7 @@ public class Share {
 
     /**
      * Returns the stock associated with this share.
+     * 
      * @return the stock
      */
     public Stock getStock() {
@@ -58,6 +59,7 @@ public class Share {
 
     /**
      * Returns the quantity of shares.
+     * 
      * @return the quantity
      */
     public BigDecimal getQuantity() {
@@ -66,6 +68,7 @@ public class Share {
 
     /**
      * Returns the purchase price of the share.
+     * 
      * @return the purchase price
      */
     public BigDecimal getPurchasePrice() {
@@ -74,6 +77,7 @@ public class Share {
 
     /**
      * Returns a string representation of the share.
+     * 
      * @return the string representation
      */
     @Override

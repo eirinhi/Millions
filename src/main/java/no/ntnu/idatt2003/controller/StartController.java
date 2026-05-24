@@ -147,10 +147,10 @@ public class StartController {
      * Validates the player's input on the start screen.
      * Shows an error dialog if any field is invalid.
      *
-     * @param name the player name entered by the user
-     * @param capital the starting capital entered by the user
+     * @param name      the player name entered by the user
+     * @param capital   the starting capital entered by the user
      * @param stockFile the stock data file selected by the user
-     * @return {@code true} if all inputs are valid, {@code false} otherwise
+     * @return          {@code true} if all inputs are valid, {@code false} otherwise
      */
     public static boolean validateInput(String name, int capital, File stockFile) {
         if (name == null || name.isBlank()) return false;
@@ -175,7 +175,7 @@ public class StartController {
      * Shows an error dialog and returns {@code null} if the file cannot be read.
      *
      * @param file the stock data file to read
-     * @return a list of stocks, or {@code null} if loading failed
+     * @return      a list of stocks, or {@code null} if loading failed
      */
     public static List<Stock> loadStocks(File file) {
         try {
@@ -189,7 +189,7 @@ public class StartController {
      * Creates a new {@link Exchange} with the given list of stocks.
      *
      * @param stocks the list of stocks available on the exchange
-     * @return a new {@link Exchange} instance
+     * @return       a new {@link Exchange} instance
      */
     public static Exchange createExchange(List<Stock> stocks) {
         return new Exchange("Millions Exchange", stocks);
@@ -198,10 +198,10 @@ public class StartController {
     /**
      * Creates the main game scene from start-screen input.
      *
-     * @param name player name
-     * @param capital starting capital
+     * @param name      player name
+     * @param capital   starting capital
      * @param stockFile selected stock file
-     * @return the main game scene, or {@code null} if input/file is invalid
+     * @return          the main game scene, or {@code null} if input/file is invalid
      */
     public static Scene createMainScene(String name, int capital, File stockFile) {
         if (!validateInput(name, capital, stockFile)) {

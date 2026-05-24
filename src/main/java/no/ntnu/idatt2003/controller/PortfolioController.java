@@ -16,10 +16,8 @@ import no.ntnu.idatt2003.view.PortfolioView;
 /**
  * Controller responsible for managing the {@link PortfolioView}.
  *
- * <p>This class acts as a mediator between the model layer
- * ({@link Player}, {@link Exchange}) and the portfolio UI.
- * It ensures that the view is always synchronized with the
- * latest portfolio state.
+ * <p>Mediatates between the model layer ({@link Player}, {@link Exchange})
+ * and the portfolio UI.
  *
  * <p>The controller implements {@link Observer} so it can react
  * automatically to updates from the {@link Exchange}, such as

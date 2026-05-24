@@ -3,7 +3,6 @@ package no.ntnu.idatt2003.view;
 import java.math.BigDecimal;
 
 import javafx.scene.Node;
-import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import no.ntnu.idatt2003.view.components.SideBarComponent;
 import no.ntnu.idatt2003.view.components.TopBarComponent;
@@ -130,32 +129,11 @@ public class MainView extends BorderPane {
     }
 
     /**
-     * Replaces the center area with the endGame/results view.
-     */
-    public void showEndGameView() {
-        setView(createEndGameView());
-    }
-
-    /**
      * Replaces the center area with the given node.
      *
      * @param node the node to display in the center
      */
     public void setView(Node node) {
         this.setCenter(node);
-    }
-
-    /**
-     * Builds a placeholder endGame view shown when the player ends the game.
-     *
-     * @return the constructed endGame view node
-     */
-    private Node createEndGameView() {
-        VBox box = new VBox(10);
-        Label title = new Label("Avslutningsside");
-        Label info = new Label("Resultater kommer her. Implementer senere for å vise spillerens statistikk.");
-        info.setWrapText(true);
-        box.getChildren().addAll(title, info);
-        return box;
     }
 }

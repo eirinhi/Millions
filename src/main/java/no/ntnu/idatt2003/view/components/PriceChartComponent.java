@@ -96,6 +96,9 @@ public class PriceChartComponent extends Canvas {
         draw();
     }
 
+    /**
+     * Draws the price chart on the canvas.
+     */
     private void draw() {
         double w = getWidth();
         double h = getHeight();
@@ -159,6 +162,17 @@ public class PriceChartComponent extends Canvas {
         gc.restore();
     }
 
+    /**
+     * Draws the y-axis labels on the left side of the plot area.
+     *
+     * @param gc       the graphics context
+     * @param plotX    the x-coordinate of the plot area
+     * @param plotY    the y-coordinate of the plot area
+     * @param plotH    the height of the plot area
+     * @param maxVal   the maximum sales price
+     * @param minVal   the minimum sales price
+     * @param showExtremeColors  whether to show colors for extreme values
+     */
     private void drawYAxis(
             final GraphicsContext gc,
             final double plotX,
@@ -194,6 +208,16 @@ public class PriceChartComponent extends Canvas {
         gc.setTextAlign(TextAlignment.LEFT);
     }
 
+    /**
+     * Draws the x-axis labels at the bottom of the plot area.
+     *
+     * @param gc       the graphics context
+     * @param plotX    the x-coordinate of the plot area
+     * @param plotY    the y-coordinate of the plot area
+     * @param plotH    the height of the plot area
+     * @param xStep    the step size for the x-axis
+     * @param n        the total number of data points
+     */
     private void drawXAxis(
             final GraphicsContext gc,
             final double plotX,
@@ -229,6 +253,16 @@ public class PriceChartComponent extends Canvas {
         gc.setTextAlign(TextAlignment.LEFT);
     }
 
+    /**
+     * Draws a line connecting the data points in the plot area.
+     *
+     * @param gc       the graphics context
+     * @param plotH    the height of the plot area
+     * @param xStep    the step size for the x-axis
+     * @param maxVal   the maximum sales price
+     * @param minVal   the minimum sales price
+     * @param drawPrices the list of prices to draw
+     */
     private void drawLine(
             final GraphicsContext gc,
             final double plotH,
@@ -257,6 +291,16 @@ public class PriceChartComponent extends Canvas {
         gc.stroke();
     }
 
+    /**
+     * Draws the extreme points (highest and lowest) on the plot.
+     *
+     * @param gc       the graphics context
+     * @param plotH    the height of the plot area
+     * @param xStep    the step size for the x-axis
+     * @param maxVal   the maximum sales price
+     * @param minVal   the minimum sales price
+     * @param drawPrices the list of prices to draw
+     */
     private void drawExtremes(
             final GraphicsContext gc,
             final double plotH,
@@ -289,6 +333,12 @@ public class PriceChartComponent extends Canvas {
         gc.fillOval(xLo - DOT_R, yLo - DOT_R, 2 * DOT_R, 2 * DOT_R);
     }
 
+    /**
+     * Formats the price for display.
+     *
+     * @param price the price to format
+     * @return the formatted price string
+     */
     private String formatPrice(final double price) {
         if (price >= PRICE_INTEGER_THRESHOLD) {
             return String.format("%.0f", price);

@@ -37,7 +37,7 @@ public class Exchange extends Subject {
     /**
      * Creates a new exchange with the given name and list of stocks.
      *
-     * @param name the name of the exchange
+     * @param name   the name of the exchange
      * @param stocks the list of stocks available on the exchange
      * @throws IllegalArgumentException if stock/name is null or blank
      */
@@ -120,9 +120,9 @@ public class Exchange extends Subject {
     /**
      * Allows a player to buy shares of a stock on the exchange.
      *
-     * @param symbol the symbol of the stock to buy
-     * @param quantity the quantity of shares to buy
-     * @param player the player making the purchase
+     * @param symbol    the symbol of the stock to buy
+     * @param quantity  the quantity of shares to buy
+     * @param player    the player making the purchase
      * @return a Transaction representing the purchase
      * @throws IllegalArgumentException if the stock symbol is not found
      */
@@ -151,8 +151,8 @@ public class Exchange extends Subject {
     /**
      * Allows a player to sell shares of a stock on the exchange.
      *
-     * @param share the share being sold
-     * @param player the player making the sale
+     * @param share   the share being sold
+     * @param player  the player making the sale
      * @return a Transaction representing the sale
      */
     public Transaction sell(final Share share, final Player player) {
@@ -256,8 +256,8 @@ public class Exchange extends Subject {
      * Returns stocks filtered by search term and price range.
      *
      * @param searchTerm matches against symbol or company name
-     * @param minPrice minimum sales price
-     * @param maxPrice maximum sales price
+     * @param minPrice   minimum sales price
+     * @param maxPrice   maximum sales price
      * @return filtered list of stocks
      */
     public List<Stock> getFilteredStocks(
@@ -279,9 +279,9 @@ public class Exchange extends Subject {
      * sorted by the given criteria.
      *
      * @param searchTerm matches against symbol or company name
-     * @param minPrice minimum sales price
-     * @param maxPrice maximum sales price
-     * @param sortBy sorting criteria: "priceAsc", "priceDesc", or "name"
+     * @param minPrice   minimum sales price
+     * @param maxPrice   maximum sales price
+     * @param sortBy     sorting criteria: "priceAsc", "priceDesc", or "name"
      * @return filtered and sorted list of stocks
      */
     public List<Stock> getFilteredAndSortedStocks(

@@ -14,7 +14,7 @@ public class Purchase extends Transaction {
      * Creates a new purchase transaction with the specified share and week.
      *
      * @param share the share being purchased
-     * @param week the week in which the purchase occurs
+     * @param week  the week in which the purchase occurs
      * @throws IllegalArgumentException if share is null or if week is negative
      */
     public Purchase(final Share share, final int week) {
@@ -25,7 +25,7 @@ public class Purchase extends Transaction {
      * Commits the purchase transaction for the given player.
      *
      * @param player the player making the purchase
-     * @throws IllegalStateException if the transaction has been committed
+     * @throws IllegalStateException    if the transaction has been committed
      * @throws IllegalArgumentException if player is null
      */
     @Override
