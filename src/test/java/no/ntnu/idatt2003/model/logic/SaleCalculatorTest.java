@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 class SaleCalculatorTest {
@@ -56,5 +57,9 @@ class SaleCalculatorTest {
     assertEquals(new BigDecimal("0.00"),    zeroProfitSale.calculateTax());
     assertEquals(new BigDecimal("990.00"),  zeroProfitSale.calculateTotal());
   }
-}
 
+  @Test
+  void testConstructorNullShare() {
+    assertThrows(IllegalArgumentException.class, () -> new SaleCalculator(null));
+  }
+}
