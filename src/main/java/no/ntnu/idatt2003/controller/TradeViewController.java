@@ -37,8 +37,11 @@ public class TradeViewController implements Observer {
     /** The stock currently selected for trading. */
     private final Stock stock;
 
-    /** The trade view managed by this controller. */
-    private final TradeView view;
+    /** Concrete JavaFX trade view exposed to the application. */
+    private final TradeView tradeView;
+
+    /** View boundary used by the controller. */
+    private final TradeViewPort view;
 
     /** Callback invoked after a trade completes successfully. */
     private final Runnable onTradeCompleted;
@@ -71,7 +74,46 @@ public class TradeViewController implements Observer {
         this.onTradeCompleted = onTradeCompleted;
         this.onCancel = onCancel;
 
-        this.view = new TradeView(this, stock, player);
+        this.tradeView = new TradeView(this, stock, player);
+        this.view = new TradeViewAdapter(tradeView);
+
+        this.exchange.attach(this);
+
+        setBuyMode();
+        updateView();
+    }
+
+    /**
+     * Creates a controller with a supplied view boundary.
+     *
+     * <p>This constructor is package-private so tests can exercise controller
+     * logic without starting JavaFX.</p>
+     *
+     * <p>This was introduced through AI assistance to facilitate testing coverage.
+     * In production, the controller uses real TradeView. In test, it uses {@code TradeViewPort}.</p>
+     *
+     * @param exchange         the exchange used to execute trades  
+     * @param player           the current player performing trades
+     * @param stock            the stock currently displayed in the trade view
+     * @param onTradeCompleted callback executed after a successful trade
+     * @param onCancel         callback executed when the trade view is cancelled
+     * @param view             test view boundary
+     */
+    TradeViewController(
+            final Exchange exchange,
+            final Player player,
+            final Stock stock,
+            final Runnable onTradeCompleted,
+            final Runnable onCancel,
+            final TradeViewPort view) {
+
+        this.exchange = exchange;
+        this.player = player;
+        this.stock = stock;
+        this.onTradeCompleted = onTradeCompleted;
+        this.onCancel = onCancel;
+        this.tradeView = null;
+        this.view = view;
 
         this.exchange.attach(this);
 
@@ -85,7 +127,7 @@ public class TradeViewController implements Observer {
      * @return the trade view
      */
     public TradeView getView() {
-        return view;
+        return tradeView;
     }
 
     /**
@@ -277,5 +319,257 @@ public class TradeViewController implements Observer {
         }
 
         updateOrderPreview();
+    }
+
+    /**
+     * Interface for the trade view.
+     * This allows the controller to interact with the view without depending on JavaFX,
+     * this interface was discussed with AI for assistance in testing.
+     */
+    interface TradeViewPort {
+        /**
+         * Switch the order panel between buy and sell mode.
+         *
+         * @param isBuyMode true for buy mode, false for sell mode
+         */
+        void updateOrderPanelMode(boolean isBuyMode);
+
+        /**
+         * Limit the maximum selectable quantity in the UI.
+         *
+         * @param maxQuantity maximum allowed quantity
+         */
+        void setMaxQuantity(int maxQuantity);
+
+        /**
+         * Read the quantity currently entered by the user.
+         *
+         * @return the requested quantity, may be null if not set
+         */
+        BigDecimal getQuantity();
+
+        /**
+         * Return the share currently selected for selling.
+         *
+         * @return selected Share or null if none selected
+         */
+        Share getSelectedShare();
+
+        /**
+         * Show shares available for sale and register a callback invoked on selection change.
+         *
+         * @param shares list of shares to display
+         * @param onSelectionChanged callback to invoke when selection changes
+         */
+        void showSharesForSale(List<Share> shares, Runnable onSelectionChanged);
+
+        /**
+         * Update the watchlist toggle to reflect whether the stock is in the player's watchlist.
+         *
+         * @param inWatchlist true if stock is in watchlist
+         */
+        void updateWatchlistButton(boolean inWatchlist);
+
+        /**
+         * Update the order preview panel with calculated numbers.
+         *
+         * @param gross      gross amount
+         * @param commission commission cost
+         * @param taxes      taxes applied
+         * @param total      total amount
+         */
+        void updateOrderPreview(
+            BigDecimal gross,
+            BigDecimal commission,
+            BigDecimal taxes,
+            BigDecimal total);
+
+        /**
+         * Show an error message to the user.
+         *
+         * @param message error text
+         */
+        void showError(String message);
+
+        /**
+         * Update displayed current price.
+         *
+         * @param price current price
+         */
+        void updateCurrentPrice(BigDecimal price);
+
+        /**
+         * Update displayed player money.
+         *
+         * @param money player's available money
+         */
+        void updateMoney(BigDecimal money);
+
+        /**
+         * Update the price chart with a sequence of historical prices.
+         *
+         * @param prices historical prices (may be empty)
+         */
+        void updatePriceChart(List<BigDecimal> prices);
+
+        /**
+         * Update how many units the player owns of the selected stock.
+         *
+         * @param quantity owned quantity
+         */
+        void updateOwnedQuantity(BigDecimal quantity);
+
+        /**
+         * Show a transaction receipt in the UI.
+         *
+         * @param transaction the completed transaction to display
+         */
+        void showReceipt(Transaction transaction);
+    }
+
+    /**
+     * Adapter for the trade view, implementing the TradeViewPort interface.
+     */
+    private record TradeViewAdapter(TradeView delegate) implements TradeViewPort {
+
+        /**
+         * Update the order panel mode (buy/sell).
+         *
+         * @param isBuyMode true for buy mode, false for sell mode
+         */
+        @Override
+        public void updateOrderPanelMode(final boolean isBuyMode) {
+            delegate.updateOrderPanelMode(isBuyMode);
+        }
+
+        /**
+         * Set the maximum selectable quantity in the UI.
+         *
+         * @param maxQuantity maximum allowed quantity
+         */
+        @Override
+        public void setMaxQuantity(final int maxQuantity) {
+            delegate.setMaxQuantity(maxQuantity);
+        }
+
+        /**
+         * Read the quantity currently entered by the user.
+         *
+         * @return the requested quantity, may be null if not set
+         */
+        @Override
+        public BigDecimal getQuantity() {
+            return delegate.getQuantity();
+        }
+
+        /**
+         * Get the currently selected share.
+         *
+         * @return the selected Share or null if none selected
+         */
+        @Override
+        public Share getSelectedShare() {
+            return delegate.getSelectedShare();
+        }
+
+        /**
+         * Show available shares for sale.
+         *
+         * @param shares            list of shares to display
+         * @param onSelectionChanged callback to invoke when selection changes
+         */
+        @Override
+        public void showSharesForSale(
+                final List<Share> shares,
+                final Runnable onSelectionChanged) {
+            delegate.showSharesForSale(shares, onSelectionChanged);
+        }
+
+        /**
+         * Update the watchlist button state.
+         *
+         * @param inWatchlist true if the share is in the watchlist, false otherwise
+         */
+        @Override
+        public void updateWatchlistButton(final boolean inWatchlist) {
+            delegate.updateWatchlistButton(inWatchlist);
+        }
+
+        /**
+         * Update the order preview with the latest values.
+         *
+         * @param gross      gross amount
+         * @param commission commission amount
+         * @param taxes      taxes amount
+         * @param total      total amount
+         */
+        @Override
+        public void updateOrderPreview(
+                final BigDecimal gross,
+                final BigDecimal commission,
+                final BigDecimal taxes,
+                final BigDecimal total) {
+            delegate.updateOrderPreview(gross, commission, taxes, total);
+        }
+
+        /**
+         * Show an error message in the UI.
+         *
+         * @param message the error message to display
+         */
+        @Override
+        public void showError(final String message) {
+            delegate.showError(message);
+        }
+
+        /**
+         * Update the current price display.
+         *
+         * @param price the current price to display
+         */
+        @Override
+        public void updateCurrentPrice(final BigDecimal price) {
+            delegate.updateCurrentPrice(price);
+        }
+
+        /**
+         * Update the user's available money display.
+         *
+         * @param money the available money to display
+         */
+        @Override
+        public void updateMoney(final BigDecimal money) {
+            delegate.updateMoney(money);
+        }
+
+        /**
+         * Update the price chart with the latest price data.
+         *
+         * @param prices the list of prices to display
+         */
+        @Override
+        public void updatePriceChart(final List<BigDecimal> prices) {
+            delegate.updatePriceChart(prices);
+        }
+
+        /**
+         * Update the user's owned quantity display.
+         *
+         * @param quantity the owned quantity to display
+         */
+        @Override
+        public void updateOwnedQuantity(final BigDecimal quantity) {
+            delegate.updateOwnedQuantity(quantity);
+        }
+
+        /**
+         * Show the receipt for a completed transaction.
+         *
+         * @param transaction the completed transaction
+         */
+        @Override
+        public void showReceipt(final Transaction transaction) {
+            delegate.showReceipt(transaction);
+        }
     }
 }
