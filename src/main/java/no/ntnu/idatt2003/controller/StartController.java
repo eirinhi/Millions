@@ -74,7 +74,7 @@ public class StartController {
         for (File file : GameFileHandler.getSavedGames()) {
             try {
                 saves.add(handler.readSave(file));
-            } catch (GameSaveException e) {
+            } catch (GameSaveException _) {
                 // skip corrupted files
             }
         }
@@ -174,10 +174,9 @@ public class StartController {
      * @return          {@code true} if all inputs are valid, {@code false} otherwise
      */
     public static boolean validateInput(String name, int capital, File stockFile) {
-        if (name == null || name.isBlank()) return false;
-        if (capital < 1000 || capital > 100000) return false;
-        if (stockFile == null) return false;
-        return true;
+        return name != null && !name.isBlank()
+                && capital >= 1000 && capital <= 100000
+                && stockFile != null;
     }
 
     /**
@@ -202,8 +201,8 @@ public class StartController {
         try {
             FileHandler<List<Stock>> handler = new StockFileHandler();
             return handler.readFromFile(file.getAbsolutePath());
-        } catch (Exception e) {
-            return null;
+        } catch (Exception _) {
+            return List.of();
         }
     }
 
