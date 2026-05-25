@@ -1,8 +1,6 @@
 package no.ntnu.idatt2003.controller;
  
 import java.io.File;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
@@ -137,72 +135,40 @@ public class MainViewController implements Observer {
         mainView.updateMoney(player.getMoney());
 
         String rank = player.getStatus();
-        int weeksTraded = player.getTransactionArchive().countDistinctWeeks();
-        double gainPercent = calculateGainPercent();
- 
+
         String stars;
         String goal1Text;
-        boolean goal1Met;
         String goal2Text;
-        boolean goal2Met;
- 
+
         switch (rank) {
             case "Speculator" -> {
                 stars = "★ ★ ★";
                 goal1Text = "Traded for at least 20 weeks";
-                goal1Met = true;
                 goal2Text = "Gained 100% net worth";
-                goal2Met = true;
             }
             case "Investor" -> {
                 stars = "★ ★ ☆";
                 goal1Text = "Traded for at least 20 weeks";
-                goal1Met = weeksTraded >= 20;
                 goal2Text = "Gained 100% net worth";
-                goal2Met = gainPercent >= 100;
             }
             default -> {
                 stars = "★ ☆ ☆";
                 goal1Text = "Traded for at least 10 weeks";
-                goal1Met = weeksTraded >= 10;
                 goal2Text = "Gained 20% net worth";
-                goal2Met = gainPercent >= 20;
             }
         }
 
         mainView.updateStatusDisplay(
-            rank, 
-            stars, 
-            goal1Text, 
-            goal1Met, 
-            goal2Text, 
-            goal2Met);
+            rank,
+            stars,
+            goal1Text,
+            player.isGoalTradingMet(),
+            goal2Text,
+            player.isGoalGainMet());
 
         if (mainView.getCenter() instanceof WatchlistView watchlistView) {
             watchlistView.update(getWatchedStocks());
         }
-    }
-
-   /**
-     * Calculates the player's net worth gain as a percentage
-     * of their starting money.
-     *
-     * <p>This includes both available money and current portfolio value.</p>
-     *
-     * @return gain percentage, or {@code 0.0} if starting money is zero
-     */
-    private double calculateGainPercent() {
-        BigDecimal starting = player.getStartingMoney();
-
-        if (starting.compareTo(BigDecimal.ZERO) > 0) {
-            BigDecimal diff = player.getNetWorth().subtract(starting);
-
-            return diff.multiply(new BigDecimal("100"))
-                    .divide(starting, 6, RoundingMode.HALF_UP)
-                    .doubleValue();
-        }
-
-        return 0.0;
     }
 
     /**

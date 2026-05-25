@@ -219,6 +219,48 @@ public class Player {
   }
 
   /**
+   * Returns the player's gain percentage relative to starting capital.
+   *
+   * @return gain as a percentage, or 0.0 if starting money is zero
+   */
+  public double getGainPercent() {
+    if (startingMoney.compareTo(BigDecimal.ZERO) <= 0) {
+      return 0.0;
+    }
+    BigDecimal diff = getNetWorth().subtract(startingMoney);
+    return diff.multiply(new BigDecimal("100"))
+        .divide(startingMoney, 6, RoundingMode.HALF_UP)
+        .doubleValue();
+  }
+
+  /**
+   * Returns whether the trading-weeks goal for the next rank is met.
+   *
+   * @return true if the trading goal is met
+   */
+  public boolean isGoalTradingMet() {
+    int weeks = transactionArchive.countDistinctWeeks();
+    return switch (getStatus()) {
+      case "Speculator" -> true;
+      case "Investor" -> weeks >= 20;
+      default -> weeks >= 10;
+    };
+  }
+
+  /**
+   * Returns whether the gain goal for the next rank is met.
+   *
+   * @return true if the gain goal is met
+   */
+  public boolean isGoalGainMet() {
+    return switch (getStatus()) {
+      case "Speculator" -> true;
+      case "Investor" -> getGainPercent() >= 100;
+      default -> getGainPercent() >= 20;
+    };
+  }
+
+  /**
    * Returns the player's trading status.
    *
    * The status levels are:
