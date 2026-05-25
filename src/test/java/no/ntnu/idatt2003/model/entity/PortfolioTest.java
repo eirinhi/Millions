@@ -2,6 +2,7 @@ package no.ntnu.idatt2003.model.entity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -71,7 +72,27 @@ class PortfolioTest {
     void testGetSharesBySymbol() {
         portfolio.addShare(share);
         assertEquals(List.of(share), portfolio.getShares(share.getStock().getSymbol()));
+        assertTrue(portfolio.getShares("MISSING").isEmpty());
         assertThrows(IllegalArgumentException.class, () -> portfolio.getShares(null));
+    }
+
+    @Test
+    void testGetQuantityOwned() {
+        portfolio.addShare(share);
+        Share extraShare = new Share(stock, new BigDecimal("5"), purchasePrice);
+        portfolio.addShare(extraShare);
+
+        assertEquals(new BigDecimal("15"), portfolio.getQuantityOwned(stock));
+        assertEquals(BigDecimal.ZERO, portfolio.getQuantityOwned(null));
+    }
+
+    @Test
+    void testGetOwnedShare() {
+        portfolio.addShare(share);
+        Stock otherStock = new Stock("OTHER", "Other Company", price);
+
+        assertEquals(share, portfolio.getOwnedShare(stock));
+        assertNull(portfolio.getOwnedShare(otherStock));
     }
 
     @Test

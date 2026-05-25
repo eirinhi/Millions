@@ -18,7 +18,7 @@ public class GameLoadResult {
     /**
      * Creates a new GameLoadResult.
      *
-     * @param player the reconstructed player
+     * @param player   the reconstructed player
      * @param exchange the reconstructed exchange
      */
     public GameLoadResult(final Player player, final Exchange exchange) {

@@ -139,7 +139,7 @@ public class TransactionReceiptDialog extends Dialog<ButtonType> {
 
         addDetailRow(detailGrid, 0, "Week", String.valueOf(r.week()));
         addDetailRow(detailGrid, 1, "Quantity", r.quantity() + " shares");
-        addDetailRow(detailGrid, 2, "Purchase Price", r.price() + " NOK");
+        addDetailRow(detailGrid, 2, "Purchase Price", r.price() + " $");
 
         GridPane financialsGrid = new GridPane();
         financialsGrid.setVgap(GRID_VGAP);
@@ -153,22 +153,22 @@ public class TransactionReceiptDialog extends Dialog<ButtonType> {
 
         addFinancialRow(
             financialsGrid, 0, "Gross",
-            BigDecimal.valueOf(r.gross()) + " NOK"
+            BigDecimal.valueOf(r.gross()) + " $"
         );
         addFinancialRow(
             financialsGrid, 1, "Commission",
-            BigDecimal.valueOf(r.commission()) + " NOK"
+            BigDecimal.valueOf(r.commission()) + " $"
         );
         addFinancialRow(
             financialsGrid, 2, "Taxes",
-            BigDecimal.valueOf(r.tax()) + " NOK"
+            BigDecimal.valueOf(r.tax()) + " $"
         );
 
         Label totalTitle = new Label("Total");
         totalTitle.getStyleClass().add("receipt-total-title");
 
         Label totalValue = new Label(
-            BigDecimal.valueOf(r.total()) + " NOK"
+            BigDecimal.valueOf(r.total()) + " $"
         );
         totalValue.getStyleClass().add("receipt-total-value");
         Region totalSpacer = new Region();

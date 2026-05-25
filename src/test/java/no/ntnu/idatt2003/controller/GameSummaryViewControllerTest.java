@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GameSummaryViewControllerTest {
@@ -67,6 +68,20 @@ class GameSummaryViewControllerTest {
         GameSummaryViewController controller =
             new GameSummaryViewController(exchange, player);
         assertTrue(controller.isReturnPositive());
+    }
+
+    @Test
+    void gainAndReturnAreNegativeWhenPortfolioLosesValue() {
+        exchange.buy("S1", BigDecimal.valueOf(10), player);
+        exchange.getStock("S1").addNewSalesPrice(BigDecimal.valueOf(50));
+
+        GameSummaryViewController controller =
+            new GameSummaryViewController(exchange, player);
+
+        assertEquals(new BigDecimal("-1012.50"), controller.getGain());
+        assertEquals(new BigDecimal("-10.13"), controller.getReturnPct());
+        assertFalse(controller.isGainPositive());
+        assertFalse(controller.isReturnPositive());
     }
 
 }

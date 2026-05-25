@@ -73,10 +73,10 @@ public class PortfolioView extends VBox {
     private final Label performanceValue = new Label("--");
 
     /** Label showing total portfolio equity. */
-    private final Label equityValue = new Label("-- NOK");
+    private final Label equityValue = new Label("-- $");
 
     /** Label showing available cash balance. */
-    private final Label moneyValue = new Label("-- NOK");
+    private final Label moneyValue = new Label("-- $");
 
     /** Historical net worth data points for the growth chart. */
     private final List<BigDecimal> chartData = new ArrayList<>();

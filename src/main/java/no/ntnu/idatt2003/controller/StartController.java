@@ -2,6 +2,7 @@ package no.ntnu.idatt2003.controller;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import javafx.scene.Scene;
@@ -10,6 +11,7 @@ import javafx.stage.Stage;
 import javafx.scene.control.Alert;
 import no.ntnu.idatt2003.model.entity.Player;
 import no.ntnu.idatt2003.model.entity.Stock;
+import no.ntnu.idatt2003.model.io.FileHandler;
 import no.ntnu.idatt2003.model.io.GameFileHandler;
 import no.ntnu.idatt2003.model.io.GameLoadResult;
 import no.ntnu.idatt2003.model.io.GameSave;
@@ -49,6 +51,7 @@ public class StartController {
         startView.setSelectFileAction(this::onSelectFile);
         startView.setStartAction(this::onStartGame);
         startView.setLoadAction(this::onLoadGame);
+        startView.populateSaveTable(loadSavedGames());
     }
 
     /**
@@ -58,6 +61,24 @@ public class StartController {
      */
     public Scene getScene() {
         return startView.getScene();
+    }
+
+    /**
+     * Loads all valid saved games from disk.
+     *
+     * @return list of GameSave metadata, skipping corrupted files
+     */
+    private List<GameSave> loadSavedGames() {
+        GameFileHandler handler = new GameFileHandler();
+        List<GameSave> saves = new ArrayList<>();
+        for (File file : GameFileHandler.getSavedGames()) {
+            try {
+                saves.add(handler.readSave(file));
+            } catch (GameSaveException e) {
+                // skip corrupted files
+            }
+        }
+        return saves;
     }
 
     /**
@@ -122,7 +143,7 @@ public class StartController {
                 .findFirst()
                 .orElseThrow();
 
-            GameLoadResult result = GameFileHandler.loadGame(file);
+            GameLoadResult result = new GameFileHandler().loadGame(file);
 
             MainViewController controller = new MainViewController(
                 result.getExchange(),
@@ -147,10 +168,10 @@ public class StartController {
      * Validates the player's input on the start screen.
      * Shows an error dialog if any field is invalid.
      *
-     * @param name the player name entered by the user
-     * @param capital the starting capital entered by the user
+     * @param name      the player name entered by the user
+     * @param capital   the starting capital entered by the user
      * @param stockFile the stock data file selected by the user
-     * @return {@code true} if all inputs are valid, {@code false} otherwise
+     * @return          {@code true} if all inputs are valid, {@code false} otherwise
      */
     public static boolean validateInput(String name, int capital, File stockFile) {
         if (name == null || name.isBlank()) return false;
@@ -175,11 +196,12 @@ public class StartController {
      * Shows an error dialog and returns {@code null} if the file cannot be read.
      *
      * @param file the stock data file to read
-     * @return a list of stocks, or {@code null} if loading failed
+     * @return      a list of stocks, or {@code null} if loading failed
      */
     public static List<Stock> loadStocks(File file) {
         try {
-            return StockFileHandler.readStocksFromFile(file.getAbsolutePath());
+            FileHandler<List<Stock>> handler = new StockFileHandler();
+            return handler.readFromFile(file.getAbsolutePath());
         } catch (Exception e) {
             return null;
         }
@@ -189,7 +211,7 @@ public class StartController {
      * Creates a new {@link Exchange} with the given list of stocks.
      *
      * @param stocks the list of stocks available on the exchange
-     * @return a new {@link Exchange} instance
+     * @return       a new {@link Exchange} instance
      */
     public static Exchange createExchange(List<Stock> stocks) {
         return new Exchange("Millions Exchange", stocks);
@@ -198,10 +220,10 @@ public class StartController {
     /**
      * Creates the main game scene from start-screen input.
      *
-     * @param name player name
-     * @param capital starting capital
+     * @param name      player name
+     * @param capital   starting capital
      * @param stockFile selected stock file
-     * @return the main game scene, or {@code null} if input/file is invalid
+     * @return          the main game scene, or {@code null} if input/file is invalid
      */
     public static Scene createMainScene(String name, int capital, File stockFile) {
         if (!validateInput(name, capital, stockFile)) {

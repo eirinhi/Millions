@@ -69,12 +69,13 @@ public class StatusComponent extends VBox {
 
     /**
      * Updates the status display with rank, stars, and goal information.
-     * @param rank the player's current rank
-     * @param stars the player's current star rating
+     * 
+     * @param rank      the player's current rank
+     * @param stars     the player's current star rating
      * @param goal1Text the description of the first goal
-     * @param goal1Met whether the first goal has been met
+     * @param goal1Met  whether the first goal has been met
      * @param goal2Text the description of the second goal
-     * @param goal2Met whether the second goal has been met
+     * @param goal2Met  whether the second goal has been met
      */
     public void update(
         final String rank, final String stars,

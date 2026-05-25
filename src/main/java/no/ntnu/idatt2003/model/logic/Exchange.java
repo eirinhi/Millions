@@ -31,16 +31,13 @@ public class Exchange extends Subject {
     /** The random number generator for price changes. */
     private final Random random;
 
-    /** The maximum percentage change in price for a stock. */
-    private static final double MAX_PRICE_CHANGE_PERCENT = 0.1;
-
-    /** The scale for random price changes. */
-    private static final double RANDOM_SCALE = 2.0;
+    /** The weekly price volatility. */
+    private static final double PRICE_VOLATILITY = 0.03;
 
     /**
      * Creates a new exchange with the given name and list of stocks.
      *
-     * @param name the name of the exchange
+     * @param name   the name of the exchange
      * @param stocks the list of stocks available on the exchange
      * @throws IllegalArgumentException if stock/name is null or blank
      */
@@ -123,16 +120,25 @@ public class Exchange extends Subject {
     /**
      * Allows a player to buy shares of a stock on the exchange.
      *
-     * @param symbol the symbol of the stock to buy
-     * @param quantity the quantity of shares to buy
-     * @param player the player making the purchase
+     * @param symbol    the symbol of the stock to buy
+     * @param quantity  the quantity of shares to buy
+     * @param player    the player making the purchase
      * @return a Transaction representing the purchase
-     * @throws IllegalArgumentException if the stock symbol is not found
+     * @throws IllegalArgumentException if symbol is null/blank, quantity is null or non-positive,
+     *     player is null, or the stock is not found
      */
     public Transaction buy(final String symbol,
                            final BigDecimal quantity,
                            final Player player) {
-
+        if (symbol == null || symbol.isBlank()) {
+            throw new IllegalArgumentException("Symbol cannot be null or blank");
+        }
+        if (quantity == null || quantity.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Quantity must be positive");
+        }
+        if (player == null) {
+            throw new IllegalArgumentException("Player cannot be null");
+        }
         if (!stockMap.containsKey(symbol)) {
             throw new IllegalArgumentException("Stock not found");
         }
@@ -154,11 +160,18 @@ public class Exchange extends Subject {
     /**
      * Allows a player to sell shares of a stock on the exchange.
      *
-     * @param share the share being sold
-     * @param player the player making the sale
+     * @param share   the share being sold
+     * @param player  the player making the sale
      * @return a Transaction representing the sale
+     * @throws IllegalArgumentException if share or player is null
      */
     public Transaction sell(final Share share, final Player player) {
+        if (share == null) {
+            throw new IllegalArgumentException("Share cannot be null");
+        }
+        if (player == null) {
+            throw new IllegalArgumentException("Player cannot be null");
+        }
         try {
             Transaction transaction = TransactionFactory.get("sale", share, week);
             transaction.commit(player);
@@ -176,8 +189,12 @@ public class Exchange extends Subject {
      *
      * @param player the player selling all their shares
      * @return the list of transactions from selling all shares
+     * @throws IllegalArgumentException if player is null
      */
     public List<Transaction> sellAll(final Player player) {
+        if (player == null) {
+            throw new IllegalArgumentException("Player cannot be null");
+        }
         List<Share> shares = new ArrayList<>(player.getPortfolio().getShares());
         List<Transaction> transactions = new ArrayList<>();
         for (Share share : shares) {
@@ -193,10 +210,7 @@ public class Exchange extends Subject {
         for (Stock stock : stockMap.values()) {
             BigDecimal currentPrice = stock.getSalesPrice();
 
-            double changePercent = (random.nextDouble()
-                                    * RANDOM_SCALE
-                                    * MAX_PRICE_CHANGE_PERCENT)
-                                    - MAX_PRICE_CHANGE_PERCENT;
+            double changePercent = random.nextGaussian() * PRICE_VOLATILITY + 0.001;
 
             BigDecimal newPrice = currentPrice
                     .add(currentPrice.multiply(
@@ -262,15 +276,21 @@ public class Exchange extends Subject {
      * Returns stocks filtered by search term and price range.
      *
      * @param searchTerm matches against symbol or company name
-     * @param minPrice minimum sales price
-     * @param maxPrice maximum sales price
+     * @param minPrice   minimum sales price
+     * @param maxPrice   maximum sales price
      * @return filtered list of stocks
+     * @throws IllegalArgumentException if minPrice or maxPrice is null
      */
     public List<Stock> getFilteredStocks(
             final String searchTerm,
             final BigDecimal minPrice,
             final BigDecimal maxPrice) {
-
+        if (minPrice == null) {
+            throw new IllegalArgumentException("Minimum price cannot be null");
+        }
+        if (maxPrice == null) {
+            throw new IllegalArgumentException("Maximum price cannot be null");
+        }
         return stockMap.values().stream()
             .filter(s -> searchTerm == null || searchTerm.isBlank()
                 || s.getSymbol().toLowerCase().contains(searchTerm)
@@ -285,9 +305,9 @@ public class Exchange extends Subject {
      * sorted by the given criteria.
      *
      * @param searchTerm matches against symbol or company name
-     * @param minPrice minimum sales price
-     * @param maxPrice maximum sales price
-     * @param sortBy sorting criteria: "priceAsc", "priceDesc", or "name"
+     * @param minPrice   minimum sales price
+     * @param maxPrice   maximum sales price
+     * @param sortBy     sorting criteria: "priceAsc", "priceDesc", or "name"
      * @return filtered and sorted list of stocks
      */
     public List<Stock> getFilteredAndSortedStocks(

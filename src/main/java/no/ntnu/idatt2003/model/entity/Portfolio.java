@@ -25,7 +25,7 @@ public class Portfolio {
      * Adds a share to the portfolio.
      *
      * @param share the share to add
-     * @return true if the share was added successfully, false otherwise
+     * @return      true if the share was added successfully, false otherwise
      */
     public boolean addShare(final Share share) {
         if (share == null || shares.contains(share)) {
@@ -38,7 +38,7 @@ public class Portfolio {
      * Removes a share from the portfolio.
      *
      * @param share the share to remove
-     * @return true if the share was removed successfully, false otherwise
+     * @return      true if the share was removed successfully, false otherwise
      */
     public boolean removeShare(final Share share) {
         if (share == null || !shares.contains(share)) {
@@ -60,8 +60,8 @@ public class Portfolio {
      * Returns the list of shares matching the given stock symbol.
      *
      * @param symbol the stock symbol to search for
-     * @return the list of shares matching the symbol
-     * @throws IllegalArgumentException if the symbol is null
+     * @return       the list of shares matching the symbol
+     * @throws       IllegalArgumentException if the symbol is null
      */
     public List<Share> getShares(final String symbol) {
         if (symbol == null) {
@@ -77,7 +77,7 @@ public class Portfolio {
      * Returns the quantity of the given stock owned by the player.
      *
      * @param stock the stock to check
-     * @return the quantity owned
+     * @return      the quantity owned
      */
     public BigDecimal getQuantityOwned(final Stock stock) {
         if (stock == null) {
@@ -94,7 +94,7 @@ public class Portfolio {
      * Returns the share owned by the player for the given stock.
      *
      * @param stock the stock to check
-     * @return the owned share, or null if not owned
+     * @return      the owned share, or null if not owned
      */
     public Share getOwnedShare(final Stock stock) {
         return shares.stream()
@@ -107,7 +107,7 @@ public class Portfolio {
      * Checks if the portfolio contains the given share.
      *
      * @param share the share to check for
-     * @return true if the share is in the portfolio, false otherwise
+     * @return      true if the share is in the portfolio, false otherwise
      */
     public boolean contains(final Share share) {
         return shares.contains(share);

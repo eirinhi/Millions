@@ -28,7 +28,8 @@ public class TopBarComponent extends HBox {
     /**
      * Creates a new TopBarComponent with the given player name
      * and initial week.
-     * @param name the name of the player to display in the header
+     * 
+     * @param name        the name of the player to display in the header
      * @param initialWeek the initial week number to display in the header
      */
     public TopBarComponent(final String name, final int initialWeek) {
@@ -51,6 +52,7 @@ public class TopBarComponent extends HBox {
 
     /**
      * Sets the action to perform when the "Advance" button is clicked.
+     * 
      * @param action the action to perform on click
      */
     public void setAdvanceAction(final Runnable action) {
@@ -62,6 +64,7 @@ public class TopBarComponent extends HBox {
 
     /**
      * Updates the week number displayed in the header.
+     * 
      * @param week the new week number to display
      */
     public void updateWeek(final int week) {
