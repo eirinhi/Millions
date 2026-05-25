@@ -298,6 +298,7 @@ class TradeViewControllerTest {
 
         @Override
         public void showReceipt(final Transaction transaction) {
+            // Show receipt details
         }
     }
 }

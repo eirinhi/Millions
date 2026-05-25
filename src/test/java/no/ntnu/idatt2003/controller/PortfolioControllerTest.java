@@ -66,7 +66,7 @@ class PortfolioControllerTest {
             (PortfolioController.MainViewPort) null,
             player,
             exchange,
-            stock -> {},
+            testStock -> {},
             viewFactory
         );
 
