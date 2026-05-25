@@ -7,10 +7,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import no.ntnu.idatt2003.model.entity.Player;
 import no.ntnu.idatt2003.model.entity.Portfolio;
@@ -26,6 +30,9 @@ import no.ntnu.idatt2003.model.logic.Exchange;
  * Handles saving and loading of game state to and from files using serialization.
  */
 public class GameFileHandler implements FileHandler<GameSave> {
+
+    private static final Logger LOGGER =
+        Logger.getLogger(GameFileHandler.class.getName());
 
     /** The directory where files are stored. */
     private static final String SAVES_DIR = "saves";
@@ -223,18 +230,19 @@ public class GameFileHandler implements FileHandler<GameSave> {
      * @return a list of .sav files
      */
     public static List<File> getSavedGames() {
-        File dir = new File(SAVES_DIR);
-        if (!dir.exists()) {
+        Path dir = Paths.get(SAVES_DIR);
+        if (!Files.exists(dir)) {
             return List.of();
         }
 
-        File[] files = dir.listFiles(
-            (d, name) -> name.endsWith(".sav")
-        );
-        if (files == null) {
+        try {
+            return Files.list(dir)
+                .filter(p -> p.toString().endsWith(".sav"))
+                .map(Path::toFile)
+                .toList();
+        } catch (IOException e) {
+            LOGGER.warning("Could not list save files: " + e.getMessage());
             return List.of();
         }
-
-        return List.of(files);
     }
 }

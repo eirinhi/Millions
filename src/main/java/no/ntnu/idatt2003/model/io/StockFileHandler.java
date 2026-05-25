@@ -9,6 +9,7 @@ import java.io.Reader;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import no.ntnu.idatt2003.model.entity.Stock;
 
@@ -22,6 +23,9 @@ import no.ntnu.idatt2003.model.entity.Stock;
  * skipped with an error message to stderr.
  */
 public class StockFileHandler implements FileHandler<List<Stock>> {
+
+    private static final Logger LOGGER =
+        Logger.getLogger(StockFileHandler.class.getName());
 
     /**
      * Reads stocks from a file.
@@ -58,7 +62,7 @@ public class StockFileHandler implements FileHandler<List<Stock>> {
 
                 String[] parts = line.split(",");
                 if (parts.length != 3) {
-                    System.err.println("Invalid line format, skipping line: " + line);
+                    LOGGER.warning("Invalid line format, skipping line: " + line);
                     continue;
                 }
 
@@ -68,7 +72,7 @@ public class StockFileHandler implements FileHandler<List<Stock>> {
                 try {
                     price = new BigDecimal(parts[2].trim());
                 } catch (NumberFormatException e) {
-                    System.err.println("Invalid price format, skipping line: " + line);
+                    LOGGER.warning("Invalid price format, skipping line: " + line);
                     continue;
                 }
 
