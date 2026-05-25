@@ -42,6 +42,12 @@ class TransactionFactoryTest {
   }
 
   @Test
+  void getNullTypeThrowsIllegalArgumentException() {
+    assertThrows(IllegalArgumentException.class,
+        () -> TransactionFactory.get(null, share, 1));
+  }
+
+  @Test
   void getNullShareThrowsIllegalArgumentException() {
     assertThrows(IllegalArgumentException.class,
         () -> TransactionFactory.get("purchase", null, 1));
