@@ -32,7 +32,9 @@ public class PortfolioFormatter {
      * Creates a new instance of PortfolioFormatter.
      * The service is stateless and can be reused across the application.
      */
-    public PortfolioFormatter() {}
+    public PortfolioFormatter() {
+        // Stateless service; no constructor initialization is required.
+    }
 
 
     /**
