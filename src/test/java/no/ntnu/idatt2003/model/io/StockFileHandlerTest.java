@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class StockFileHandlerTest {
     private Path tempFile;
-    private StockFileHandler handler;
+    private FileHandler<List<Stock>> handler;
 
     @BeforeEach
     void setUp() throws IOException {

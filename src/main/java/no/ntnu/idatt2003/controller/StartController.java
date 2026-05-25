@@ -10,6 +10,7 @@ import javafx.stage.Stage;
 import javafx.scene.control.Alert;
 import no.ntnu.idatt2003.model.entity.Player;
 import no.ntnu.idatt2003.model.entity.Stock;
+import no.ntnu.idatt2003.model.io.FileHandler;
 import no.ntnu.idatt2003.model.io.GameFileHandler;
 import no.ntnu.idatt2003.model.io.GameLoadResult;
 import no.ntnu.idatt2003.model.io.GameSave;
@@ -179,7 +180,8 @@ public class StartController {
      */
     public static List<Stock> loadStocks(File file) {
         try {
-            return new StockFileHandler().readFromFile(file.getAbsolutePath());
+            FileHandler<List<Stock>> handler = new StockFileHandler();
+            return handler.readFromFile(file.getAbsolutePath());
         } catch (Exception e) {
             return null;
         }

@@ -1,11 +1,11 @@
 package no.ntnu.idatt2003.model.io;
 
-import java.io.IOException;
+import no.ntnu.idatt2003.model.MillionsException;
 
 /**
  * Exception thrown when there is an error during game saving or loading.
  */
-public class GameSaveException extends IOException {
+public class GameSaveException extends MillionsException {
 
     /**
      * Creates a new GameSaveException with the given message and cause.
