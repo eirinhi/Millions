@@ -25,13 +25,54 @@ import no.ntnu.idatt2003.model.logic.Exchange;
 /**
  * Handles saving and loading of game state to and from files using serialization.
  */
-public class GameFileHandler {
+public class GameFileHandler implements FileHandler<GameSave> {
 
     /** The directory where files are stored. */
     private static final String SAVES_DIR = "saves";
 
     /** The formatter for timestamp in save file names. */
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+    private static final DateTimeFormatter FORMATTER =
+        DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+
+    /**
+     * Reads a {@link GameSave} from the file at the given path.
+     *
+     * @param filePath path to the save file
+     * @return the deserialized GameSave
+     * @throws GameSaveException if the file could not be read or is corrupted
+     */
+    @Override
+    public GameSave readFromFile(final String filePath) throws GameSaveException {
+        try (FileInputStream fis = new FileInputStream(filePath);
+            ObjectInputStream ois = new ObjectInputStream(fis)) {
+            return (GameSave) ois.readObject();
+        } catch (FileNotFoundException e) {
+            throw new GameSaveException("Save file not found: " + e.getMessage(), e);
+        } catch (ClassNotFoundException | IOException e) {
+            throw new GameSaveException("Could not read save file: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Serializes the given {@link GameSave} to the file at the given path.
+     *
+     * @param data the GameSave to write
+     * @param filePath path to the output file
+     * @throws GameSaveException if the file could not be written
+     */
+    @Override
+    public void writeToFile(final GameSave data, final String filePath) throws GameSaveException {
+        try (FileOutputStream fos = new FileOutputStream(filePath);
+            ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+            oos.writeObject(data);
+        } catch (FileNotFoundException e) {
+            throw new GameSaveException(
+                "Could not find save directory: " + e.getMessage(), e);
+        } catch (IOException e) {
+            throw new GameSaveException(
+                "Could not write save file: " + e.getMessage(), e);
+        }
+    }
 
     /**
      * Saves the current game state to a file in the saves/ directory.
@@ -41,7 +82,7 @@ public class GameFileHandler {
      * @param exchange      the current exchange
      * @throws GameSaveException if the file could not be written
      */
-    public static void saveGame(
+    public void saveGame(
         final String saveName,
         final Player player,
         final Exchange exchange
@@ -53,17 +94,15 @@ public class GameFileHandler {
 
         String timestamp = LocalDateTime.now().format(FORMATTER);
 
-        // Builds the list of stocks
         List<GameSave.StockSave> stocks = new ArrayList<>();
         for (Stock stock : exchange.getAllStocks()) {
-            stocks.add( new GameSave.StockSave(
+            stocks.add(new GameSave.StockSave(
                 stock.getSymbol(),
                 stock.getCompany(),
                 stock.getHistoricalPrices()
             ));
         }
 
-        // Builds the portfolio
         List<GameSave.ShareSave> portfolio = new ArrayList<>();
         for (Share share : player.getPortfolio().getShares()) {
             portfolio.add(new GameSave.ShareSave(
@@ -73,7 +112,6 @@ public class GameFileHandler {
             ));
         }
 
-        // Builds the list of transactions
         List<GameSave.TransactionSave> transactions = new ArrayList<>();
         for (Transaction t : player.getTransactionArchive().getAll()) {
             transactions.add(new GameSave.TransactionSave(
@@ -85,7 +123,6 @@ public class GameFileHandler {
             ));
         }
 
-        // Creates the GameSave object to be serialized
         GameSave save = new GameSave(
             saveName,
             timestamp,
@@ -104,18 +141,8 @@ public class GameFileHandler {
         filename = filename.replaceAll("[/:*?\"<>|]", "_");
         File file = new File(dir, filename);
 
-        try (FileOutputStream fos = new FileOutputStream(file);
-            ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-                oos.writeObject(save);
-            } catch (FileNotFoundException e) {
-                throw new GameSaveException(
-                    "Could not find save directory: " + e.getMessage(), e);
-            } catch (IOException e) {
-                throw new GameSaveException(
-                    "Could not write save file: " + e.getMessage(), e);
-        }
+        writeToFile(save, file.getAbsolutePath());
     }
-
 
     /**
      * Reads only the metadata from a save file without reconstructing the game.
@@ -125,19 +152,9 @@ public class GameFileHandler {
      * @return the GameSave object containing save metadata
      * @throws GameSaveException if the file could not be read or is corrupted
      */
-    public static GameSave readSave(final File file) throws GameSaveException {
-        try (FileInputStream fis = new FileInputStream(file);
-            ObjectInputStream ois = new ObjectInputStream(fis)) {
-                return (GameSave) ois.readObject();
-        } catch (FileNotFoundException e) {
-            throw new GameSaveException(
-                "Save file not found: " + e.getMessage(), e);
-        } catch (ClassNotFoundException | IOException e) {
-            throw new GameSaveException(
-                "Could not read save file: " + e.getMessage(), e);
-        }
+    public GameSave readSave(final File file) throws GameSaveException {
+        return readFromFile(file.getAbsolutePath());
     }
-
 
     /**
      * Loads a saved game state from file.
@@ -146,31 +163,17 @@ public class GameFileHandler {
      * @return a GameLoadResult containing the reconstructed player and exchange
      * @throws GameSaveException if the file could not be read or is corrupted
      */
-    public static GameLoadResult loadGame(final File file) throws GameSaveException {
-        GameSave save;
+    public GameLoadResult loadGame(final File file) throws GameSaveException {
+        GameSave save = readFromFile(file.getAbsolutePath());
 
-        try (FileInputStream fis = new FileInputStream(file);
-            ObjectInputStream ois = new ObjectInputStream(fis)) {
-                save = (GameSave) ois.readObject();
-        } catch (FileNotFoundException e) {
-            throw new GameSaveException(
-                "Save file not found: " + e.getMessage(), e);
-        } catch (ClassNotFoundException | IOException e) {
-            throw new GameSaveException(
-                "Could not read save file: " + e.getMessage(), e);
-        }
-
-        // Reconstructs the stocks
         List<Stock> stocks = new ArrayList<>();
         for (GameSave.StockSave s : save.getStocks()) {
             stocks.add(new Stock(s.getSymbol(), s.getCompany(), s.getPrices()));
         }
 
-        // Reconstructs the exchange
         Exchange exchange = new Exchange("Millions Exchange", stocks);
         exchange.setWeek(save.getWeek());
 
-        // Reconstructs the portfolio
         Portfolio portfolio = new Portfolio();
         for (GameSave.ShareSave sh : save.getPortfolio()) {
             Stock stock = exchange.getStock(sh.getSymbol());
@@ -181,7 +184,6 @@ public class GameFileHandler {
             }
         }
 
-        // Reconstructs the transaction archive
         TransactionArchive transactionArchive = new TransactionArchive();
         for (GameSave.TransactionSave ts : save.getTransactions()) {
             Stock stock = exchange.getStock(ts.getSymbol());
@@ -194,7 +196,6 @@ public class GameFileHandler {
             }
         }
 
-        // Reconstructs the player
         Player player = new Player(
             save.getPlayerName(),
             save.getStartingBalance(),
@@ -203,7 +204,6 @@ public class GameFileHandler {
             transactionArchive
         );
 
-        // Restores net worth history
         if (save.getNetWorthHistory() != null) {
             save.getNetWorthHistory().forEach(player::addNetWorthRecord);
         }
@@ -216,7 +216,6 @@ public class GameFileHandler {
 
         return new GameLoadResult(player, exchange);
     }
-
 
     /**
      * Returns all saved games found in the saves/ directory.

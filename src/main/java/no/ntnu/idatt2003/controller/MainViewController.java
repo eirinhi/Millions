@@ -225,7 +225,7 @@ public class MainViewController implements Observer {
      */
     private void performSave(final String name) {
         try {
-            GameFileHandler.saveGame(name, player, exchange);
+            new GameFileHandler().saveGame(name, player, exchange);
             Stage stage = (Stage) mainView.getScene().getWindow();
             stage.setScene(new StartController(stage).getScene());
         } catch (GameSaveException e) {

@@ -122,7 +122,7 @@ public class StartController {
                 .findFirst()
                 .orElseThrow();
 
-            GameLoadResult result = GameFileHandler.loadGame(file);
+            GameLoadResult result = new GameFileHandler().loadGame(file);
 
             MainViewController controller = new MainViewController(
                 result.getExchange(),
@@ -179,7 +179,7 @@ public class StartController {
      */
     public static List<Stock> loadStocks(File file) {
         try {
-            return StockFileHandler.readStocksFromFile(file.getAbsolutePath());
+            return new StockFileHandler().readFromFile(file.getAbsolutePath());
         } catch (Exception e) {
             return null;
         }

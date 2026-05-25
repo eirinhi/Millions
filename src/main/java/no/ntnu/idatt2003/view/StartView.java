@@ -142,7 +142,7 @@ public class StartView {
 
         for (File file : GameFileHandler.getSavedGames()) {
             try {
-                loadTable.getItems().add(GameFileHandler.readSave(file));
+                loadTable.getItems().add(new GameFileHandler().readSave(file));
             } catch (GameSaveException e) {
                 // skip corrupted files
             }
