@@ -46,10 +46,14 @@ public class GameFileHandler implements FileHandler<GameSave> {
      *
      * @param filePath path to the save file
      * @return the deserialized GameSave
+     * @throws IllegalArgumentException if filePath is null or blank
      * @throws GameSaveException if the file could not be read or is corrupted
      */
     @Override
     public GameSave readFromFile(final String filePath) throws GameSaveException {
+        if (filePath == null || filePath.isBlank()) {
+            throw new IllegalArgumentException("File path cannot be null or blank");
+        }
         try (FileInputStream fis = new FileInputStream(filePath);
             ObjectInputStream ois = new ObjectInputStream(fis)) {
             return (GameSave) ois.readObject();
@@ -65,10 +69,17 @@ public class GameFileHandler implements FileHandler<GameSave> {
      *
      * @param data the GameSave to write
      * @param filePath path to the output file
+     * @throws IllegalArgumentException if data or filePath is null, or filePath is blank
      * @throws GameSaveException if the file could not be written
      */
     @Override
     public void writeToFile(final GameSave data, final String filePath) throws GameSaveException {
+        if (data == null) {
+            throw new IllegalArgumentException("GameSave data cannot be null");
+        }
+        if (filePath == null || filePath.isBlank()) {
+            throw new IllegalArgumentException("File path cannot be null or blank");
+        }
         try (FileOutputStream fos = new FileOutputStream(filePath);
             ObjectOutputStream oos = new ObjectOutputStream(fos)) {
             oos.writeObject(data);
@@ -84,9 +95,10 @@ public class GameFileHandler implements FileHandler<GameSave> {
     /**
      * Saves the current game state to a file in the saves/ directory.
      *
-     * @param saveName      the name given to the save file by the user
-     * @param player        the player whose state is being saved
-     * @param exchange      the current exchange
+     * @param saveName the name given to the save file by the user
+     * @param player the player whose state is being saved
+     * @param exchange the current exchange
+     * @throws IllegalArgumentException if saveName is null/blank, or player/exchange is null
      * @throws GameSaveException if the file could not be written
      */
     public void saveGame(
@@ -94,6 +106,15 @@ public class GameFileHandler implements FileHandler<GameSave> {
         final Player player,
         final Exchange exchange
     ) throws GameSaveException {
+        if (saveName == null || saveName.isBlank()) {
+            throw new IllegalArgumentException("Save name cannot be null or blank");
+        }
+        if (player == null) {
+            throw new IllegalArgumentException("Player cannot be null");
+        }
+        if (exchange == null) {
+            throw new IllegalArgumentException("Exchange cannot be null");
+        }
         File dir = new File(SAVES_DIR);
         if (!dir.exists()) {
             dir.mkdirs();
@@ -130,19 +151,19 @@ public class GameFileHandler implements FileHandler<GameSave> {
             ));
         }
 
-        GameSave save = new GameSave(
-            saveName,
-            timestamp,
-            player.getName(),
-            player.getMoney(),
-            player.getStartingMoney(),
-            exchange.getWeek(),
-            player.getNetWorthHistory(),
-            player.getWatchlistSymbols(),
-            stocks,
-            portfolio,
-            transactions
-        );
+        GameSave save = new GameSave.Builder()
+            .saveName(saveName)
+            .savedAt(timestamp)
+            .playerName(player.getName())
+            .balance(player.getMoney())
+            .startingBalance(player.getStartingMoney())
+            .week(exchange.getWeek())
+            .netWorthHistory(player.getNetWorthHistory())
+            .watchlistSymbols(player.getWatchlistSymbols())
+            .stocks(stocks)
+            .portfolio(portfolio)
+            .transactions(transactions)
+            .build();
 
         String filename = saveName + " (" + timestamp + ").sav";
         filename = filename.replaceAll("[/:*?\"<>|]", "_");
@@ -157,9 +178,13 @@ public class GameFileHandler implements FileHandler<GameSave> {
      *
      * @param file the save file to read
      * @return the GameSave object containing save metadata
+     * @throws IllegalArgumentException if file is null
      * @throws GameSaveException if the file could not be read or is corrupted
      */
     public GameSave readSave(final File file) throws GameSaveException {
+        if (file == null) {
+            throw new IllegalArgumentException("File cannot be null");
+        }
         return readFromFile(file.getAbsolutePath());
     }
 
@@ -168,9 +193,13 @@ public class GameFileHandler implements FileHandler<GameSave> {
      *
      * @param file the file to load the game state from
      * @return a GameLoadResult containing the reconstructed player and exchange
+     * @throws IllegalArgumentException if file is null
      * @throws GameSaveException if the file could not be read or is corrupted
      */
     public GameLoadResult loadGame(final File file) throws GameSaveException {
+        if (file == null) {
+            throw new IllegalArgumentException("File cannot be null");
+        }
         GameSave save = readFromFile(file.getAbsolutePath());
 
         List<Stock> stocks = new ArrayList<>();

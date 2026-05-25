@@ -124,12 +124,21 @@ public class Exchange extends Subject {
      * @param quantity  the quantity of shares to buy
      * @param player    the player making the purchase
      * @return a Transaction representing the purchase
-     * @throws IllegalArgumentException if the stock symbol is not found
+     * @throws IllegalArgumentException if symbol is null/blank, quantity is null or non-positive,
+     *     player is null, or the stock is not found
      */
     public Transaction buy(final String symbol,
                            final BigDecimal quantity,
                            final Player player) {
-
+        if (symbol == null || symbol.isBlank()) {
+            throw new IllegalArgumentException("Symbol cannot be null or blank");
+        }
+        if (quantity == null || quantity.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Quantity must be positive");
+        }
+        if (player == null) {
+            throw new IllegalArgumentException("Player cannot be null");
+        }
         if (!stockMap.containsKey(symbol)) {
             throw new IllegalArgumentException("Stock not found");
         }
@@ -154,8 +163,15 @@ public class Exchange extends Subject {
      * @param share   the share being sold
      * @param player  the player making the sale
      * @return a Transaction representing the sale
+     * @throws IllegalArgumentException if share or player is null
      */
     public Transaction sell(final Share share, final Player player) {
+        if (share == null) {
+            throw new IllegalArgumentException("Share cannot be null");
+        }
+        if (player == null) {
+            throw new IllegalArgumentException("Player cannot be null");
+        }
         try {
             Transaction transaction = TransactionFactory.get("sale", share, week);
             transaction.commit(player);
@@ -173,8 +189,12 @@ public class Exchange extends Subject {
      *
      * @param player the player selling all their shares
      * @return the list of transactions from selling all shares
+     * @throws IllegalArgumentException if player is null
      */
     public List<Transaction> sellAll(final Player player) {
+        if (player == null) {
+            throw new IllegalArgumentException("Player cannot be null");
+        }
         List<Share> shares = new ArrayList<>(player.getPortfolio().getShares());
         List<Transaction> transactions = new ArrayList<>();
         for (Share share : shares) {
@@ -259,12 +279,18 @@ public class Exchange extends Subject {
      * @param minPrice   minimum sales price
      * @param maxPrice   maximum sales price
      * @return filtered list of stocks
+     * @throws IllegalArgumentException if minPrice or maxPrice is null
      */
     public List<Stock> getFilteredStocks(
             final String searchTerm,
             final BigDecimal minPrice,
             final BigDecimal maxPrice) {
-
+        if (minPrice == null) {
+            throw new IllegalArgumentException("Minimum price cannot be null");
+        }
+        if (maxPrice == null) {
+            throw new IllegalArgumentException("Maximum price cannot be null");
+        }
         return stockMap.values().stream()
             .filter(s -> searchTerm == null || searchTerm.isBlank()
                 || s.getSymbol().toLowerCase().contains(searchTerm)
