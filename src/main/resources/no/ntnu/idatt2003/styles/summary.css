@@ -1,0 +1,101 @@
+/* Game Summary View */
+
+.game-summary-view {
+    -fx-background-color: -col-primary-soft;
+    -fx-padding: 150px 200px;
+}
+
+.achieved-status {
+    -fx-text-fill: gray;
+    -fx-font-weight: bold;
+    -fx-font-size: 18px;
+}
+
+.content-box {
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 0px 20px;
+    -fx-background-color: white;
+    -fx-border-color: -col-primary-muted;
+}
+
+.summary-box {
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 20px;
+    -fx-background-color: white;
+    -fx-border-color: -col-primary-muted;
+}
+
+.summary-value {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+}
+
+.status-label {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+/* Transaction Receipt */
+
+.receipt-header-symbol {
+    -fx-font-size: 13px;
+    -fx-text-fill: gray;
+    -fx-font-weight: bold;
+}
+
+.receipt-header-company {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -col-text-dark;
+}
+
+.receipt-badge {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 4 10;
+    -fx-background-radius: 20px;
+}
+
+.receipt-badge-buy {
+    -fx-background-color: -col-receipt-buy-bg;
+    -fx-text-fill: -col-positive;
+}
+
+.receipt-badge-sell {
+    -fx-background-color: -col-receipt-sell-bg;
+    -fx-text-fill: -col-negative;
+}
+
+.receipt-detail-title {
+    -fx-font-size: 13px;
+    -fx-text-fill: gray;
+}
+
+.receipt-detail-value {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -col-text-dark;
+}
+
+.receipt-row-title {
+    -fx-font-size: 14px;
+    -fx-text-fill: gray;
+}
+
+.receipt-row-value {
+    -fx-font-size: 14px;
+    -fx-text-fill: -col-text-dark;
+}
+
+.receipt-total-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.receipt-total-value {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -col-text-dark;
+}

@@ -28,7 +28,13 @@ public class MainView extends BorderPane {
      * @param initialWeek the week number shown on first render
      */
     public MainView(String playerName, BigDecimal money, int initialWeek) {
-        getStylesheets().add(getClass().getResource("/no/ntnu/idatt2003/styles.css").toExternalForm());
+        getStylesheets().addAll(
+            getClass().getResource("/no/ntnu/idatt2003/styles/variables.css").toExternalForm(),
+            getClass().getResource("/no/ntnu/idatt2003/styles/layout.css").toExternalForm(),
+            getClass().getResource("/no/ntnu/idatt2003/styles/exchange.css").toExternalForm(),
+            getClass().getResource("/no/ntnu/idatt2003/styles/trade.css").toExternalForm(),
+            getClass().getResource("/no/ntnu/idatt2003/styles/summary.css").toExternalForm()
+        );
         getStyleClass().add("app-view");
 
         topBar = new TopBarComponent(playerName, initialWeek);
@@ -62,6 +68,15 @@ public class MainView extends BorderPane {
      */
     public void setExchangeAction(Runnable action) {
         sideBar.setExchangeAction(action);
+    }
+
+    /**
+     * Sets the action triggered when the "Watchlist" button is clicked.
+     *
+     * @param action callback to run on click
+     */
+    public void setWatchlistAction(Runnable action) {
+        sideBar.setWatchlistAction(action);
     }
 
     /**
@@ -137,9 +152,7 @@ public class MainView extends BorderPane {
      */
     private Node createEndGameView() {
         VBox box = new VBox(10);
-        box.getStyleClass().add("end-game-view");
         Label title = new Label("Avslutningsside");
-        title.getStyleClass().add("end-game-view-title");
         Label info = new Label("Resultater kommer her. Implementer senere for å vise spillerens statistikk.");
         info.setWrapText(true);
         box.getChildren().addAll(title, info);

@@ -1,0 +1,76 @@
+/* Exchange / Main View */
+
+.sort-btn {
+    -fx-font-size: 12px;
+    -fx-background-color: -col-primary-light;
+    -fx-border-color: -col-primary-muted;
+    -fx-border-radius: 20px;
+    -fx-background-radius: 20px;
+    -fx-text-fill: -col-text-muted-pink;
+    -fx-padding: 5 14;
+}
+
+.sort-btn:hover {
+    -fx-background-color: -col-primary-soft;
+}
+
+/* Winners / Losers */
+
+.winners-box {
+    -fx-background-color: -col-primary-soft;
+    -fx-border-color: -col-primary-muted;
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 16px;
+    -fx-background-radius: 16px;
+    -fx-padding: 10 14;
+}
+
+.losers-box {
+    -fx-background-color: -col-primary-soft;
+    -fx-border-color: -col-primary-muted;
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 16px;
+    -fx-background-radius: 16px;
+    -fx-padding: 10 14;
+}
+
+.winners-title {
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -col-text-dark;
+    -fx-padding: 0 0 4 0;
+}
+
+.losers-title {
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -col-text-dark;
+    -fx-padding: 0 0 4 0;
+}
+
+/* Stock row */
+
+.stock-row {
+    -fx-background-color: white;
+    -fx-background-radius: 20px;
+    -fx-padding: 6 12;
+}
+
+.stock-row-name {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -col-text-dark;
+}
+
+.return-label {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.return-positive {
+    -fx-text-fill: -col-positive;
+}
+
+.return-negative {
+    -fx-text-fill: -col-negative;
+}

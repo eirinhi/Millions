@@ -1,14 +1,17 @@
 package no.ntnu.idatt2003.view.components;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import no.ntnu.idatt2003.controller.PortfolioFormatter.HoldingRow;
+import no.ntnu.idatt2003.view.SoundPlayer;
 
 /**
  * Constructs the holding table component, including title, header row,
@@ -19,11 +22,14 @@ import no.ntnu.idatt2003.controller.PortfolioFormatter.HoldingRow;
  */
 public class HoldingsTableComponent extends VBox {
 
-    private static final int[] COL_WIDTHS = {60, 140, 50, 120, 70};
+    private static final double[] COL_WIDTHS = {14, 32, 14, 14, 20, 20};
 
     private final VBox body = new VBox(2);
 
-    public HoldingsTableComponent() {
+    private final Consumer<String> onStockSelected;
+
+    public HoldingsTableComponent(final Consumer<String> onStockSelected) {
+        this.onStockSelected = onStockSelected;
         setSpacing(0);
 
         Label title = new Label("Holdings");
@@ -69,9 +75,10 @@ public class HoldingsTableComponent extends VBox {
         GridPane header = newGrid();
         addCell(header, "Symbol",  0, true);
         addCell(header, "Company", 1, true);
-        addCell(header, "Quantity", 2, true);
-        addCell(header, "Value",   3, true);
-        addCell(header, "Return",  4, true);
+        addCell(header, "Shares",  2, true);
+        addCell(header, "Stocks",  3, true);
+        addCell(header, "Value",   4, true);
+        addCell(header, "Return",  5, true);
 
         header.setStyle("-fx-border-color:#ccc; -fx-border-width:0 0 1 0;");
         header.setPadding(new Insets(0, 0, 4, 0));
@@ -92,8 +99,9 @@ public class HoldingsTableComponent extends VBox {
         GridPane grid = newGrid();
         addCell(grid, r.symbol(),   0, false);
         addCell(grid, r.company(),  1, false);
-        addCell(grid, Integer.toString(r.quantity()), 2, false);
-        addCell(grid, Double.toString(r.value()), 3, false);
+        addCell(grid, Integer.toString(r.shareCount()), 2, false);
+        addCell(grid, Integer.toString(r.quantity()), 3, false);
+        addCell(grid, String.format("%.2f", r.value()), 4, false);
 
         double pct = r.returnPct();
         boolean positive = pct >= 0;
@@ -106,11 +114,20 @@ public class HoldingsTableComponent extends VBox {
             retLabel.getStyleClass().add("negative-value");
         }
 
-        grid.add(retLabel, 4, 0);
+        grid.add(retLabel, 5, 0);
 
         HBox wrapper = new HBox(grid);
-        wrapper.setStyle("-fx-border-color:#eee; -fx-border-width:0 0 1 0;");
-        wrapper.setPadding(new Insets(4, 0, 4, 0));
+        HBox.setHgrow(grid, Priority.ALWAYS);
+        wrapper.setOnMouseEntered(e -> wrapper.setStyle(
+              "-fx-background-color: #fff5fa;"
+            + " -fx-background-radius: 8px;"
+            + " -fx-cursor: hand;"
+        ));
+        wrapper.setOnMouseExited(e -> wrapper.setStyle(""));
+        wrapper.setOnMouseClicked(e -> {
+            SoundPlayer.playClick();
+            onStockSelected.accept(r.symbol());
+        });
         return wrapper;
     }
 
@@ -125,8 +142,10 @@ public class HoldingsTableComponent extends VBox {
     private GridPane newGrid() {
         GridPane g = new GridPane();
         g.setHgap(12);
-        for (int w : COL_WIDTHS) {
+        g.setMaxWidth(Double.MAX_VALUE);
+        for (double w : COL_WIDTHS) {
             ColumnConstraints cc = new ColumnConstraints(w);
+            cc.setPercentWidth(w);
             g.getColumnConstraints().add(cc);
         }
         return g;

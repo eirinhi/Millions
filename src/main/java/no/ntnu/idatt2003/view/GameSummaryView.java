@@ -159,9 +159,12 @@ public class GameSummaryView {
         outer.getStyleClass().add("game-summary-view");
 
         scene = new Scene(outer, SCENE_WIDTH, SCENE_HEIGHT);
-        scene.getStylesheets().add(
-            getClass().getResource(
-                "/no/ntnu/idatt2003/styles.css").toExternalForm()
+        scene.getStylesheets().addAll(
+            getClass().getResource("/no/ntnu/idatt2003/styles/variables.css").toExternalForm(),
+            getClass().getResource("/no/ntnu/idatt2003/styles/layout.css").toExternalForm(),
+            getClass().getResource("/no/ntnu/idatt2003/styles/exchange.css").toExternalForm(),
+            getClass().getResource("/no/ntnu/idatt2003/styles/trade.css").toExternalForm(),
+            getClass().getResource("/no/ntnu/idatt2003/styles/summary.css").toExternalForm()
         );
 
         content.prefHeightProperty().bind(
@@ -189,7 +192,10 @@ public class GameSummaryView {
      * @param action action to run when the button is clicked
      */
     public void setMainMenuAction(Runnable action) {
-        mainMenuButton.setOnAction(e -> action.run());
+        mainMenuButton.setOnAction(e -> {
+            SoundPlayer.playClick();
+            action.run();
+        });
     }
 
     /**

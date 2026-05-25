@@ -3,15 +3,19 @@ package no.ntnu.idatt2003.controller;
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import no.ntnu.idatt2003.model.entity.Player;
+import no.ntnu.idatt2003.model.entity.Stock;
 import no.ntnu.idatt2003.model.io.GameFileHandler;
 import no.ntnu.idatt2003.model.io.GameSaveException;
 import no.ntnu.idatt2003.model.logic.Exchange;
+import no.ntnu.idatt2003.model.observer.Observer;
 import no.ntnu.idatt2003.view.ExchangeView;
 import no.ntnu.idatt2003.view.GameSummaryView;
 import no.ntnu.idatt2003.view.MainView;
+import no.ntnu.idatt2003.view.WatchlistView;
  
 /**
  * Controller for the main application view.
@@ -20,7 +24,7 @@ import no.ntnu.idatt2003.view.MainView;
  * {@link MainView}. Handles week progression, navigation actions, and
  * keeping the header and status display in sync with model state.
  */
-public class MainViewController {
+public class MainViewController implements Observer {
  
     private final Exchange exchange;
     private final Player player;
@@ -32,7 +36,6 @@ public class MainViewController {
     private final ExchangeView exchangeView;
 
     private final File saveFile;
-    private final String existingSaveName;
 
     /**
      * Creates the controller for a new game.
@@ -57,7 +60,6 @@ public class MainViewController {
         this.exchange = exchange;
         this.player = player;
         this.saveFile = saveFile;
-        this.existingSaveName = existingSaveName;
 
         this.mainView = new MainView(
             player.getName(),
@@ -65,22 +67,16 @@ public class MainViewController {
             exchange.getWeek()
         );
 
-        this.portfolioController = new PortfolioController(mainView, player, exchange);
+        this.portfolioController = new PortfolioController(
+            mainView,
+            player,
+            exchange,
+            stock -> openTradeView(stock, this::showPortfolioView)
+        );
 
         this.exchangeViewController = new ExchangeViewController(
             exchange,
-            stock -> {
-                TradeViewController tradeController =
-                    new TradeViewController(
-                        exchange,
-                        player,
-                        stock,
-                        this::updateView,
-                        this::showExchangeView
-                    );
-
-                mainView.setView(tradeController.getView());
-            }
+            stock -> openTradeView(stock, this::showExchangeView)
         );
 
         this.exchangeView = new ExchangeView(exchangeViewController);
@@ -88,12 +84,22 @@ public class MainViewController {
         mainView.setAdvanceAction(this::advanceWeek);
         mainView.setPortfolioAction(portfolioController::showPortfolioView);
         mainView.setExchangeAction(() -> mainView.setView(exchangeView));
+        mainView.setWatchlistAction(this::showWatchlistView);
         mainView.setSaveAction(this::saveGame);
         mainView.setEndGameAction(this::showGameSummaryView);
 
+        exchange.attach(this);
         updateView();
     }
- 
+
+    /**
+     * Called when the Exchange notifies observers of a state change.
+     */
+    @Override
+    public void update() {
+        updateView();
+    }
+
     /**
      * Returns the main layout node to be placed in the scene graph.
      *
@@ -115,6 +121,8 @@ public class MainViewController {
      * and refreshes the view.
      */
     public void advanceWeek() {
+        portfolioController.captureWeekStart();
+        player.recordNetWorth();
         exchange.advance();
         portfolioController.recordWeek(); 
         updateView();
@@ -141,16 +149,16 @@ public class MainViewController {
         switch (rank) {
             case "Speculator" -> {
                 stars = "★ ★ ★";
-                goal1Text = "Traded for 20 weeks";
+                goal1Text = "Traded for at least 20 weeks";
                 goal1Met = true;
-                goal2Text = "Doubled net worth (100%)";
+                goal2Text = "Gained 100% net worth";
                 goal2Met = true;
             }
             case "Investor" -> {
                 stars = "★ ★ ☆";
-                goal1Text = "Goal: 20 weeks";
+                goal1Text = "Traded for at least 20 weeks";
                 goal1Met = weeksTraded >= 20;
-                goal2Text = "Goal: 100% gain";
+                goal2Text = "Gained 100% net worth";
                 goal2Met = gainPercent >= 100;
             }
             default -> {
@@ -169,6 +177,10 @@ public class MainViewController {
             goal1Met, 
             goal2Text, 
             goal2Met);
+
+        if (mainView.getCenter() instanceof WatchlistView watchlistView) {
+            watchlistView.update(getWatchedStocks());
+        }
     }
 
    /**
@@ -195,17 +207,15 @@ public class MainViewController {
 
     /**
      * Saves the current game state to a file and returns to the start screen.
-     * If the game was loaded from a save, overwrites that file using the existing name.
-     * If it is a new game, an auto-generated name is used.
+     * The save name is always generated from the current week.
+     * If the game was loaded from a save file, that file is deleted first.
      */
     private void saveGame() {
+        String name = player.getName() + " – uke " + exchange.getWeek();
         if (saveFile != null) {
             saveFile.delete();
-            performSave(existingSaveName);
-        } else {
-            String name = player.getName() + " – uke " + exchange.getWeek();
-            performSave(name);
         }
+        performSave(name);
     }
 
     /**
@@ -246,5 +256,40 @@ public class MainViewController {
      */
     private void showExchangeView() {
         mainView.setView(exchangeView);
+    }
+
+    /**
+     * Shows the player's watchlist.
+     */
+    private void showWatchlistView() {
+        WatchlistView watchlistView = new WatchlistView(
+            getWatchedStocks(),
+            stock -> openTradeView(stock, this::showWatchlistView)
+        );
+        mainView.setView(watchlistView);
+    }
+
+    private List<Stock> getWatchedStocks() {
+        return player.getWatchlistSymbols().stream()
+            .map(exchange::getStock)
+            .filter(stock -> stock != null)
+            .toList();
+    }
+
+    /**
+     * Opens the trade view for the given stock, with a callback to return to the previous view.
+     *
+     * @param stock the stock to trade
+     * @param onCancel callback to run if the user presses the back button
+     */
+    private void openTradeView(final Stock stock, final Runnable onCancel) {
+        TradeViewController tradeViewController = new TradeViewController(
+            exchange,
+            player,
+            stock,
+            this::updateView,
+            onCancel
+        );
+        mainView.setView(tradeViewController.getView());
     }
 }

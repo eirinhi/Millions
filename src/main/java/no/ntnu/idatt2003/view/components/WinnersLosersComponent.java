@@ -9,6 +9,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import no.ntnu.idatt2003.controller.ExchangeViewController;
+import no.ntnu.idatt2003.view.SoundPlayer;
 import no.ntnu.idatt2003.model.entity.Stock;
 
 /**
@@ -109,7 +110,10 @@ public class WinnersLosersComponent extends VBox {
         HBox row = new HBox(nameLabel, spacer, returnLabel);
         row.getStyleClass().add("stock-row");
         row.setCursor(Cursor.HAND);
-        row.setOnMouseClicked(event -> controller.onStockSelected(stock));
+        row.setOnMouseClicked(event -> {
+            SoundPlayer.playClick();
+            controller.onStockSelected(stock);
+        });
         return row;
     }
 }

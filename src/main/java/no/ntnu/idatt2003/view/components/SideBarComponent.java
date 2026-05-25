@@ -2,6 +2,8 @@ package no.ntnu.idatt2003.view.components;
 
 import java.math.BigDecimal;
 
+import no.ntnu.idatt2003.view.SoundPlayer;
+
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -30,6 +32,9 @@ public class SideBarComponent extends VBox {
 
     /** The button for navigating to the exchange view. */
     private Button exchangeBtn;
+
+    /** The button for navigating to the watchlist view. */
+    private Button watchlistBtn;
 
     /** The button for saving the game. */
     private Button saveButton;
@@ -61,21 +66,22 @@ public class SideBarComponent extends VBox {
         exchangeBtn = new Button("Exchange");
         exchangeBtn.getStyleClass().add("primary-btn");
 
+        watchlistBtn = new Button("Watchlist");
+        watchlistBtn.getStyleClass().add("primary-btn");
+
         statusComponent = new StatusComponent();
 
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
 
         saveButton = new Button("SAVE & EXIT");
-        saveButton.getStyleClass().add("save-btn");
         saveButton.setMaxWidth(Double.MAX_VALUE);
 
         endGameButton = new Button("END GAME");
-        endGameButton.getStyleClass().add("end-game-btn");
         endGameButton.setMaxWidth(Double.MAX_VALUE);
 
         this.getChildren().addAll(
-            moneyTitle, moneyLabel, portfolioBtn, exchangeBtn,
+            moneyTitle, moneyLabel, portfolioBtn, exchangeBtn, watchlistBtn,
             statusComponent, spacer, saveButton, endGameButton);
     }
 
@@ -84,7 +90,10 @@ public class SideBarComponent extends VBox {
      * @param action the action to perform on click
      */
     public void setPortfolioAction(final Runnable action) {
-        portfolioBtn.setOnAction(e -> action.run());
+        portfolioBtn.setOnAction(e -> {
+            SoundPlayer.playClick();
+            action.run();
+        });
     }
 
     /**
@@ -92,7 +101,21 @@ public class SideBarComponent extends VBox {
      * @param action the action to perform on click
      */
     public void setExchangeAction(final Runnable action) {
-        exchangeBtn.setOnAction(e -> action.run());
+        exchangeBtn.setOnAction(e -> {
+            SoundPlayer.playClick();
+            action.run();
+        });
+    }
+
+    /**
+     * Sets the action to perform when the "Watchlist" button is clicked.
+     * @param action the action to perform on click
+     */
+    public void setWatchlistAction(final Runnable action) {
+        watchlistBtn.setOnAction(e -> {
+            SoundPlayer.playClick();
+            action.run();
+        });
     }
 
     /**
@@ -100,7 +123,10 @@ public class SideBarComponent extends VBox {
      * @param action the action to perform on click
      */
     public void setSaveAction(final Runnable action) {
-        saveButton.setOnAction(e -> action.run());
+        saveButton.setOnAction(e -> {
+            SoundPlayer.playClick();
+            action.run();
+        });
     }
 
     /**
@@ -108,7 +134,10 @@ public class SideBarComponent extends VBox {
      * @param action the action to perform on click
      */
     public void setEndGameAction(final Runnable action) {
-        endGameButton.setOnAction(e -> action.run());
+        endGameButton.setOnAction(e -> {
+            SoundPlayer.playEndGame();
+            action.run();
+        });
     }
 
     /**

@@ -3,6 +3,7 @@ package no.ntnu.idatt2003.view;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -93,12 +94,11 @@ public class PortfolioView extends VBox {
     /**
      * Constructs the portfolio view and initializes all UI components.
      */
-    public PortfolioView() {
+    public PortfolioView(final Consumer<String> onStockSelected) {
         setSpacing(VIEW_SPACING);
         setPadding(new Insets(VIEW_PADDING));
-        getStyleClass().add("portfolio-view");
 
-        holdingsTable     = new HoldingsTableComponent();
+        holdingsTable     = new HoldingsTableComponent(onStockSelected);
         transactionsPanel = new TransactionsPanelComponent();
         transactionsPanel.setOnReceiptClick(r -> {
             TransactionReceiptDialog dialog = new TransactionReceiptDialog(r);
@@ -152,6 +152,24 @@ public class PortfolioView extends VBox {
     }
 
     /**
+     * Sets the callback invoked when the user searches transactions.
+     *
+     * @param handler called with the lowercase search text
+     */
+    public void setOnTransactionSearch(final Consumer<String> handler) {
+        transactionsPanel.setOnSearch(handler);
+    }
+
+    /**
+     * Sets the callback invoked when the user clicks a transaction filter button.
+     *
+     * @param handler called with "all", "Purchase", or "Sale"
+     */
+    public void setOnTransactionFilter(final Consumer<String> handler) {
+        transactionsPanel.setOnFilter(handler);
+    }
+
+    /**
      * Adds a new point to the portfolio growth chart.
      *
      * @param netWorth current net worth value
@@ -181,7 +199,6 @@ public class PortfolioView extends VBox {
         HBox bar = new HBox(BAR_SPACING);
         bar.setAlignment(Pos.CENTER_LEFT);
         bar.setPadding(new Insets(BAR_PAD_V, BAR_PAD_H, BAR_PAD_V, BAR_PAD_H));
-        bar.getStyleClass().add("summary-bar");
         bar.getChildren().addAll(
             statBox("Performance this week", performanceValue),
             statBox("Equity",                equityValue),
@@ -200,8 +217,6 @@ public class PortfolioView extends VBox {
      */
     private VBox statBox(final String title, final Label value) {
         Label t = new Label(title);
-        t.getStyleClass().add("stat-title");
-        value.getStyleClass().add("stat-value");
         return new VBox(STAT_SPACING, t, value);
     }
 

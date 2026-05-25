@@ -23,6 +23,8 @@ public class GameSave implements Serializable {
     private final int week;
     /** The history of the player's net worth. */
     private final List<BigDecimal> netWorthHistory;
+    /** The list of watched stock symbols. */
+    private final List<String> watchlistSymbols;
     /** The list of stocks in the game. */
     private final List<StockSave> stocks;
     /** The list of shares in the player's portfolio. */
@@ -41,6 +43,7 @@ public class GameSave implements Serializable {
      * @param startingBalance the starting capital of the player
      * @param week the current week in the game
      * @param netWorthHistory the history of the player's net worth
+     * @param watchlistSymbols the stock symbols in the player's watchlist
      * @param stocks the list of stocks in the game
      * @param portfolio the list of shares in the player's portfolio
      * @param transactions the list of transactions in the game
@@ -53,6 +56,7 @@ public class GameSave implements Serializable {
         final BigDecimal startingBalance,
         final int week,
         final List<BigDecimal> netWorthHistory,
+        final List<String> watchlistSymbols,
         final List<StockSave> stocks,
         final List<ShareSave> portfolio,
         final List<TransactionSave> transactions
@@ -64,6 +68,7 @@ public class GameSave implements Serializable {
         this.startingBalance = startingBalance;
         this.week = week;
         this.netWorthHistory = netWorthHistory;
+        this.watchlistSymbols = watchlistSymbols;
         this.stocks = stocks;
         this.portfolio = portfolio;
         this.transactions = transactions;
@@ -89,6 +94,9 @@ public class GameSave implements Serializable {
     
     /** Returns the history of the player's net worth. */
     public List<BigDecimal> getNetWorthHistory() { return netWorthHistory; }
+
+    /** Returns the stock symbols in the player's watchlist. */
+    public List<String> getWatchlistSymbols() { return watchlistSymbols; }
     
     /** Returns the list of stocks in the game. */
     public List<StockSave> getStocks() { return stocks; }

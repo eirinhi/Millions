@@ -1,0 +1,173 @@
+/* Trade View */
+
+.trade-view {
+    -fx-background-color: -col-bg;
+    -fx-padding: 16;
+}
+
+.trade-card {
+    -fx-background-color: -col-primary-soft;
+    -fx-border-color: -col-primary-muted;
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 16px;
+    -fx-background-radius: 16px;
+    -fx-padding: 24;
+}
+
+.trade-title {
+    -fx-font-size: 34px;
+    -fx-font-weight: bold;
+}
+
+.trade-symbol {
+    -fx-font-size: 18px;
+    -fx-text-fill: gray;
+}
+
+.trade-price {
+    -fx-font-size: 30px;
+    -fx-font-weight: bold;
+}
+
+.trade-small-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: gray;
+}
+
+.trade-company {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.trade-row-value {
+    -fx-font-size: 15px;
+    -fx-text-fill: -col-text-dark;
+}
+
+.trade-value-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.trade-total-label {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.trade-mode-buy {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -col-positive;
+}
+
+.trade-mode-sell {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -col-negative;
+}
+
+/* Watchlist */
+
+.watchlist-view {
+    -fx-background-color: -col-bg;
+}
+
+.watchlist-title {
+    -fx-font-size: 34px;
+    -fx-font-weight: bold;
+}
+
+.watchlist-btn {
+    -fx-background-color: white;
+    -fx-border-color: -col-primary-muted;
+    -fx-text-fill: -col-text-dark;
+    -fx-font-size: 14px;
+    -fx-padding: 6 12;
+    -fx-pref-width: 170;
+}
+
+.watchlist-btn-active {
+    -fx-background-color: -col-watchlist-bg;
+    -fx-border-color: -col-watchlist-border;
+    -fx-text-fill: -col-watchlist-text;
+}
+
+.watchlist-btn-inactive {
+    -fx-background-color: white;
+    -fx-border-color: -col-primary-muted;
+    -fx-text-fill: -col-text-muted-pink;
+}
+
+/* Back Button */
+
+.back-btn {
+    -fx-font-size: 20px;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: -col-primary;
+    -fx-cursor: hand;
+    -fx-padding: 4 10 4 0;
+}
+
+.back-btn:hover {
+    -fx-text-fill: -col-primary-dark;
+    -fx-background-color: transparent;
+    -fx-translate-y: 0;
+}
+
+.back-btn:pressed {
+    -fx-background-color: transparent;
+    -fx-translate-y: 0;
+}
+
+/* Share Combo Box */
+
+.share-combo {
+    -fx-background-color: white;
+    -fx-border-color: -col-primary-muted;
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+}
+
+.share-combo:focused {
+    -fx-border-color: -col-primary;
+}
+
+.share-combo .arrow-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.share-combo .arrow {
+    -fx-background-color: -col-primary;
+}
+
+.share-combo .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: -col-text-dark;
+    -fx-padding: 4 8;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: white;
+    -fx-border-color: -col-primary-muted;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+}
+
+.combo-box-popup .list-cell {
+    -fx-background-color: white;
+    -fx-text-fill: -col-text-dark;
+    -fx-font-size: 13px;
+    -fx-padding: 6 12;
+}
+
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: -col-table-row-odd;
+}
+
+.combo-box-popup .list-cell:selected {
+    -fx-background-color: -col-primary-soft;
+    -fx-text-fill: -col-text-dark;
+}
