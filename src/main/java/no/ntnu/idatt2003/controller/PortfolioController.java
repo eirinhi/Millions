@@ -28,7 +28,7 @@ import no.ntnu.idatt2003.view.PortfolioView;
  *     <li>Initializing and displaying the portfolio view</li>
  *     <li>Refreshing UI data when the model changes</li>
  *     <li>Delegating formatting logic to {@link PortfolioFormatter}</li>
- *     <li>Delegating trade dialogs to {@link TradeController}</li>
+ *     <li>Delegating trade dialogs to {@link TradeViewController}</li>
  *     <li>Updating performance history for chart visualization</li>
  * </ul>
  */
@@ -143,7 +143,7 @@ public class PortfolioController implements Observer {
     /**
      * Handles transaction search input and updates the transaction display.
      *
-     * @param tex the search text entered
+     * @param text the search text entered
      */
     public void onSearch(final String text) {
         searchText = text;
