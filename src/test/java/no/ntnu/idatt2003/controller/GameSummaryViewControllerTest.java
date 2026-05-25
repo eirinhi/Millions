@@ -84,4 +84,40 @@ class GameSummaryViewControllerTest {
         assertFalse(controller.isReturnPositive());
     }
 
+    @Test
+    void gainAndReturnArePositiveWhenPortfolioIncreasesValue() {
+        exchange.buy("S1", BigDecimal.valueOf(10), player);
+        exchange.getStock("S1").addNewSalesPrice(BigDecimal.valueOf(300));
+
+        GameSummaryViewController controller =
+            new GameSummaryViewController(exchange, player);
+
+        assertEquals(new BigDecimal("1021.50"), controller.getGain());
+        assertEquals(new BigDecimal("10.22"), controller.getReturnPct());
+        assertTrue(controller.isGainPositive());
+        assertTrue(controller.isReturnPositive());
+    }
+
+    @Test
+    void constructorSellsAllSharesAndArchivesSales() {
+        exchange.buy("S1", BigDecimal.valueOf(4), player);
+        exchange.buy("S1", BigDecimal.valueOf(6), player);
+
+        new GameSummaryViewController(exchange, player);
+
+        assertTrue(player.getPortfolio().getShares().isEmpty());
+        assertEquals(2, player.getTransactionArchive().getSales(1).size());
+        assertEquals(4, player.getTransactionArchive().getAll().size());
+    }
+
+    @Test
+    void zeroGainAndReturnAreTreatedAsPositive() {
+        GameSummaryViewController controller =
+            new GameSummaryViewController(exchange, player);
+
+        assertEquals(BigDecimal.ZERO, controller.getGain().stripTrailingZeros());
+        assertEquals(BigDecimal.ZERO, controller.getReturnPct().stripTrailingZeros());
+        assertTrue(controller.isGainPositive());
+        assertTrue(controller.isReturnPositive());
+    }
 }
