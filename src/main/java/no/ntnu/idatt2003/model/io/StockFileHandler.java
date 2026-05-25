@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,10 +32,22 @@ public class StockFileHandler implements FileHandler<List<Stock>> {
      */
     @Override
     public List<Stock> readFromFile(final String filePath) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            return parseStocks(reader);
+        }
+    }
+
+    /**
+     * Parses stocks from the given reader.
+     *
+     * @param reader the reader to parse from
+     * @return list of parsed Stock objects
+     * @throws IOException if an IO error occurs while reading
+     */
+    List<Stock> parseStocks(final Reader reader) throws IOException {
         List<Stock> stocks = new ArrayList<>();
 
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-
+        try (BufferedReader br = new BufferedReader(reader)) {
             String line;
             while ((line = br.readLine()) != null) {
                 line = line.trim();
