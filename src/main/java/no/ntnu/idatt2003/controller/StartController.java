@@ -2,6 +2,7 @@ package no.ntnu.idatt2003.controller;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import javafx.scene.Scene;
@@ -50,6 +51,7 @@ public class StartController {
         startView.setSelectFileAction(this::onSelectFile);
         startView.setStartAction(this::onStartGame);
         startView.setLoadAction(this::onLoadGame);
+        startView.populateSaveTable(loadSavedGames());
     }
 
     /**
@@ -59,6 +61,24 @@ public class StartController {
      */
     public Scene getScene() {
         return startView.getScene();
+    }
+
+    /**
+     * Loads all valid saved games from disk.
+     *
+     * @return list of GameSave metadata, skipping corrupted files
+     */
+    private List<GameSave> loadSavedGames() {
+        GameFileHandler handler = new GameFileHandler();
+        List<GameSave> saves = new ArrayList<>();
+        for (File file : GameFileHandler.getSavedGames()) {
+            try {
+                saves.add(handler.readSave(file));
+            } catch (GameSaveException e) {
+                // skip corrupted files
+            }
+        }
+        return saves;
     }
 
     /**

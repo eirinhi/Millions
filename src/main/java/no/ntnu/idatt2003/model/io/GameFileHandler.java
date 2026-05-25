@@ -32,7 +32,7 @@ public class GameFileHandler implements FileHandler<GameSave> {
 
     /** The formatter for timestamp in save file names. */
     private static final DateTimeFormatter FORMATTER =
-        DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+        DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
     /**
      * Reads a {@link GameSave} from the file at the given path.
