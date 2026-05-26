@@ -34,6 +34,7 @@ public class ExchangeView extends GridPane {
 
     /**
      * Constructs the ExchangeView with the given controller.
+     * 
      * @param controller the controller for this view
      */
     public ExchangeView(final ExchangeViewController controller) {
@@ -74,6 +75,7 @@ public class ExchangeView extends GridPane {
 
     /**
      * Updates the stock table with the given list of stocks.
+     * 
      * @param stocks the list of stocks to display
      */
     public void updateStocks(final List<Stock> stocks) {
@@ -82,8 +84,9 @@ public class ExchangeView extends GridPane {
 
     /**
      * Updates the winners and losers lists.
+     * 
      * @param gainers the list of gaining stocks
-     * @param losers the list of losing stocks
+     * @param losers  the list of losing stocks
      */
     public void updateWinnersLosers(
         final List<Stock> gainers, final List<Stock> losers) {

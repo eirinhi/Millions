@@ -1,6 +1,5 @@
 package no.ntnu.idatt2003.view;
 
-import java.io.File;
 import java.util.List;
 
 import javafx.beans.property.SimpleStringProperty;
@@ -18,9 +17,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import no.ntnu.idatt2003.model.io.GameFileHandler;
 import no.ntnu.idatt2003.model.io.GameSave;
-import no.ntnu.idatt2003.model.io.GameSaveException;
 
 /**
  * StartView is the initial view of the application.
@@ -140,13 +137,6 @@ public class StartView {
         loadTable.setPrefHeight(150);
         loadTable.getColumns().addAll(List.of(nameCol, playerCol, dateCol));
 
-        for (File file : GameFileHandler.getSavedGames()) {
-            try {
-                loadTable.getItems().add(GameFileHandler.readSave(file));
-            } catch (GameSaveException e) {
-                // skip corrupted files
-            }
-        }
 
         loadTable.getSelectionModel().selectedItemProperty().addListener(
             (obs, oldVal, newVal) -> loadButton.setDisable(newVal == null)
@@ -295,6 +285,15 @@ public class StartView {
      */
     public GameSave getSelectedSave() {
         return loadTable.getSelectionModel().getSelectedItem();
+    }
+
+    /**
+     * Populates the save table with the given list of saves.
+     *
+     * @param saves the list of saves to display
+     */
+    public void populateSaveTable(final List<GameSave> saves) {
+        loadTable.getItems().setAll(saves);
     }
 
     /**

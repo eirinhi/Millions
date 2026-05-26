@@ -12,7 +12,7 @@ public class Sale extends Transaction {
      * Creates a new sale transaction with the specified share and week.
      *
      * @param share the share being sold
-     * @param week the week in which the sale occurs
+     * @param week  the week in which the sale occurs
      * @throws IllegalArgumentException if share is null or if week is negative
      */
     public Sale(final Share share, final int week) {

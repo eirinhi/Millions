@@ -49,4 +49,18 @@ class PurchaseCalculatorTest {
   void testCalculateTotal(){
     assertEquals(new BigDecimal("502.50"), calculator.calculateTotal());
   }
+
+  @Test
+  void calculatorUsesCurrentSharePurchasePriceAndQuantity() {
+    Share fractionalShare = new Share(
+        stock,
+        new BigDecimal("2.5"),
+        new BigDecimal("80.00")
+    );
+    PurchaseCalculator fractionalCalculator = new PurchaseCalculator(fractionalShare);
+
+    assertEquals(new BigDecimal("200.000"), fractionalCalculator.calculateGross());
+    assertEquals(new BigDecimal("1.00"), fractionalCalculator.calculateCommission());
+    assertEquals(new BigDecimal("201.000"), fractionalCalculator.calculateTotal());
+  }
 }

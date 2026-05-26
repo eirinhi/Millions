@@ -16,10 +16,8 @@ import no.ntnu.idatt2003.view.PortfolioView;
 /**
  * Controller responsible for managing the {@link PortfolioView}.
  *
- * <p>This class acts as a mediator between the model layer
- * ({@link Player}, {@link Exchange}) and the portfolio UI.
- * It ensures that the view is always synchronized with the
- * latest portfolio state.
+ * <p>Mediatates between the model layer ({@link Player}, {@link Exchange})
+ * and the portfolio UI.
  *
  * <p>The controller implements {@link Observer} so it can react
  * automatically to updates from the {@link Exchange}, such as
@@ -30,18 +28,19 @@ import no.ntnu.idatt2003.view.PortfolioView;
  *     <li>Initializing and displaying the portfolio view</li>
  *     <li>Refreshing UI data when the model changes</li>
  *     <li>Delegating formatting logic to {@link PortfolioFormatter}</li>
- *     <li>Delegating trade dialogs to {@link TradeController}</li>
+ *     <li>Delegating trade dialogs to {@link TradeViewController}</li>
  *     <li>Updating performance history for chart visualization</li>
  * </ul>
  */
 public class PortfolioController implements Observer {
 
-    private final MainView mainView;
+    private final MainViewPort mainView;
     private final Player   player;
     private final Exchange exchange;
     private final Consumer<Stock> onTradeRequested;
+    private final PortfolioViewFactory viewFactory;
 
-    private PortfolioView view;
+    private PortfolioViewPort view;
     private final PortfolioFormatter formatter = new PortfolioFormatter();
     private BigDecimal weekStartNetWorth;
 
@@ -62,10 +61,40 @@ public class PortfolioController implements Observer {
         final Player player,
         final Exchange exchange,
         final Consumer<Stock> onTradeRequested) {
+        this(
+            mainView == null ? null : new MainViewAdapter(mainView),
+            player,
+            exchange,
+            onTradeRequested,
+            new JavaFxPortfolioViewFactory()
+        );
+    }
+
+    /**
+     * <p>This constructor is package-private so tests can exercise controller
+     * logic without starting JavaFX.</p>
+     *
+     * <p>This was discussed with AI to facilitate testing coverage.
+     * In production, the controller uses real {@code PortfolioView}. 
+     * In test, it uses {@code PortfolioViewPort}.</p>
+     *
+     * @param mainView          the main application view used for view switching
+     * @param player            the currently active player whose portfolio is displayed
+     * @param exchange          the stock exchange providing market updates
+     * @param onTradeRequested  callback invoked when a trade is requested
+     * @param viewFactory       factory for creating portfolio views
+     */
+    PortfolioController(
+        final MainViewPort mainView,
+        final Player player,
+        final Exchange exchange,
+        final Consumer<Stock> onTradeRequested,
+        final PortfolioViewFactory viewFactory) {
         this.mainView = mainView;
         this.player   = player;
         this.exchange = exchange;
         this.onTradeRequested = onTradeRequested;
+        this.viewFactory = viewFactory;
         this.exchange.attach(this);
     }
 
@@ -90,7 +119,7 @@ public class PortfolioController implements Observer {
         }
 
         if (view == null) {
-            view = new PortfolioView(symbol -> {
+            view = viewFactory.create(symbol -> {
                 Stock stock = exchange.getStock(symbol);
                 if (stock != null) {
                     onTradeRequested.accept(stock);
@@ -132,8 +161,8 @@ public class PortfolioController implements Observer {
 
         view.updateStats(
             String.format("%+.2f%%", performance),
-            String.format("%.2f NOK", player.getNetWorth()),
-            String.format("%.2f NOK", player.getMoney()),
+            String.format("%.2f $", player.getNetWorth()),
+            String.format("%.2f $", player.getMoney()),
             performance >= 0
         );
 
@@ -145,7 +174,7 @@ public class PortfolioController implements Observer {
     /**
      * Handles transaction search input and updates the transaction display.
      *
-     * @param tex the search text entered
+     * @param text the search text entered
      */
     public void onSearch(final String text) {
         searchText = text;
@@ -200,7 +229,148 @@ public class PortfolioController implements Observer {
         weekStartNetWorth = player.getNetWorth();
     }
 
+    /**
+     * Cleans up resources used by this controller.
+     */
     public void dispose() {
         exchange.detach(this);
+    }
+
+    /**
+     * Interface for the main view port.
+     */
+    interface MainViewPort {
+        void setView(PortfolioViewPort view);
+    }
+
+    /**
+     * Interface for the portfolio view port.
+     */
+    interface PortfolioViewPort {
+        void updateStats(String performance, String equity, String money, boolean positive);
+
+        void setHoldingRows(List<PortfolioFormatter.HoldingRow> rows);
+
+        void setReceipts(List<ReceiptData> receipts);
+
+        void addChartPoint(double netWorth);
+
+        void setChartHistory(List<Double> values);
+
+        void setOnTransactionSearch(Consumer<String> handler);
+
+        void setOnTransactionFilter(Consumer<String> handler);
+    }
+
+    /**
+     * Factory interface for creating portfolio view ports.
+     */
+    interface PortfolioViewFactory {
+        PortfolioViewPort create(Consumer<String> onStockSelected);
+    }
+
+    /**
+     * Adapter for the main view port.
+     */
+    private record MainViewAdapter(MainView delegate) implements MainViewPort {
+
+        @Override
+        public void setView(final PortfolioViewPort view) {
+            delegate.setView(((PortfolioViewAdapter) view).delegate);
+        }
+    }
+
+    /**
+     * Factory for creating portfolio view ports.
+     */
+    private static class JavaFxPortfolioViewFactory implements PortfolioViewFactory {
+
+        @Override
+        public PortfolioViewPort create(final Consumer<String> onStockSelected) {
+            return new PortfolioViewAdapter(new PortfolioView(onStockSelected));
+        }
+    }
+
+    /**
+     * Adapter for the portfolio view port.
+     * This class was discussed with AI for help with the testing of JavaFX.
+     */
+    private record PortfolioViewAdapter(PortfolioView delegate) implements PortfolioViewPort {
+
+        /**
+         * Updates the portfolio statistics displayed in the view.
+         *
+         * @param performance the performance string to display
+         * @param equity      the equity string to display
+         * @param money       the money string to display
+         */
+        @Override
+        public void updateStats(
+                final String performance,
+                final String equity,
+                final String money,
+                final boolean positive) {
+            delegate.updateStats(performance, equity, money, positive);
+        }
+
+        /**
+         * Sets the holding rows displayed in the view.
+         *
+         * @param rows the list of holding rows to display
+         */
+        @Override
+        public void setHoldingRows(final List<PortfolioFormatter.HoldingRow> rows) {
+            delegate.setHoldingRows(rows);
+        }
+
+        /**
+         * Sets the receipts displayed in the view.
+         *
+         * @param receipts the list of receipts to display
+         */
+        @Override
+        public void setReceipts(final List<ReceiptData> receipts) {
+            delegate.setReceipts(receipts);
+        }
+
+        /**
+         * Adds a chart point to the view.
+         *
+         * @param netWorth the net worth value to display
+         */
+        @Override
+        public void addChartPoint(final double netWorth) {
+            delegate.addChartPoint(netWorth);
+        }
+
+        /**
+         * Sets the chart history displayed in the view.
+         *
+         * @param values the list of historical chart values to display
+         */
+        @Override
+        public void setChartHistory(final List<Double> values) {
+            delegate.setChartHistory(values);
+        }
+
+        /**
+         * Sets the on transaction search handler.
+         *
+         * @param handler the handler to invoke when a transaction search is requested
+         */
+        @Override
+        public void setOnTransactionSearch(final Consumer<String> handler) {
+            delegate.setOnTransactionSearch(handler);
+        }
+
+        /**
+         * Sets the on transaction filter handler.
+         *
+         * @param handler the handler to invoke when a transaction filter is requested
+         */
+        @Override
+        public void setOnTransactionFilter(final Consumer<String> handler) {
+            delegate.setOnTransactionFilter(handler);
+        }
     }
 }

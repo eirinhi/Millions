@@ -107,8 +107,8 @@ public class TradeView extends GridPane {
      * Creates a new trade view for the selected stock.
      *
      * @param controller the controller handling trade actions
-     * @param stock the stock displayed in the view
-     * @param player the current player performing trades
+     * @param stock      the stock displayed in the view
+     * @param player     the current player performing trades
      */
     public TradeView(
             final TradeViewController controller,
@@ -126,12 +126,13 @@ public class TradeView extends GridPane {
         Label symbol = new Label(stock.getSymbol());
         symbol.getStyleClass().add("trade-symbol");
 
-        priceLabel.setText(stock.getSalesPrice() + " NOK");
+        priceLabel.setText(stock.getSalesPrice() + " $");
         priceLabel.getStyleClass().add("trade-price");
 
         modeLabel.getStyleClass().add("trade-mode-buy");
 
         Button buyButton = new Button("BUY");
+        buyButton.setDisable(true);
         Button sellButton = new Button("SELL");
 
         buyButton.getStyleClass().add("primary-btn");
@@ -140,10 +141,14 @@ public class TradeView extends GridPane {
 
         buyButton.setOnAction(e -> {
             SoundPlayer.playClick();
+            buyButton.setDisable(true);
+            sellButton.setDisable(false);
             controller.setBuyMode();
         });
         sellButton.setOnAction(e -> {
             SoundPlayer.playClick();
+            sellButton.setDisable(true);
+            buyButton.setDisable(false);
             controller.setSellMode();
         });
 
@@ -216,7 +221,7 @@ public class TradeView extends GridPane {
 
         Label moneyTitle = new Label("Balance");
         moneyTitle.getStyleClass().add("trade-small-label");
-        moneyValueLabel.setText(player.getMoney() + " NOK");
+        moneyValueLabel.setText(player.getMoney() + " $");
         moneyValueLabel.getStyleClass().add("trade-value-label");
 
         BigDecimal ownedQuantity =
@@ -257,7 +262,6 @@ public class TradeView extends GridPane {
         });
         shareCombo.valueProperty().addListener((obs, old, newVal) -> {
             if (newVal != null) SoundPlayer.playClick();
-            confirmButton.setDisable(newVal == null);
             controller.updateOrderPreview();
         });
 
@@ -324,6 +328,7 @@ public class TradeView extends GridPane {
     private void setupGridConstraints() {
         ColumnConstraints col0 = new ColumnConstraints();
         col0.setHgrow(Priority.ALWAYS);
+
         ColumnConstraints col1 = new ColumnConstraints();
         col1.setHgrow(Priority.NEVER);
         col1.setPrefWidth(ORDER_PANEL_WIDTH);
@@ -361,7 +366,6 @@ public class TradeView extends GridPane {
         modeLabel.getStyleClass().add(modeClass);
         modeLabel.setText(isBuyMode ? "BUY" : "SELL");
         confirmButton.setText(isBuyMode ? "BUY" : "SELL");
-        confirmButton.setDisable(!isBuyMode);
 
         buySection.setVisible(isBuyMode);
         buySection.setManaged(isBuyMode);
@@ -373,7 +377,7 @@ public class TradeView extends GridPane {
     /**
      * Populates the combobox with shares available for selling.
      *
-     * @param shares the list of shares available
+     * @param shares             the list of shares available
      * @param onSelectionChanged callback to run when the selected share changes
      */
     public void showSharesForSale(
@@ -382,7 +386,9 @@ public class TradeView extends GridPane {
         shareCombo.getItems().setAll(shares);
         shareCombo.setValue(null);
         shareCombo.setDisable(shares.isEmpty());
-        confirmButton.setDisable(true);
+        shareCombo.setPromptText(
+            shares.isEmpty() ? "No shares available" : "Select a share ..."
+        );
     }
 
     /**
@@ -391,7 +397,7 @@ public class TradeView extends GridPane {
      * @param price price the current stock price
      */
     public void updateCurrentPrice(final BigDecimal price) {
-        priceLabel.setText(price + " NOK");
+        priceLabel.setText(price + " $");
     }
 
     /**
@@ -421,7 +427,7 @@ public class TradeView extends GridPane {
      * @param money the player's current money balance
      */
     public void updateMoney(final BigDecimal money) {
-        moneyValueLabel.setText(money + " NOK");
+        moneyValueLabel.setText(money + " $");
     }
 
     /**
@@ -430,10 +436,10 @@ public class TradeView extends GridPane {
      * <p>Displays gross value, commission, taxes,
      * and total transaction value.</p>
      *
-     * @param gross the gross transaction value
+     * @param gross      the gross transaction value
      * @param commission the commission fee
-     * @param taxes the calculated taxes
-     * @param total the total transaction value
+     * @param taxes      the calculated taxes
+     * @param total      the total transaction value
      */
     public void updateOrderPreview(
             final BigDecimal gross,
@@ -441,10 +447,10 @@ public class TradeView extends GridPane {
             final BigDecimal taxes,
             final BigDecimal total) {
 
-        grossLabel.setText(gross + " NOK");
-        commissionLabel.setText(commission + " NOK");
-        taxesLabel.setText(taxes + " NOK");
-        totalLabel.setText(total + " NOK");
+        grossLabel.setText(gross + " $");
+        commissionLabel.setText(commission + " $");
+        taxesLabel.setText(taxes + " $");
+        totalLabel.setText(total + " $");
     }
 
     /**

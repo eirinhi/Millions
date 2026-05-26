@@ -162,33 +162,67 @@ void testEmptyName() {
   }
 
   @Test
+  void testFullConstructorAllowsZeroCurrentMoney() {
+    Portfolio portfolio = new Portfolio();
+    TransactionArchive archive = new TransactionArchive();
+
+    Player loaded = new Player(
+        "Loaded",
+        new BigDecimal("5000"),
+        BigDecimal.ZERO,
+        portfolio,
+        archive
+    );
+
+    assertEquals(BigDecimal.ZERO, loaded.getMoney());
+  }
+
+  @Test
   void testFullConstructor_nullName() {
-    assertThrows(IllegalArgumentException.class, () ->
-        new Player(null, new BigDecimal("1000"), new BigDecimal("1000"), new Portfolio(), new TransactionArchive()));
+    assertThrows(IllegalArgumentException.class,
+        () -> new Player(null, new BigDecimal("1000"), new BigDecimal("1000"), new Portfolio(), new TransactionArchive())
+    );
   }
 
   @Test
   void testFullConstructor_nullStartingMoney() {
-    assertThrows(IllegalArgumentException.class, () ->
-        new Player("Name", null, new BigDecimal("1000"), new Portfolio(), new TransactionArchive()));
+    assertThrows(IllegalArgumentException.class,
+        () -> new Player("Name", null, new BigDecimal("1000"), new Portfolio(), new TransactionArchive())
+    );
   }
 
   @Test
   void testFullConstructor_nullCurrentMoney() {
-    assertThrows(IllegalArgumentException.class, () ->
-        new Player("Name", new BigDecimal("1000"), null, new Portfolio(), new TransactionArchive()));
+    assertThrows(IllegalArgumentException.class,
+        () -> new Player("Name", new BigDecimal("1000"), null, new Portfolio(), new TransactionArchive())
+    );
+  }
+
+  @Test
+  void testFullConstructor_negativeCurrentMoney() {
+    assertThrows(IllegalArgumentException.class,
+        () -> new Player(
+            "Name",
+            new BigDecimal("1000"),
+            new BigDecimal("-1"),
+            new Portfolio(),
+            new TransactionArchive()
+        )
+    );
   }
 
   @Test
   void testFullConstructor_nullPortfolio() {
-    assertThrows(IllegalArgumentException.class, () ->
-        new Player("Name", new BigDecimal("1000"), new BigDecimal("1000"), null, new TransactionArchive()));
+    assertThrows(IllegalArgumentException.class,
+        () -> new Player("Name", new BigDecimal("1000"), new BigDecimal("1000"), null, new TransactionArchive())
+    );
   }
 
   @Test
   void testFullConstructor_nullTransactionArchive() {
-    assertThrows(IllegalArgumentException.class, () ->
-        new Player("Name", new BigDecimal("1000"), new BigDecimal("1000"), new Portfolio(), null));
+    assertThrows(IllegalArgumentException.class,
+        () -> new Player("Name", new BigDecimal("1000"), new BigDecimal("1000"), new Portfolio(), null)
+    );
   }
 
   @Test
@@ -294,4 +328,52 @@ void testEmptyName() {
     assertEquals("Investor", player.getStatus());
 
   }
+
+  @Test
+  void testGetStatusInvestorRequiresAtLeastTenWeeks() {
+    Player testPlayer = new Player("Name", new BigDecimal("1000"));
+
+    addCommittedPurchasesForWeeks(testPlayer, 1, 9);
+    testPlayer.addMoney(new BigDecimal("200"));
+
+    assertEquals("Novice", testPlayer.getStatus());
+
+    addCommittedPurchasesForWeeks(testPlayer, 10, 10);
+
+    assertEquals("Investor", testPlayer.getStatus());
+  }
+
+  @Test
+  void testGetStatusInvestorRequiresAtLeastTwentyPercentGain() {
+    Player testPlayer = new Player("Name", new BigDecimal("1000"));
+
+    addCommittedPurchasesForWeeks(testPlayer, 1, 10);
+
+    testPlayer.addMoney(new BigDecimal("199"));
+    assertEquals("Novice", testPlayer.getStatus());
+
+    testPlayer.addMoney(new BigDecimal("1"));
+    assertEquals("Investor", testPlayer.getStatus());
+  }
+
+  private void addCommittedPurchasesForWeeks(final Player player, final int startWeek, final int endWeek) {
+    Stock stock = new Stock(
+        "SYMBOL",
+        "Company",
+        List.of(new BigDecimal("5"))
+    );
+
+    Share share = new Share(
+        stock,
+        new BigDecimal("1"),
+        new BigDecimal("1")
+    );
+
+    for (int week = startWeek; week <= endWeek; week++) {
+      Purchase purchase = new Purchase(share, week);
+      purchase.committed = true;
+      player.getTransactionArchive().add(purchase);
+    }
+  }
+
 }

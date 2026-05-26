@@ -34,8 +34,9 @@ public class WinnersLosersComponent extends VBox {
 
     /**
      * Creates a new WinnersLosersComponent with the given gainers and losers.
-     * @param gainers the list of stocks that gained the most last week
-     * @param losers the list of stocks that lost the most last week
+     * 
+     * @param gainers    the list of stocks that gained the most last week
+     * @param losers     the list of stocks that lost the most last week
      * @param controller the controller handling stock selections
      */
     public WinnersLosersComponent(
@@ -64,8 +65,9 @@ public class WinnersLosersComponent extends VBox {
 
     /**
      * Updates the winners and losers lists with new data.
+     * 
      * @param gainers the new list of winning stocks to display
-     * @param losers the new list of losing stocks to display
+     * @param losers  the new list of losing stocks to display
      */
     public void update(
         final List<Stock> gainers, final List<Stock> losers) {
@@ -83,7 +85,8 @@ public class WinnersLosersComponent extends VBox {
 
     /**
      * Creates a row for a stock in the winners or losers list.
-     * @param stock the stock to create a row for
+     * 
+     * @param stock  the stock to create a row for
      * @param winner whether the stock is a winner or loser
      * @return an HBox representing the row for the stock
      */

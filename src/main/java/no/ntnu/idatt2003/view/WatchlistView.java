@@ -37,7 +37,7 @@ public class WatchlistView extends VBox {
     /**
      * Creates a watchlist view.
      *
-     * @param stocks watched stocks to display
+     * @param stocks           watched stocks to display
      * @param onStockSelected callback for opening a selected stock
      */
     public WatchlistView(

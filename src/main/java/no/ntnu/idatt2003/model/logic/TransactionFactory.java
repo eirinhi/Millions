@@ -26,7 +26,8 @@ public final class TransactionFactory {
    * @param share           the share involved in the transaction
    * @param week            the week in which the transaction occurs
    * @return a {@link Transaction} of the specified type
-   * @throws IllegalArgumentException    if share is null or week is negative
+   * @throws IllegalArgumentException    if transactionType is null/blank, share is null,
+   *                                     or week is negative
    * @throws UnknownTransactionException if the transaction type is unknown
    */
   public static Transaction get(
@@ -34,6 +35,9 @@ public final class TransactionFactory {
       final Share share,
       final int week) throws UnknownTransactionException {
 
+    if (transactionType == null || transactionType.isBlank()) {
+      throw new IllegalArgumentException("Transaction type cannot be null or blank");
+    }
     if (share == null) {
       throw new IllegalArgumentException("Share cannot be null");
     }

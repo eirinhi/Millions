@@ -69,6 +69,7 @@ public class ExchangeViewController implements Observer {
 
     /**
      * Returns the list of all stocks from the exchange.
+     * 
      * @return the list of all stocks
      */
     public List<Stock> getAllStocks() {
@@ -86,6 +87,7 @@ public class ExchangeViewController implements Observer {
     /**
      * Handles the search action by updating the search query
      * and refreshing the table.
+     * 
      * @param query the search query entered by the user
      */
     public void onSearch(final String query) {
@@ -96,6 +98,7 @@ public class ExchangeViewController implements Observer {
     /**
      * Handles the price filter action by updating the price range
      * and refreshing the table.
+     * 
      * @param min the minimum price
      * @param max the maximum price
      */
@@ -121,6 +124,7 @@ public class ExchangeViewController implements Observer {
 
     /**
      * Returns the top gainers from the exchange.
+     * 
      * @return the list of top gainers
      */
     public List<Stock> getGainers() {
@@ -129,6 +133,7 @@ public class ExchangeViewController implements Observer {
 
     /**
      * Returns the top losers from the exchange.
+     * 
      * @return the list of top losers
      */
     public List<Stock> getLosers() {
@@ -138,6 +143,7 @@ public class ExchangeViewController implements Observer {
     /**
      * Handles the sort action by updating the sorting criteria
      * and refreshing the table.
+     * 
      * @param sort the sorting criteria selected by the user
      */
     public void onSort(final String sort) {

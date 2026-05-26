@@ -28,9 +28,9 @@ public class Stock {
   /**
    * Constructs Stock object with symbol, company name, and list of sales prices.
    *
-   * @param symbol the unique stock symbol
-   * @param company the name of the company
-   * @param salesPrice a list of historical sales prices
+   * @param symbol      the unique stock symbol
+   * @param company     the name of the company
+   * @param salesPrice  a list of historical sales prices
    * @throws IllegalArgumentException if any argument is null
    */
   public Stock(
@@ -115,9 +115,6 @@ public class Stock {
 
   /**
    * Returns the highest recorded sales price for this stock.
-   * <p>
-   *   The highest price is determined by comparing all registered historical prices.
-   * </p>
    *
    * @return the highest recorded sales price
    * @throws IllegalStateException if no price have been added
@@ -130,9 +127,6 @@ public class Stock {
 
   /**
    * Returns the lowest recorded sales price for this stock.
-   * <p>
-   *   The lowest price is determined by comparing all registered historical prices.
-   * </p>
    *
    * @return the lowest recorded sales price
    * @throws IllegalStateException if no prices have been added
@@ -145,11 +139,6 @@ public class Stock {
 
   /**
    * Returns the difference between the last two recorded sales prices.
-   * <p>
-   *   The value represents the most recent price change.
-   *   If only one price has been registered, the method returns {@code BigDecimal.ZERO},
-   *   which is interpreted as no change.
-   * </p>
    *
    * @return the difference between the most recent price and te previous price
    * @throws IllegalStateException if no prices have been added
@@ -191,8 +180,7 @@ public class Stock {
   /**
    * Returns a string representation of the stock with key information.
    *
-   * @return a formatted string with symbol, company, current price, highest and lowest price,
-   *         latest price change, and number of recorded prices
+   * @return a formatted summary of the stock's key information
    */
   @Override
   public String toString() {

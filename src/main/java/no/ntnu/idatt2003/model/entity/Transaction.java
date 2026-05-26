@@ -23,8 +23,8 @@ public abstract class Transaction {
     /**
      * Creates a new transaction with the specified share, week, and calculator.
      *
-     * @param share the share involved in the transaction
-     * @param week the week in which the transaction occurs
+     * @param share      the share involved in the transaction
+     * @param week       the week in which the transaction occurs
      * @param calculator the calculator used to calculate transaction values
      * @throws IllegalArgumentException if share or calculator
      *                                  is null, or week is negative

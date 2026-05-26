@@ -89,6 +89,67 @@ class ExchangeTest {
     }
 
     @Test
+    void buyWithdrawsTotalCostAddsShareAndArchivesPurchase() {
+        Player player = new Player("player", new BigDecimal("20000"));
+
+        Transaction transaction = exchange.buy(
+            "S1",
+            new BigDecimal("10"),
+            player
+        );
+
+        assertTrue(transaction.isCommitted());
+        assertEquals(new BigDecimal("9950.00"), player.getMoney());
+        assertEquals(new BigDecimal("10"), player.getPortfolio().getQuantityOwned(s1));
+        assertEquals(List.of(transaction), player.getTransactionArchive().getAll());
+        assertEquals(List.of(transaction), player.getTransactionArchive().getPurchases(1));
+    }
+
+    @Test
+    void buyRejectsInvalidInputBeforeChangingPlayer() {
+        Player player = new Player("player", new BigDecimal("20000"));
+
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> exchange.buy(null, BigDecimal.ONE, player)
+        );
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> exchange.buy("   ", BigDecimal.ONE, player)
+        );
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> exchange.buy("S1", null, player)
+        );
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> exchange.buy("S1", BigDecimal.ZERO, player)
+        );
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> exchange.buy("S1", BigDecimal.ONE, null)
+        );
+
+        assertEquals(new BigDecimal("20000"), player.getMoney());
+        assertTrue(player.getPortfolio().getShares().isEmpty());
+        assertTrue(player.getTransactionArchive().isEmpty());
+    }
+
+    @Test
+    void buyRejectsPurchaseWhenPlayerCannotAffordTotal() {
+        Player player = new Player("player", new BigDecimal("1000"));
+
+        assertThrows(
+            IllegalStateException.class,
+            () -> exchange.buy("S1", new BigDecimal("2"), player)
+        );
+
+        assertEquals(new BigDecimal("1000"), player.getMoney());
+        assertTrue(player.getPortfolio().getShares().isEmpty());
+        assertTrue(player.getTransactionArchive().isEmpty());
+    }
+
+    @Test
     void testSell() {
         BigDecimal quantiy = new BigDecimal("10");
         BigDecimal purchasePrice = new BigDecimal("1000");
@@ -102,6 +163,48 @@ class ExchangeTest {
         Transaction transaction = exchange.sell(share, player);
         assertNotNull(transaction);
         assertTrue(transaction.isCommitted());
+    }
+
+    @Test
+    void sellAddsTotalProceedsRemovesShareAndArchivesSale() {
+        Player player = new Player("player", new BigDecimal("20000"));
+        Share share = new Share(s1, new BigDecimal("10"), new BigDecimal("1000"));
+        player.getPortfolio().addShare(share);
+
+        Transaction transaction = exchange.sell(share, player);
+
+        assertTrue(transaction.isCommitted());
+        assertEquals(new BigDecimal("29900.00"), player.getMoney());
+        assertFalse(player.getPortfolio().contains(share));
+        assertEquals(List.of(transaction), player.getTransactionArchive().getAll());
+        assertEquals(List.of(transaction), player.getTransactionArchive().getSales(1));
+    }
+
+    @Test
+    void sellRejectsInvalidInputAndUnownedShare() {
+        Player player = new Player("player", new BigDecimal("20000"));
+        Share share = new Share(s1, BigDecimal.ONE, new BigDecimal("1000"));
+
+        assertThrows(IllegalArgumentException.class, () -> exchange.sell(null, player));
+        assertThrows(IllegalArgumentException.class, () -> exchange.sell(share, null));
+        assertThrows(IllegalStateException.class, () -> exchange.sell(share, player));
+
+        assertEquals(new BigDecimal("20000"), player.getMoney());
+        assertTrue(player.getPortfolio().getShares().isEmpty());
+        assertTrue(player.getTransactionArchive().isEmpty());
+    }
+
+    @Test
+    void buyAndSellUseCurrentExchangeWeekInTransactionArchive() {
+        Player player = new Player("player", new BigDecimal("20000"));
+        exchange.setWeek(4);
+
+        Transaction purchase = exchange.buy("S1", BigDecimal.ONE, player);
+        Transaction sale = exchange.sell(purchase.getShare(), player);
+
+        assertEquals(4, purchase.getWeek());
+        assertEquals(4, sale.getWeek());
+        assertEquals(List.of(purchase, sale), player.getTransactionArchive().getTransactions(4));
     }
 
     @Test
@@ -186,6 +289,60 @@ class ExchangeTest {
     }
 
     @Test
+    void getFilteredStocksRejectsNullPriceBounds() {
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> exchange.getFilteredStocks("", null, new BigDecimal("9999"))
+        );
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> exchange.getFilteredStocks("", BigDecimal.ZERO, null)
+        );
+    }
+
+    @Test
+    void getFilteredStocksWithNullOrBlankSearchReturnsStocksWithinPriceRange() {
+        Stock cheap = new Stock("AAA", "Alpha", List.of(new BigDecimal("50")));
+        Stock mid = new Stock("BBB", "Beta", List.of(new BigDecimal("150")));
+        Stock expensive = new Stock("CCC", "Gamma", List.of(new BigDecimal("300")));
+        Exchange ex = new Exchange("FilterTest", List.of(cheap, mid, expensive));
+
+        assertEquals(
+            List.of(cheap, mid),
+            ex.getFilteredStocks(null, BigDecimal.ZERO, new BigDecimal("200"))
+        );
+        List<Stock> blankSearchResult = ex.getFilteredStocks(
+            "   ",
+            new BigDecimal("100"),
+            new BigDecimal("300")
+        );
+        assertEquals(2, blankSearchResult.size());
+        assertTrue(blankSearchResult.contains(mid));
+        assertTrue(blankSearchResult.contains(expensive));
+    }
+
+    @Test
+    void getFilteredStocksMatchesLowercaseSymbolAndCompanyWithinInclusiveBounds() {
+        Stock apple = new Stock("AAPL", "Apple", List.of(new BigDecimal("150")));
+        Stock microsoft = new Stock("MSFT", "Microsoft", List.of(new BigDecimal("250")));
+        Stock tesla = new Stock("TSLA", "Tesla", List.of(new BigDecimal("350")));
+        Exchange ex = new Exchange("FilterTest", List.of(apple, microsoft, tesla));
+
+        assertEquals(
+            List.of(apple),
+            ex.getFilteredStocks("aap", new BigDecimal("150"), new BigDecimal("150"))
+        );
+        assertEquals(
+            List.of(microsoft),
+            ex.getFilteredStocks("micro", BigDecimal.ZERO, new BigDecimal("300"))
+        );
+        assertEquals(
+            List.of(),
+            ex.getFilteredStocks("tesla", BigDecimal.ZERO, new BigDecimal("300"))
+        );
+    }
+
+    @Test
     void testSetWeek_validValue() {
         exchange.setWeek(5);
         assertEquals(5, exchange.getWeek());
@@ -216,5 +373,35 @@ class ExchangeTest {
 
         List<Stock> byName = ex.getFilteredAndSortedStocks("", BigDecimal.ZERO, new BigDecimal("9999"), "name");
         assertEquals(List.of(cheap, mid, pricey), byName);
+    }
+
+    @Test
+    void getFilteredAndSortedStocksAppliesFilterBeforeSorting() {
+        Stock cheapApple = new Stock("AAPL", "Apple", List.of(new BigDecimal("100")));
+        Stock expensiveApple = new Stock("APLX", "Apple Luxury", List.of(new BigDecimal("900")));
+        Stock microsoft = new Stock("MSFT", "Microsoft", List.of(new BigDecimal("500")));
+        Exchange ex = new Exchange("SortTest", List.of(expensiveApple, microsoft, cheapApple));
+
+        List<Stock> result = ex.getFilteredAndSortedStocks(
+            "apple",
+            BigDecimal.ZERO,
+            new BigDecimal("9999"),
+            "priceAsc"
+        );
+
+        assertEquals(List.of(cheapApple, expensiveApple), result);
+    }
+
+    @Test
+    void getFilteredAndSortedStocksUsesSymbolSortForUnknownSortKey() {
+        Stock cStock = new Stock("C", "Charlie", List.of(new BigDecimal("100")));
+        Stock aStock = new Stock("A", "Alpha", List.of(new BigDecimal("300")));
+        Stock bStock = new Stock("B", "Beta", List.of(new BigDecimal("200")));
+        Exchange ex = new Exchange("SortTest", List.of(cStock, aStock, bStock));
+
+        assertEquals(
+            List.of(aStock, bStock, cStock),
+            ex.getFilteredAndSortedStocks("", BigDecimal.ZERO, new BigDecimal("9999"), "unknown")
+        );
     }
 }

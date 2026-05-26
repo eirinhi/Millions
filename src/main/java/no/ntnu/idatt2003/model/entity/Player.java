@@ -80,10 +80,10 @@ public class Player {
    * This constructor is used for loading a player from a saved game state,
    * allowing all fields to be initialized directly.
    *
-   * @param name the name of the player
-   * @param startingMoney the original starting capital of the player
-   * @param currentMoney the current money balance of the player
-   * @param portfolio the portfolio containing the player's owned shares
+   * @param name               the name of the player
+   * @param startingMoney      the original starting capital of the player
+   * @param currentMoney       the current money balance of the player
+   * @param portfolio          the portfolio containing the player's owned shares
    * @param transactionArchive the archive storing the player's committed transactions
    * @throws IllegalArgumentException if any of the parameters are invalid
    */
@@ -103,7 +103,7 @@ public class Player {
         throw new IllegalArgumentException("Starting money cannot be null or negative");
       }
 
-      if (currentMoney == null || currentMoney.compareTo(BigDecimal.ZERO) <= 0) {
+      if (currentMoney == null || currentMoney.compareTo(BigDecimal.ZERO) < 0) {
         throw new IllegalArgumentException("Current money cannot be null or negative");
       }
 
@@ -216,6 +216,48 @@ public class Player {
    */
   public BigDecimal getNetWorth() {
     return money.add(portfolio.getNetWorth());
+  }
+
+  /**
+   * Returns the player's gain percentage relative to starting capital.
+   *
+   * @return gain as a percentage, or 0.0 if starting money is zero
+   */
+  public double getGainPercent() {
+    if (startingMoney.compareTo(BigDecimal.ZERO) <= 0) {
+      return 0.0;
+    }
+    BigDecimal diff = getNetWorth().subtract(startingMoney);
+    return diff.multiply(new BigDecimal("100"))
+        .divide(startingMoney, 6, RoundingMode.HALF_UP)
+        .doubleValue();
+  }
+
+  /**
+   * Returns whether the trading-weeks goal for the next rank is met.
+   *
+   * @return true if the trading goal is met
+   */
+  public boolean isGoalTradingMet() {
+    int weeks = transactionArchive.countDistinctWeeks();
+    return switch (getStatus()) {
+      case "Speculator" -> true;
+      case "Investor" -> weeks >= 20;
+      default -> weeks >= 10;
+    };
+  }
+
+  /**
+   * Returns whether the gain goal for the next rank is met.
+   *
+   * @return true if the gain goal is met
+   */
+  public boolean isGoalGainMet() {
+    return switch (getStatus()) {
+      case "Speculator" -> true;
+      case "Investor" -> getGainPercent() >= 100;
+      default -> getGainPercent() >= 20;
+    };
   }
 
   /**

@@ -18,9 +18,6 @@ import no.ntnu.idatt2003.model.entity.Transaction;
  * layer. It extracts, computes, and formats portfolio-related information into
  * simplified Data Transfer Objects (DTOs) used by the UI.
  *
- * <p>The class is stateless and does not modify any domain objects. It only
- * reads data from the model and produces calculated results.
- *
  * <p>Key responsibilities include:
  * <ul>
  *     <li>Calculating total stock value based on current market prices</li>
@@ -35,15 +32,14 @@ public class PortfolioFormatter {
      * Creates a new instance of PortfolioFormatter.
      * The service is stateless and can be reused across the application.
      */
-    public PortfolioFormatter() {}
+    public PortfolioFormatter() {
+        // Stateless service; no constructor initialization is required.
+    }
 
 
     /**
      * Calculates the percentage return of the player's portfolio compared to
      * the starting capital.
-     *
-     * <p>The result represents overall portfolio performance, including both
-     * cash balance and held assets.
      *
      * @param player the player whose performance is calculated
      * @return portfolio return in percent, or {@code 0.0} if undefined
@@ -109,9 +105,6 @@ public class PortfolioFormatter {
     /**
      * Converts the player's transaction history into receipt DTOs.
      *
-     * <p>Each receipt contains detailed information about a completed trade,
-     * including taxes, commissions, and total cost or revenue.
-     *
      * @param player the player whose transaction history is mapped
      * @return list of transaction receipts
      */
@@ -147,9 +140,9 @@ public class PortfolioFormatter {
     /**
      * Calculates percentage return between purchase price and current price.
      *
-     * @param purchase original purchase price
-     * @param current current market price
-     * @return return percentage, or {@code 0.0} if invalid input
+     * @param purchase  original purchase price
+     * @param current   current market price
+     * @return          return percentage, or {@code 0.0} if invalid input
      */
     private double returnPercent(BigDecimal purchase, BigDecimal current) {
         if (purchase == null || purchase.compareTo(BigDecimal.ZERO) == 0) return 0.0;
@@ -164,7 +157,7 @@ public class PortfolioFormatter {
      * Ensures a non-null BigDecimal value.
      *
      * @param v input value
-     * @return original value or {@code BigDecimal.ZERO} if null
+     * @return  original value or {@code BigDecimal.ZERO} if null
      */
     private BigDecimal safe(BigDecimal v) {
         return v == null ? BigDecimal.ZERO : v;
