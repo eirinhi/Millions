@@ -6,7 +6,7 @@
 
     <groupId>no.ntnu.idatt2003</groupId>
     <artifactId>IDATT2003_Millions</artifactId>
-    <version>3.0</version>
+    <version>3.1</version>
 
     <properties>
         <maven.compiler.source>25</maven.compiler.source>
