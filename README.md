@@ -7,7 +7,6 @@ Millions is a week-by-week stock trading game where players buy and sell stocks,
 ## Requirements
 
 - Java 25
-- Maven 3.x
 
 ## How to Run
 
