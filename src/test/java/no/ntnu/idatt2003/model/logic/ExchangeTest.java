@@ -289,6 +289,60 @@ class ExchangeTest {
     }
 
     @Test
+    void getFilteredStocksRejectsNullPriceBounds() {
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> exchange.getFilteredStocks("", null, new BigDecimal("9999"))
+        );
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> exchange.getFilteredStocks("", BigDecimal.ZERO, null)
+        );
+    }
+
+    @Test
+    void getFilteredStocksWithNullOrBlankSearchReturnsStocksWithinPriceRange() {
+        Stock cheap = new Stock("AAA", "Alpha", List.of(new BigDecimal("50")));
+        Stock mid = new Stock("BBB", "Beta", List.of(new BigDecimal("150")));
+        Stock expensive = new Stock("CCC", "Gamma", List.of(new BigDecimal("300")));
+        Exchange ex = new Exchange("FilterTest", List.of(cheap, mid, expensive));
+
+        assertEquals(
+            List.of(cheap, mid),
+            ex.getFilteredStocks(null, BigDecimal.ZERO, new BigDecimal("200"))
+        );
+        List<Stock> blankSearchResult = ex.getFilteredStocks(
+            "   ",
+            new BigDecimal("100"),
+            new BigDecimal("300")
+        );
+        assertEquals(2, blankSearchResult.size());
+        assertTrue(blankSearchResult.contains(mid));
+        assertTrue(blankSearchResult.contains(expensive));
+    }
+
+    @Test
+    void getFilteredStocksMatchesLowercaseSymbolAndCompanyWithinInclusiveBounds() {
+        Stock apple = new Stock("AAPL", "Apple", List.of(new BigDecimal("150")));
+        Stock microsoft = new Stock("MSFT", "Microsoft", List.of(new BigDecimal("250")));
+        Stock tesla = new Stock("TSLA", "Tesla", List.of(new BigDecimal("350")));
+        Exchange ex = new Exchange("FilterTest", List.of(apple, microsoft, tesla));
+
+        assertEquals(
+            List.of(apple),
+            ex.getFilteredStocks("aap", new BigDecimal("150"), new BigDecimal("150"))
+        );
+        assertEquals(
+            List.of(microsoft),
+            ex.getFilteredStocks("micro", BigDecimal.ZERO, new BigDecimal("300"))
+        );
+        assertEquals(
+            List.of(),
+            ex.getFilteredStocks("tesla", BigDecimal.ZERO, new BigDecimal("300"))
+        );
+    }
+
+    @Test
     void testSetWeek_validValue() {
         exchange.setWeek(5);
         assertEquals(5, exchange.getWeek());
@@ -319,5 +373,35 @@ class ExchangeTest {
 
         List<Stock> byName = ex.getFilteredAndSortedStocks("", BigDecimal.ZERO, new BigDecimal("9999"), "name");
         assertEquals(List.of(cheap, mid, pricey), byName);
+    }
+
+    @Test
+    void getFilteredAndSortedStocksAppliesFilterBeforeSorting() {
+        Stock cheapApple = new Stock("AAPL", "Apple", List.of(new BigDecimal("100")));
+        Stock expensiveApple = new Stock("APLX", "Apple Luxury", List.of(new BigDecimal("900")));
+        Stock microsoft = new Stock("MSFT", "Microsoft", List.of(new BigDecimal("500")));
+        Exchange ex = new Exchange("SortTest", List.of(expensiveApple, microsoft, cheapApple));
+
+        List<Stock> result = ex.getFilteredAndSortedStocks(
+            "apple",
+            BigDecimal.ZERO,
+            new BigDecimal("9999"),
+            "priceAsc"
+        );
+
+        assertEquals(List.of(cheapApple, expensiveApple), result);
+    }
+
+    @Test
+    void getFilteredAndSortedStocksUsesSymbolSortForUnknownSortKey() {
+        Stock cStock = new Stock("C", "Charlie", List.of(new BigDecimal("100")));
+        Stock aStock = new Stock("A", "Alpha", List.of(new BigDecimal("300")));
+        Stock bStock = new Stock("B", "Beta", List.of(new BigDecimal("200")));
+        Exchange ex = new Exchange("SortTest", List.of(cStock, aStock, bStock));
+
+        assertEquals(
+            List.of(aStock, bStock, cStock),
+            ex.getFilteredAndSortedStocks("", BigDecimal.ZERO, new BigDecimal("9999"), "unknown")
+        );
     }
 }
