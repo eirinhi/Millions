@@ -86,6 +86,21 @@ public class PriceChartComponent extends Canvas {
         draw();
     }
 
+    @Override
+    public boolean isResizable() {
+        return true;
+    }
+
+    @Override
+    public double minWidth(double height) {
+        return 0;
+    }
+
+    @Override
+    public double minHeight(double width) {
+        return 0;
+    }
+
     /**
      * Redraws the chart with updated prices.
      *
