@@ -162,6 +162,22 @@ void testEmptyName() {
   }
 
   @Test
+  void testFullConstructorAllowsZeroCurrentMoney() {
+    Portfolio portfolio = new Portfolio();
+    TransactionArchive archive = new TransactionArchive();
+
+    Player loaded = new Player(
+        "Loaded",
+        new BigDecimal("5000"),
+        BigDecimal.ZERO,
+        portfolio,
+        archive
+    );
+
+    assertEquals(BigDecimal.ZERO, loaded.getMoney());
+  }
+
+  @Test
   void testFullConstructor_nullName() {
     assertThrows(IllegalArgumentException.class,
         () -> new Player(null, new BigDecimal("1000"), new BigDecimal("1000"), new Portfolio(), new TransactionArchive())
@@ -179,6 +195,19 @@ void testEmptyName() {
   void testFullConstructor_nullCurrentMoney() {
     assertThrows(IllegalArgumentException.class,
         () -> new Player("Name", new BigDecimal("1000"), null, new Portfolio(), new TransactionArchive())
+    );
+  }
+
+  @Test
+  void testFullConstructor_negativeCurrentMoney() {
+    assertThrows(IllegalArgumentException.class,
+        () -> new Player(
+            "Name",
+            new BigDecimal("1000"),
+            new BigDecimal("-1"),
+            new Portfolio(),
+            new TransactionArchive()
+        )
     );
   }
 

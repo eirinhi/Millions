@@ -103,7 +103,7 @@ public class Player {
         throw new IllegalArgumentException("Starting money cannot be null or negative");
       }
 
-      if (currentMoney == null || currentMoney.compareTo(BigDecimal.ZERO) <= 0) {
+      if (currentMoney == null || currentMoney.compareTo(BigDecimal.ZERO) < 0) {
         throw new IllegalArgumentException("Current money cannot be null or negative");
       }
 
