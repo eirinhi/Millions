@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -40,7 +41,8 @@ public class StockFileHandler implements FileHandler<List<Stock>> {
         if (filePath == null || filePath.isBlank()) {
             throw new IllegalArgumentException("File path cannot be null or blank");
         }
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+        try (BufferedReader reader = new BufferedReader(
+                new FileReader(filePath, StandardCharsets.UTF_8))) {
             return parseStocks(reader);
         }
     }
@@ -70,20 +72,20 @@ public class StockFileHandler implements FileHandler<List<Stock>> {
 
                 String[] parts = line.split(",");
                 if (parts.length != 3) {
-                    LOGGER.warning("Invalid line format, skipping line: " + line);
+                    LOGGER.log(java.util.logging.Level.WARNING, "Invalid line format, skipping line: {0}", line);
+                    continue;
+                }
+
+                BigDecimal price;
+                try {
+                    price = new BigDecimal(parts[2].trim());
+                } catch (NumberFormatException e) {
+                    LOGGER.log(java.util.logging.Level.WARNING, "Invalid price format, skipping line: {0}", line);
                     continue;
                 }
 
                 String symbol = parts[0].trim();
                 String name = parts[1].trim();
-                BigDecimal price;
-                try {
-                    price = new BigDecimal(parts[2].trim());
-                } catch (NumberFormatException e) {
-                    LOGGER.warning("Invalid price format, skipping line: " + line);
-                    continue;
-                }
-
                 stocks.add(new Stock(symbol, name, List.of(price)));
             }
         }
@@ -107,7 +109,8 @@ public class StockFileHandler implements FileHandler<List<Stock>> {
         if (filePath == null || filePath.isBlank()) {
             throw new IllegalArgumentException("File path cannot be null or blank");
         }
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
+        try (BufferedWriter bw = new BufferedWriter(
+                new FileWriter(filePath, StandardCharsets.UTF_8))) {
             bw.write("# Exported stock data");
             bw.newLine();
 
