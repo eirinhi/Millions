@@ -264,8 +264,8 @@ public class GameFileHandler implements FileHandler<GameSave> {
             return List.of();
         }
 
-        try {
-            return Files.list(dir)
+        try (var stream = Files.list(dir)) {
+            return stream
                 .filter(p -> p.toString().endsWith(".sav"))
                 .map(Path::toFile)
                 .toList();

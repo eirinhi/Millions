@@ -74,8 +74,9 @@ public class PortfolioController implements Observer {
      * <p>This constructor is package-private so tests can exercise controller
      * logic without starting JavaFX.</p>
      *
-     * <p>This was introduced through AI assistance to facilitate testing coverage.
-     * In production, the controller uses real {@code PortfolioView}. In test, it uses {@code PortfolioViewPort}.</p>
+     * <p>This was discussed with AI to facilitate testing coverage.
+     * In production, the controller uses real {@code PortfolioView}. 
+     * In test, it uses {@code PortfolioViewPort}.</p>
      *
      * @param mainView          the main application view used for view switching
      * @param player            the currently active player whose portfolio is displayed
