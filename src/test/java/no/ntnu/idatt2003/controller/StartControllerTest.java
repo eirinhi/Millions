@@ -66,15 +66,15 @@ class StartControllerTest {
     }
 
     @Test
-    void testLoadStocksWithInvalidFileReturnsNull() {
+    void testLoadStocksWithInvalidFileReturnsEmptyList() {
         List<Stock> stocks = StartController.loadStocks(new File("nonexistent.csv"));
 
-        assertNull(stocks);
+        assertTrue(stocks.isEmpty());
     }
 
     @Test
-    void testLoadStocksWithNullFileReturnsNull() {
-        assertNull(StartController.loadStocks(null));
+    void testLoadStocksWithNullFileReturnsEmptyList() {
+        assertTrue(StartController.loadStocks(null).isEmpty());
     }
 
     @Test

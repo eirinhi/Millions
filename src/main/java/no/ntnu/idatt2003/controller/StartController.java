@@ -192,10 +192,10 @@ public class StartController {
 
     /**
      * Loads a list of {@link Stock} objects from the given file.
-     * Shows an error dialog and returns {@code null} if the file cannot be read.
+     * Returns an empty list if the file cannot be read.
      *
      * @param file the stock data file to read
-     * @return      a list of stocks, or {@code null} if loading failed
+     * @return      a list of stocks, or an empty list if loading failed
      */
     public static List<Stock> loadStocks(File file) {
         try {
@@ -230,7 +230,7 @@ public class StartController {
         }
 
         List<Stock> stocks = loadStocks(stockFile);
-        if (stocks == null) {
+        if (stocks == null || stocks.isEmpty()) {
             return null;
         }
 
