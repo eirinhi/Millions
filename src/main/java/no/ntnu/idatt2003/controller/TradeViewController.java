@@ -190,7 +190,7 @@ public class TradeViewController implements Observer {
                     calculator.calculateTotal()
                 );
 
-            } catch (IllegalStateException | IllegalArgumentException e) {
+            } catch (IllegalStateException | IllegalArgumentException _) {
                 view.updateOrderPreview(
                     BigDecimal.ZERO,
                     BigDecimal.ZERO,
@@ -217,7 +217,7 @@ public class TradeViewController implements Observer {
                         calculator.calculateTax(),
                         calculator.calculateTotal()
                     );
-            } catch (IllegalStateException |IllegalArgumentException e) {
+            } catch (IllegalStateException |IllegalArgumentException _) {
                 view.updateOrderPreview(
                     BigDecimal.ZERO,
                     BigDecimal.ZERO,
